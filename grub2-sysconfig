@@ -1,0 +1,1 @@
+APPEND='panic=30 vga=0x314 panic=30 splash=silent quiet'
