@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.96
-Release: alt1
+Release: alt2
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -15,6 +15,8 @@ Packager: Denis Kuznetsov <dek@altlinux.org>
 
 # Automatically added by buildreq on Wed Jun 10 2009 (-bb)
 BuildRequires: genisoimage libgoogle-perftools liblzo-devel ruby
+
+Conflicts:  grub
 
 %description
 GNU GRUB is a multiboot boot loader. It was derived from GRUB. It is an
@@ -60,6 +62,9 @@ install -pD -m644 %SOURCE2 %buildroot/etc/sysconfig/grub2
 %doc AUTHORS ChangeLog NEWS README TODO
 
 %changelog
+* Fri Jun 19 2009 Denis Kuznetsov <dek@altlinux.ru> 1.96-alt2
+- Fixed #20475
+
 * Thu Jun 11 2009 Denis Kuznetsov <dek@altlinux.ru> 1.96-alt1
 - Initial build for Sisyphus
 
