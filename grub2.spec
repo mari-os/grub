@@ -1,6 +1,6 @@
 Name: grub2
-Version: 1.96
-Release: alt2
+Version: 1.97
+Release: alt1
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -9,9 +9,8 @@ Group: System/Kernel and hardware
 Source0: %name-%version.tar.bz2
 Source1: grub2-helper-10_altlinux
 Source2: grub2-sysconfig
-ExclusiveArch: %ix86
-Packager: Denis Kuznetsov <dek@altlinux.org>
 
+Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
 # Automatically added by buildreq on Wed Jun 10 2009 (-bb)
 BuildRequires: genisoimage libgoogle-perftools liblzo-devel ruby
@@ -46,22 +45,27 @@ install -pD -m644 %SOURCE2 %buildroot/etc/sysconfig/grub2
 
 
 %files
-/etc/grub.d/00_header
-/etc/grub.d/10_altlinux
+/etc/grub.d/*
 /etc/sysconfig/grub2
+%_bindir/grub-editenv
+%_bindir/grub-fstest
+%_bindir/grub-mkelfimage
 %_bindir/grub-mkimage
 %_bindir/grub-mkrescue
 %_libdir/grub/i386-pc/*
-%_libdir/grub
 %_libdir/grub/update-grub_lib
+%_libdir/grub/grub-mkconfig_lib
 %_sbindir/grub-install
+%_sbindir/grub-mkconfig
 %_sbindir/grub-mkdevicemap
 %_sbindir/grub-probe
 %_sbindir/grub-setup
-%_sbindir/update-grub
-%doc AUTHORS ChangeLog NEWS README TODO
+%doc %_infodir/grub.info.*
 
 %changelog
+* Mon Jan 18 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.97-alt1
+- 1.97
+
 * Fri Jun 19 2009 Denis Kuznetsov <dek@altlinux.ru> 1.96-alt2
 - Fixed #20475
 
