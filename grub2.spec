@@ -45,22 +45,12 @@ install -pD -m644 %SOURCE2 %buildroot/etc/sysconfig/grub2
 
 
 %files
-/etc/grub.d/*
+/etc/grub.d
 /etc/sysconfig/grub2
-%_bindir/grub-editenv
-%_bindir/grub-fstest
-%_bindir/grub-mkelfimage
-%_bindir/grub-mkimage
-%_bindir/grub-mkrescue
-%_libdir/grub/i386-pc/*
-%_libdir/grub/update-grub_lib
-%_libdir/grub/grub-mkconfig_lib
-%_sbindir/grub-install
-%_sbindir/grub-mkconfig
-%_sbindir/grub-mkdevicemap
-%_sbindir/grub-probe
-%_sbindir/grub-setup
-%doc %_infodir/grub.info.*
+%_bindir/*
+%_libdir/grub
+%_sbindir/*
+%_infodir/grub.info.*
 
 %changelog
 * Mon Jan 18 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.97-alt1
