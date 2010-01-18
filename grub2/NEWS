@@ -1,3 +1,13 @@
+New in 1.97.1:
+
+* Security fix in password-checking functionality.
+
+* Fixes for GNU/Hurd support.
+
+* Fix build problem on MacOSX.
+
+* Misc improvements in documentation and error messages.
+
 New in 1.97 - :
 
 * Add support for loading XNU (MacOS X kernel).

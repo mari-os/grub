@@ -1,3 +1,73 @@
+2009-11-09  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* normal/auth.c: Include `<grub/time.h>'.
+	(grub_auth_strcmp): Replace `strcmp' with `grub_strcmp'.
+
+2009-11-09  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* configure.ac: Bump version to 1.97.1.
+	* NEWS: Update for 1.97.1.
+
+2009-11-09  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* normal/auth.c (punishment_delay): New variable.
+	(grub_auth_strcmp): Rewrite using grub_get_time_ms ().
+	(grub_auth_check_authentication): Punish failed login attempts with
+	an incremental (2^N) delay.
+
+2009-11-08  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* util/i386/pc/grub-mkrescue.in: Fix miss-identification as
+	`grub-mkimage' (and use $0 when possible).
+
+2009-11-08  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* kern/i386/multiboot_mmap.c (grub_machine_mmap_init): Improve
+	error message for excessively large memory map.
+
+2009-11-08  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* autogen.sh: Use `sh gendistlist.sh' to avoid reliing on
+	executable bit.
+
+2009-11-08  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* kern/i386/multiboot_mmap.c (grub_machine_mmap_init): Improve error
+	message for coreboot users.
+
+2009-11-02  Samuel Thibault  <samuel.thibault@ens-lyon.org>
+
+	* util/grub.d/10_hurd.in: Drop /dev/ prefix from root device path before
+	giving it to GNU Mach.
+
+2009-11-02  Samuel Thibault  <samuel.thibault@ens-lyon.org>
+
+	* util/hostdisk.c (grub_util_biosdisk_get_grub_dev): Subtract 1 from
+	GNU partition number to get internal GRUB partition number.
+
+2009-11-02  Samuel Thibault  <samuel.thibault@ens-lyon.org>
+
+	* util/grub.d/10_hurd.in: Call prepare_grub_to_access_device
+	${GRUB_DEVICE_BOOT} before loading /boot kernel.
+
+2009-10-28  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* include/grub/misc.h: Stop checking for APPLE_CC.
+
+2009-10-28  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* kern/i386/coreboot/init.c (grub_exit): Reimplement in a way that
+	doesn't cause an infinite call loop.
+
+2009-10-28  Felix Zielcke  <fzielcke@z-51.de>
+
+	* commands/acpi.c (grub_cmd_acpi): Fix the out of memory error
+	strings.
+
+2009-10-26  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* docs/grub.cfg: Fix example usage of *BSD loaders.
+
 2009-10-25  Robert Millan  <rmh.grub@aybabtu.com>
 
 	* util/i386/pc/grub-setup.c (setup): Add missing parameter to
