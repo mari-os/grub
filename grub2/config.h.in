@@ -19,17 +19,14 @@
 /* Define if C symbols get an underscore after compilation */
 #undef HAVE_ASM_USCORE
 
+/* Define to 1 if you have the `asprintf' function. */
+#undef HAVE_ASPRINTF
+
 /* Define to 1 if you have the <curses.h> header file. */
 #undef HAVE_CURSES_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
-
-/* Define to 1 if you have the <lzo1x.h> header file. */
-#undef HAVE_LZO1X_H
-
-/* Define to 1 if you have the <lzo/lzo1x.h> header file. */
-#undef HAVE_LZO_LZO1X_H
 
 /* Define to 1 if you have the `memalign' function. */
 #undef HAVE_MEMALIGN
@@ -67,8 +64,35 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the <usb.h> header file. */
+#undef HAVE_USB_H
+
+/* Define to 1 if you have the `__ashldi3' function. */
+#undef HAVE___ASHLDI3
+
+/* Define to 1 if you have the `__ashrdi3' function. */
+#undef HAVE___ASHRDI3
+
+/* Define to 1 if you have the `__bswapdi2' function. */
+#undef HAVE___BSWAPDI2
+
+/* Define to 1 if you have the `__bswapsi2' function. */
+#undef HAVE___BSWAPSI2
+
+/* Define to 1 if you have the `__lshrdi3' function. */
+#undef HAVE___LSHRDI3
+
+/* Define to 1 if you have the `__trampoline_setup' function. */
+#undef HAVE___TRAMPOLINE_SETUP
+
+/* Define to 1 if you have the `__ucmpdi2' function. */
+#undef HAVE___UCMPDI2
+
 /* Define to 1 if you enable memory manager debugging. */
 #undef MM_DEBUG
+
+/* Define to 1 if GCC generates calls to __enable_execute_stack() */
+#undef NEED_ENABLE_EXECUTE_STACK
 
 /* Catch gcc bug */
 #undef NESTED_FUNC_ATTR
@@ -88,14 +112,11 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* The size of a `long', as computed by sizeof. */
+/* The size of `long', as computed by sizeof. */
 #undef SIZEOF_LONG
 
-/* The size of a `void *', as computed by sizeof. */
+/* The size of `void *', as computed by sizeof. */
 #undef SIZEOF_VOID_P
-
-/* Define it to either start or _start */
-#undef START_SYMBOL
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
@@ -114,3 +135,9 @@
 
 /* Define for large files, on AIX-style hosts. */
 #undef _LARGE_FILES
+
+#if defined(__i386__) && !defined(GRUB_UTIL)
+#define NESTED_FUNC_ATTR __attribute__ ((__regparm__ (1)))
+#else
+#define NESTED_FUNC_ATTR
+#endif

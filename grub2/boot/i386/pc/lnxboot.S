@@ -17,6 +17,8 @@
  *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <config.h>
+#include <grub/symbol.h>
 #include <grub/boot.h>
 #include <grub/machine/boot.h>
 #include <grub/machine/kernel.h>
@@ -25,7 +27,7 @@
         .file   "lnxboot.S"
 
 #define CODE_ADDR	0x6000
-#define CODE_LENG	(code_end - start)
+#define CODE_SECTORS	1
 #define DATA_ADDR	((GRUB_BOOT_MACHINE_KERNEL_ADDR) + 0x200)
 
 #define BLCK_LENG	0x4000
@@ -38,12 +40,12 @@
 
 data_start:
 	xorl	%ebp, %ebp
-	jmp	linux_next
+	jmp	LOCAL(linux_next)
 
 	. = data_start + 0x1F1
 
 setup_sects:
-	.byte	(CODE_LENG >> 9)
+	.byte	CODE_SECTORS
 root_flags:
 	.word	0
 syssize:
@@ -62,7 +64,7 @@ boot_flag:
 start:
 _start:
 
-	jmp linux_init
+	jmp LOCAL(linux_init)
 
 	.ascii	"HdrS"			/* Header signature.  */
 	.word	0x0203			/* Header version number.  */
@@ -115,23 +117,22 @@ gdt_dst2:
 	.long	0, 0, 0, 0		/* More space for the BIOS.  */
 
 reg_edx:
-	.byte	0x80,0,0xFF,0xFF
+	.byte	0x80, 0, 0xFF, 0xFF
 
 data_leng:
 	.long	0
 
-linux_init:
-
+LOCAL(linux_init):
 	movw	%cs:(reg_edx - start), %dx
 	movl	%cs:(code32_start - start), %ebp
 
-linux_next:
+LOCAL(linux_next):
 
-	call	normalize
+	call	LOCAL(normalize)
 
-normalize:
+LOCAL(normalize):
 	popw	%bx
-	subw	$(normalize - start), %bx
+	subw	$(LOCAL(normalize) - start), %bx
 	shrw	$4, %bx
 	movw	%cs, %ax
 	addw	%bx, %ax
@@ -162,7 +163,6 @@ real_code:
 
 	rep
 	movsl
-
 	ljmp	$(CODE_ADDR >> 4), $(real_code_2  - start)
 
 real_code_2:
@@ -182,10 +182,10 @@ real_code_2:
 	addl	%ecx, %esi
 	movl	$DATA_ADDR, %edi
 
-	call	move_memory
+	call	LOCAL(move_memory)
 
 	/* Check for multiboot signature.  */
-	cmpl	$MULTIBOOT_MAGIC, %ss:(DATA_ADDR + 0x50)
+	cmpl	$MULTIBOOT_MAGIC, %ss:(DATA_ADDR + GRUB_KERNEL_MACHINE_DATA_END)
 	jz	1f
 
 	movl	(ramdisk_image - start), %esi
@@ -199,13 +199,14 @@ real_code_2:
 	addl	$(GRUB_KERNEL_MACHINE_RAW_SIZE - 0x200), %ecx
 
 2:
-	call	move_memory
+	call	LOCAL(move_memory)
 
 	movsbl	%dh, %eax
 	movl	%eax, %ss:(DATA_ADDR + GRUB_KERNEL_MACHINE_INSTALL_DOS_PART)
-
 	movsbl	(reg_edx + 2 - start), %eax
 	movl	%eax, %ss:(DATA_ADDR + GRUB_KERNEL_MACHINE_INSTALL_BSD_PART)
+
+	movb	$0xFF, %dh
 
 	ljmp	$(DATA_ADDR >> 4), $0
 
@@ -216,7 +217,7 @@ real_code_2:
  *   ecx: number of bytes
  */
 
-move_memory:
+LOCAL(move_memory):
 	incl	%ecx
 	andb	$0xFE, %cl
 	pushw	%dx
@@ -255,7 +256,7 @@ move_memory:
 
 	jnc	2f
 	movw	$(err_int15_msg - start), %si
-	jmp	fail
+	jmp	LOCAL(fail)
 
 2:
 
@@ -273,7 +274,7 @@ move_memory:
  *   si: message
  */
 
-fail:
+LOCAL(fail):
 	movb	$0x0e, %ah
 	xorw	%bx, %bx
 1:
@@ -286,8 +287,4 @@ fail:
 err_int15_msg:
 	.ascii	"move memory fails\0"
 
-	. = (.  & (~0x1FF)) + 0x1FF
-
-	.byte	0
-
-code_end:
+	. = _start + CODE_SECTORS * 512
