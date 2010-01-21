@@ -1,1 +1,2 @@
-APPEND='panic=30 vga=0x314 panic=30 splash=silent quiet'
+GRUB_CMDLINE_LINUX_DEFAULT='panic=30 vga=0x314 panic=30 splash=silent quiet'
+GRUB_CMDLINE_LINUX='failsafe vga=normal'
