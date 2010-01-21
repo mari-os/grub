@@ -1,14 +1,16 @@
 Name: grub2
 Version: 1.97
-Release: alt1
+Release: alt2
 
 Summary: GRand Unified Bootloader
 License: GPL
 Url: http://www.gnu.org/software/grub/grub.en.html
 Group: System/Kernel and hardware
 Source0: %name-%version.tar.bz2
-Source1: grub2-helper-10_altlinux
-Source2: grub2-sysconfig
+Source1: grub2-sysconfig
+Patch1: grub-1.97.1-initramfs.patch
+Patch2: grub-1.97-os-alt.patch
+Patch3: grub-1.97-sysconfig-path-alt.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -29,9 +31,11 @@ It implements the Multiboot standard, which allows for flexible loading
 of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
 
-
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %configure --prefix=/
@@ -40,19 +44,22 @@ Hurd).
 %install
 %makeinstall
 mkdir -p %buildroot/etc/sysconfig
-install -pD -m755 %SOURCE1 %buildroot/etc/grub.d/10_altlinux
-install -pD -m644 %SOURCE2 %buildroot/etc/sysconfig/grub2
-
+install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 
 %files
 /etc/grub.d
-/etc/sysconfig/grub2
+%config(noreplace) /etc/sysconfig/grub2
 %_bindir/*
 %_libdir/grub
 %_sbindir/*
 %_infodir/grub.info.*
 
 %changelog
+* Thu Jan 21 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.97-alt2
+- add patches from fedora (initramfs,os name)
+- remove buggy grub2-helper-10_altlinux
+- make /etc/sysconfig/grub2 useful
+
 * Mon Jan 18 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.97-alt1
 - 1.97
 
