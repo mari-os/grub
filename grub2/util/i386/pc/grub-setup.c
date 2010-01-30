@@ -1,7 +1,7 @@
 /* grub-setup.c - make GRUB usable */
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 1999,2000,2001,2002,2003,2004,2005,2006,2007,2008  Free Software Foundation, Inc.
+ *  Copyright (C) 1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2010  Free Software Foundation, Inc.
  *
  *  GRUB is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include <grub/term.h>
 #include <grub/util/raid.h>
 #include <grub/util/lvm.h>
+#include <grub/util/getroot.h>
 
 static const grub_gpt_part_type_t grub_gpt_partition_type_bios_boot = GRUB_GPT_PARTITION_TYPE_BIOS_BOOT;
 
@@ -46,21 +47,13 @@ static const grub_gpt_part_type_t grub_gpt_partition_type_bios_boot = GRUB_GPT_P
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <grub/util/getroot.h>
+#include <assert.h>
 
 #define _GNU_SOURCE	1
 #include <getopt.h>
 
 #define DEFAULT_BOOT_FILE	"boot.img"
 #define DEFAULT_CORE_FILE	"core.img"
-
-/* This is the blocklist used in the diskboot image.  */
-struct boot_blocklist
-{
-  grub_uint64_t start;
-  grub_uint16_t len;
-  grub_uint16_t segment;
-} __attribute__ ((packed));
 
 void
 grub_putchar (int c)
@@ -97,7 +90,7 @@ setup (const char *dir,
   grub_uint8_t *boot_drive;
   grub_disk_addr_t *kernel_sector;
   grub_uint16_t *boot_drive_check;
-  struct boot_blocklist *first_block, *block;
+  struct grub_boot_blocklist *first_block, *block;
   grub_int32_t *install_dos_part, *install_bsd_part;
   grub_int32_t dos_part, bsd_part;
   char *tmp_img;
@@ -169,7 +162,7 @@ setup (const char *dir,
   void NESTED_FUNC_ATTR save_blocklists (grub_disk_addr_t sector, unsigned offset,
 			unsigned length)
     {
-      struct boot_blocklist *prev = block + 1;
+      struct grub_boot_blocklist *prev = block + 1;
 
       grub_util_info ("saving <%llu,%u,%u> with the segment 0x%x",
 		      sector, offset, length, (unsigned) current_segment);
@@ -224,9 +217,9 @@ setup (const char *dir,
   core_img = grub_util_read_image (core_path);
 
   /* Have FIRST_BLOCK to point to the first blocklist.  */
-  first_block = (struct boot_blocklist *) (core_img
-					   + GRUB_DISK_SECTOR_SIZE
-					   - sizeof (*block));
+  first_block = (struct grub_boot_blocklist *) (core_img
+						+ GRUB_DISK_SECTOR_SIZE
+						- sizeof (*block));
 
   install_dos_part = (grub_int32_t *) (core_img + GRUB_DISK_SECTOR_SIZE
 				       + GRUB_KERNEL_MACHINE_INSTALL_DOS_PART);
@@ -385,10 +378,11 @@ setup (const char *dir,
 
   /* The first blocklist contains the whole sectors.  */
   first_block->start = grub_cpu_to_le64 (embed_region.start + 1);
-  first_block->len = grub_cpu_to_le16 (core_sectors - 1);
-  first_block->segment
-    = grub_cpu_to_le16 (GRUB_BOOT_MACHINE_KERNEL_SEG
-			+ (GRUB_DISK_SECTOR_SIZE >> 4));
+
+  /* These are filled elsewhere.  Verify them just in case.  */
+  assert (first_block->len == grub_host_to_target16 (core_sectors - 1));
+  assert (first_block->segment == grub_host_to_target16 (GRUB_BOOT_MACHINE_KERNEL_SEG
+						    + (GRUB_DISK_SECTOR_SIZE >> 4)));
 
   /* Make sure that the second blocklist is a terminator.  */
   block = first_block - 1;

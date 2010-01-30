@@ -1,3 +1,11 @@
+New in 1.97.2:
+
+* Fix a few 4 GiB limits.
+
+* Fix license problems with a few BSD headers.
+
+* Lots of misc bugfixes.
+
 New in 1.97.1:
 
 * Security fix in password-checking functionality.

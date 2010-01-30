@@ -1,3 +1,141 @@
+2010-01-23  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* util/i386/pc/grub-setup.c: Include `<assert.h>'.
+
+2010-01-22  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* configure.ac: Bump version to 1.97.2.
+	* NEWS: Update for 1.97.2.
+
+2010-01-21  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* include/grub/i386/bsd.h (FREEBSD_N_BIOS_GEOM): Removed.
+	(grub_freebsd_bootinfo): Rewritten.
+	* loader/i386/bsd.c (grub_freebsd_boot): Use new grub_freebsd_bootinfo.
+
+2010-01-20  Dan Merillat  <debian@dan.merillat.org>
+
+	* kern/device.c (grub_device_iterate): Allocate new part_ent
+	structure based on sizeof (*p) rather than sizeof (p->next), to
+	account for structure padding.
+
+	* util/grub-probe.c (probe_raid_level): Return -1 immediately if
+	disk is NULL, which might happen for LVM physical volumes with no
+	LVM signature.
+
+2010-01-18  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* include/grub/i386/bsd.h: Fix include pathes.
+
+2010-01-18  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	Add missing *BSD copyright headers.
+
+	* include/grub/aout.h: Add BSD licence.
+	* include/grub/i386/bsd.h: Parts under different licences moved to ...
+	* include/grub/i386/freebsd_linker.h: ... here,
+	* include/grub/i386/freebsd_reboot.h: ... here,
+	* include/grub/i386/netbsd_bootinfo.h: ... here,
+	* include/grub/i386/netbsd_reboot.h: ... here,
+	* include/grub/i386/openbsd_bootarg.h: ... here,
+	* include/grub/i386/openbsd_reboot.h: ... and here. Added appropriate
+	licence to each file.
+
+2010-01-10  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* term/i386/pc/vga_text.c (inc_y): Fix off-by-one error which resulted
+	in premature implicit newline.
+
+2010-01-04  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* kern/disk.c (grub_disk_read): Avoid attempts to read past end of
+	the device (grub_disk_adjust_range() guarantees that we can read
+	`size' bytes, but GRUB_DISK_CACHE_SIZE may exceed that).
+
+2010-01-04  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* commands/crc.c (grub_cmd_crc): Abort on read errors.
+	* fs/iso9660.c (grub_iso9660_read): Check for read error and pass
+	it to upper layer.
+
+2010-01-04  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* include/grub/efi/api.h (GRUB_EFI_PIWG_DEVICE_PATH_SUBTYPE):
+	New constant.
+	(grub_efi_piwg_device_path): New structure
+	(grub_efi_piwg_device_path_t): New type.
+	* loader/efi/appleloader.c (piwg_full_device_path): New structure.
+	(devpath_1): Transform to a structure. All users updated.
+	(devpath_2): Likewise.
+	(devpath_3): Likewise.
+	(devpath_4): Likewise.
+	(devpath_5): Likewise.
+
+2010-01-03  Robert Millan  <rmh.grub@aybabtu.com>
+
+	* boot/i386/pc/diskboot.S: Fix inaccurate comment.
+
+	* util/i386/pc/grub-setup.c: Include `<assert.h>'.
+	(struct boot_blocklist): Move from here ...
+	* include/grub/i386/pc/boot.h [ASM_FILE]
+	(struct grub_boot_blocklist): ... to here.  Update all users.
+	(setup): Only initialize `start' member of `first_block'
+	structure.  Add assert() calls to verify the other members.
+
+	* util/i386/pc/grub-mkimage.c: Include `<assert.h>'.
+	(generate_image): Fix broken blocklist length initialization.
+	Add assert() call to verify blocklist `segment' field.
+
+2009-12-27  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* kern/parser.c (grub_parser_split_cmdline): Don't dereference NULL.
+
+2009-12-22  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* bus/usb/usbhub.c (grub_usb_hub_add_dev): Fix loop-break condition.
+
+2009-12-10  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	Eliminate NTFS 4Gib barrier.
+
+	* fs/ntfs.c (read_attr): Use grub_disk_addr_t and grub_size_t.
+	(read_run_data): Likewise.
+	(grub_ntfs_read_run_list): Likewise.
+	(grub_ntfs_read_block): Likewise.
+	(grub_ntfs_iterate_dir): Likewise.
+	(read_mft): Likewise.
+	(read_data): Likewise.
+	Use COM_LOG_LEN.
+	* fs/ntfscomp.c (read_block): Cast ctx->target_vcn & 0xF to unsigned
+	to avoid 64-bit division
+	* include/grub/ntfs.h (COM_LOG_LEN): New definition.
+	(grub_ntfs_rlst): Use grub_disk_addr_t.
+
+2009-12-10  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	Eliminate grub-fstest 4Gib barrier.
+
+	* util/grub-fstest.c (skip, leng): Use grub_disk_addr_t.
+	(read_file): Fix error reporting.
+
+2009-12-10  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	Eliminate hexdump 4Gib barrier.
+
+	* commands/hexdump.c (grub_cmd_hexdump): Use grub_disk_addr_t.
+	* lib/arg.c (grub_arg_parse): Use grub_strtoull.
+
+2009-12-10  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* kern/device.c (grub_device_iterate): Ignore errors during first scan.
+	Fixes amarsh bug.
+
+2009-11-16  Vladimir Serbinenko  <phcoder@gmail.com>
+
+	* fs/i386/pc/pxe.c (grub_pxefs_open): Correctly handle PXE choosing
+	blocksize different from specified.
+	(grub_pxefs_read): Likewise.
+
 2009-11-09  Robert Millan  <rmh.grub@aybabtu.com>
 
 	* normal/auth.c: Include `<grub/time.h>'.

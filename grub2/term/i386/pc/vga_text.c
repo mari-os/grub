@@ -1,6 +1,6 @@
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 2007, 2008  Free Software Foundation, Inc.
+ *  Copyright (C) 2007,2008,2010  Free Software Foundation, Inc.
  *
  *  GRUB is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ inc_y (void)
 static void
 inc_x (void)
 {
-  if (grub_curr_x >= COLS - 2)
+  if (grub_curr_x >= COLS - 1)
     inc_y ();
   else
     grub_curr_x++;

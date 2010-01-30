@@ -1,6 +1,6 @@
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 2002,2003,2004,2006,2007,2008  Free Software Foundation, Inc.
+ *  Copyright (C) 2002,2003,2004,2006,2007,2008,2009,2010  Free Software Foundation, Inc.
  *
  *  GRUB is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -432,8 +432,9 @@ grub_disk_read (grub_disk_t disk, grub_disk_addr_t sector,
       else
 	{
 	  /* Otherwise read data from the disk actually.  */
-	  if ((disk->dev->read) (disk, start_sector,
-				 GRUB_DISK_CACHE_SIZE, tmp_buf)
+	  if (start_sector + GRUB_DISK_CACHE_SIZE > disk->total_sectors
+	      || (disk->dev->read) (disk, start_sector,
+				    GRUB_DISK_CACHE_SIZE, tmp_buf)
 	      != GRUB_ERR_NONE)
 	    {
 	      /* Uggh... Failed. Instead, just read necessary data.  */
