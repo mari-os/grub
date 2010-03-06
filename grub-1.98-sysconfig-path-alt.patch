@@ -1,0 +1,39 @@
+diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
+--- grub2/util/grub.d/10_linux.in	2010-03-06 20:51:37 +0000
++++ grub2.new/util/grub.d/10_linux.in	2010-03-06 21:38:32 +0000
+@@ -56,7 +56,7 @@
+   recovery="$3"
+   args="$4"
+   if ${recovery} ; then
+-    title="$(gettext "%s, with Linux %s (recovery mode)")"
++    title="$(gettext "%s, with Linux %s (failsafe mode)")"
+   else
+     title="$(gettext "%s, with Linux %s")"
+   fi
+@@ -129,10 +129,10 @@
+   fi
+ 
+   linux_entry "${OS}" "${version}" false \
+-      "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
++      "${GRUB_CMDLINE_LINUX_DEFAULT}"
+   if [ "x${GRUB_DISABLE_LINUX_RECOVERY}" != "xtrue" ]; then
+     linux_entry "${OS}" "${version}" true \
+-	"single ${GRUB_CMDLINE_LINUX}"
++	"${GRUB_CMDLINE_LINUX}"
+   fi
+ 
+   list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
+diff -ur grub2/util/grub-mkconfig.in grub2.new/util/grub-mkconfig.in
+--- grub2/util/grub-mkconfig.in	2010-03-06 20:51:37 +0000
++++ grub2.new/util/grub-mkconfig.in	2010-03-06 21:36:28 +0000
+@@ -130,8 +130,8 @@
+ # choosing Hurd filesystem module.
+ GRUB_FS="`${grub_probe} --target=fs / 2> /dev/null || echo unknown`"
+ 
+-if test -f ${sysconfdir}/default/grub ; then
+-  . ${sysconfdir}/default/grub
++if test -f ${sysconfdir}/sysconfig/grub2 ; then
++  . ${sysconfdir}/sysconfig/grub2
+ fi
+ 
+ # XXX: should this be deprecated at some point?
