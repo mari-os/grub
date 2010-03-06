@@ -45,8 +45,9 @@ Hurd).
 %makeinstall
 mkdir -p %buildroot/etc/sysconfig
 install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
+%find_lang grub
 
-%files
+%files -f grub.lang
 /etc/grub.d
 %config(noreplace) /etc/sysconfig/grub2
 %_bindir/*
