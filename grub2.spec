@@ -9,7 +9,7 @@ Group: System/Kernel and hardware
 Source0: %name-%version.tar.bz2
 Source1: grub2-sysconfig
 Patch1: grub-1.97.1-initramfs.patch
-Patch2: grub-1.97-os-alt.patch
+Patch2: grub-1.98-os-alt.patch
 Patch3: grub-1.97-sysconfig-path-alt.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
