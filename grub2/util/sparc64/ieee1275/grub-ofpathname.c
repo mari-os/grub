@@ -1,7 +1,7 @@
 /* grub-ofpathname.c - Find OpenBOOT path for a given device */
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 2009  Free Software Foundation, Inc.
+ *  Copyright (C) 2009,2010  Free Software Foundation, Inc.
  *
  *  GRUB is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,15 +20,21 @@
 #include <grub/util/misc.h>
 #include <grub/util/ofpath.h>
 
+#include <grub/i18n.h>
+
+#include "progname.h"
+
 int main(int argc, char **argv)
 {
   char *of_path;
 
-  progname = "grub-ofpathname";
+  set_program_name (argv[0]);
+
+  grub_util_init_nls ();
 
   if (argc != 2)
     {
-      printf("Usage: grub-ofpathname DEVICE\n");
+      printf("Usage: %s DEVICE\n", program_name);
       return 1;
     }
 

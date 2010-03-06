@@ -31,7 +31,6 @@
 #include <grub/file.h>
 #include <grub/env.h>
 #include <grub/cache.h>
-#include <grub/machine/machine.h>
 
 /* Platforms where modules are in a readonly area of memory.  */
 #if defined(GRUB_MACHINE_QEMU)
@@ -342,6 +341,7 @@ grub_dl_resolve_symbols (grub_dl_t mod, Elf_Ehdr *e)
       switch (type)
 	{
 	case STT_NOTYPE:
+	case STT_OBJECT:
 	  /* Resolve a global symbol.  */
 	  if (sym->st_name != 0 && sym->st_shndx == 0)
 	    {
@@ -351,15 +351,13 @@ grub_dl_resolve_symbols (grub_dl_t mod, Elf_Ehdr *e)
 				   "the symbol `%s' not found", name);
 	    }
 	  else
-	    sym->st_value = 0;
-	  break;
-
-	case STT_OBJECT:
-	  sym->st_value += (Elf_Addr) grub_dl_get_section_addr (mod,
-								sym->st_shndx);
-	  if (bind != STB_LOCAL)
-	    if (grub_dl_register_symbol (name, (void *) sym->st_value, mod))
-	      return grub_errno;
+	    {
+	      sym->st_value += (Elf_Addr) grub_dl_get_section_addr (mod,
+								    sym->st_shndx);
+	      if (bind != STB_LOCAL)
+		if (grub_dl_register_symbol (name, (void *) sym->st_value, mod))
+		  return grub_errno;
+	    }
 	  break;
 
 	case STT_FUNC:
@@ -629,12 +627,10 @@ grub_dl_load (const char *name)
     return 0;
   }
 
-  filename = (char *) grub_malloc (grub_strlen (grub_dl_dir) + 1
-				   + grub_strlen (name) + 4 + 1);
+  filename = grub_xasprintf ("%s/%s.mod", grub_dl_dir, name);
   if (! filename)
     return 0;
 
-  grub_sprintf (filename, "%s/%s.mod", grub_dl_dir, name);
   mod = grub_dl_load_file (filename);
   grub_free (filename);
 

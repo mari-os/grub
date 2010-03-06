@@ -1,6 +1,6 @@
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 2002,2003,2005,2006,2007,2008,2009  Free Software Foundation, Inc.
+ *  Copyright (C) 2002,2003,2005,2006,2007,2008,2009,2010  Free Software Foundation, Inc.
  *
  *  GRUB is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,16 +18,21 @@
 
 #include <config.h>
 
+#include <errno.h>
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <time.h>
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
 
 #include <grub/kernel.h>
 #include <grub/misc.h>
@@ -36,8 +41,10 @@
 #include <grub/mm.h>
 #include <grub/term.h>
 #include <grub/time.h>
-#include <grub/machine/time.h>
-#include <grub/machine/machine.h>
+#include <grub/i18n.h>
+
+#define ENABLE_RELOCATABLE 0
+#include "progname.h"
 
 /* Include malloc.h, only if memalign is available. It is known that
    memalign is declared in malloc.h in all systems, if present.  */
@@ -50,7 +57,6 @@
 #include <winioctl.h>
 #endif
 
-char *progname = 0;
 int verbosity = 0;
 
 void
@@ -58,11 +64,12 @@ grub_util_warn (const char *fmt, ...)
 {
   va_list ap;
 
-  fprintf (stderr, "%s: warn: ", progname);
+  fprintf (stderr, _("%s: warn:"), program_name);
+  fprintf (stderr, " ");
   va_start (ap, fmt);
   vfprintf (stderr, fmt, ap);
   va_end (ap);
-  fputc ('\n', stderr);
+  fprintf (stderr, ".\n");
   fflush (stderr);
 }
 
@@ -73,11 +80,12 @@ grub_util_info (const char *fmt, ...)
     {
       va_list ap;
 
-      fprintf (stderr, "%s: info: ", progname);
+      fprintf (stderr, _("%s: info:"), program_name);
+      fprintf (stderr, " ");
       va_start (ap, fmt);
       vfprintf (stderr, fmt, ap);
       va_end (ap);
-      fputc ('\n', stderr);
+      fprintf (stderr, ".\n");
       fflush (stderr);
     }
 }
@@ -87,11 +95,12 @@ grub_util_error (const char *fmt, ...)
 {
   va_list ap;
 
-  fprintf (stderr, "%s: error: ", progname);
+  fprintf (stderr, _("%s: error:"), program_name);
+  fprintf (stderr, " ");
   va_start (ap, fmt);
   vfprintf (stderr, fmt, ap);
   va_end (ap);
-  fputc ('\n', stderr);
+  fprintf (stderr, ".\n");
   exit (1);
 }
 
@@ -134,13 +143,13 @@ char *
 xstrdup (const char *str)
 {
   size_t len;
-  char *dup;
+  char *newstr;
 
   len = strlen (str);
-  dup = (char *) xmalloc (len + 1);
-  memcpy (dup, str, len + 1);
+  newstr = (char *) xmalloc (len + 1);
+  memcpy (newstr, str, len + 1);
 
-  return dup;
+  return newstr;
 }
 
 char *
@@ -363,11 +372,26 @@ grub_millisleep (grub_uint32_t ms)
 
 #endif
 
+#if !(defined (__i386__) || defined (__x86_64__))
 void
 grub_arch_sync_caches (void *address __attribute__ ((unused)),
 		       grub_size_t len __attribute__ ((unused)))
 {
 }
+#endif
+
+#ifndef HAVE_VASPRINTF
+
+int
+vasprintf (char **buf, const char *fmt, va_list ap)
+{
+  /* Should be large enough.  */
+  *buf = xmalloc (512);
+
+  return vsprintf (*buf, fmt, ap);
+}
+
+#endif
 
 #ifndef  HAVE_ASPRINTF
 
@@ -377,17 +401,31 @@ asprintf (char **buf, const char *fmt, ...)
   int status;
   va_list ap;
 
-  /* Should be large enough.  */
-  *buf = xmalloc (512);
-
   va_start (ap, fmt);
-  status = vsprintf (*buf, fmt, ap);
+  status = vasprintf (*buf, fmt, ap);
   va_end (ap);
 
   return status;
 }
 
 #endif
+
+char *
+xasprintf (const char *fmt, ...)
+{
+  va_list ap;
+  char *result;
+
+  va_start (ap, fmt);
+  if (vasprintf (&result, fmt, ap) < 0)
+    {
+      if (errno == ENOMEM)
+	grub_util_error ("out of memory");
+      return NULL;
+    }
+
+  return result;
+}
 
 #ifdef __MINGW32__
 
@@ -449,3 +487,123 @@ fail:
 }
 
 #endif /* __MINGW32__ */
+
+char *
+canonicalize_file_name (const char *path)
+{
+  char *ret;
+#ifdef PATH_MAX
+  ret = xmalloc (PATH_MAX);
+  (void) realpath (path, ret);
+#else
+  ret = realpath (path, NULL);
+#endif
+  return ret;
+}
+
+/* This function never prints trailing slashes (so that its output
+   can be appended a slash unconditionally).  */
+char *
+make_system_path_relative_to_its_root (const char *path)
+{
+  struct stat st;
+  char *p, *buf, *buf2, *buf3;
+  uintptr_t offset = 0;
+  dev_t num;
+  size_t len;
+
+  /* canonicalize.  */
+  p = canonicalize_file_name (path);
+
+  if (p == NULL)
+    grub_util_error ("failed to get canonical path of %s", path);
+
+  len = strlen (p) + 1;
+  buf = xstrdup (p);
+  free (p);
+
+  if (stat (buf, &st) < 0)
+    grub_util_error ("cannot stat %s: %s", buf, strerror (errno));
+
+  buf2 = xstrdup (buf);
+  num = st.st_dev;
+
+  /* This loop sets offset to the number of chars of the root
+     directory we're inspecting.  */
+  while (1)
+    {
+      p = strrchr (buf, '/');
+      if (p == NULL)
+	/* This should never happen.  */
+	grub_util_error ("FIXME: no / in buf. (make_system_path_relative_to_its_root)");
+      if (p != buf)
+	*p = 0;
+      else
+	*++p = 0;
+
+      if (stat (buf, &st) < 0)
+	grub_util_error ("cannot stat %s: %s", buf, strerror (errno));
+
+      /* buf is another filesystem; we found it.  */
+      if (st.st_dev != num)
+	{
+	  /* offset == 0 means path given is the mount point.
+	     This works around special-casing of "/" in Un*x.  This function never
+	     prints trailing slashes (so that its output can be appended a slash
+	     unconditionally).  Each slash in is considered a preceding slash, and
+	     therefore the root directory is an empty string.  */
+	  if (offset == 0)
+	    {
+	      free (buf);
+	      free (buf2);
+	      return xstrdup ("");
+	    }
+	  else
+	    break;
+	}
+
+      offset = p - buf;
+      /* offset == 1 means root directory.  */
+      if (offset == 1)
+	{
+	  free (buf);
+	  len = strlen (buf2);
+	  while (buf2[len - 1] == '/' && len > 1)
+	    {
+	      buf2[len - 1] = '\0';
+	      len--;
+	    }
+	  if (len > 1)
+	    return buf2;
+	  else
+	    {
+	      /* This means path given is just a backslash.  As above
+		 we have to return an empty string.  */
+	      free (buf2);
+	      return xstrdup ("");
+	    }
+	}
+    }
+  free (buf);
+  buf3 = xstrdup (buf2 + offset);
+  free (buf2);
+
+  len = strlen (buf3);
+  while (buf3[len - 1] == '/' && len > 1)
+    {
+      buf3[len - 1] = '\0';
+      len--;
+    }
+
+  return buf3;
+}
+
+void
+grub_util_init_nls (void)
+{
+#if ENABLE_NLS
+  setlocale (LC_ALL, "");
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  textdomain (PACKAGE);
+#endif /* ENABLE_NLS */
+}

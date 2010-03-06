@@ -27,6 +27,7 @@
 #include <grub/term.h>
 #include <grub/loader.h>
 #include <grub/command.h>
+#include <grub/i18n.h>
 
 /* cat FILE */
 static grub_err_t
@@ -315,7 +316,6 @@ grub_mini_cmd_lsmod (struct grub_command *cmd __attribute__ ((unused)),
 	  grub_printf ("%s", dep->mod->name);
 	}
       grub_putchar ('\n');
-      grub_refresh ();
 
       return 0;
     }
@@ -336,32 +336,46 @@ grub_mini_cmd_exit (struct grub_command *cmd __attribute__ ((unused)),
   return 0;
 }
 
+/* clear */
+static grub_err_t
+grub_mini_cmd_clear (struct grub_command *cmd __attribute__ ((unused)),
+		   int argc __attribute__ ((unused)),
+		   char *argv[] __attribute__ ((unused)))
+{
+  grub_cls ();
+  return 0;
+}
+
 static grub_command_t cmd_cat, cmd_help, cmd_root;
 static grub_command_t cmd_dump, cmd_rmmod, cmd_lsmod, cmd_exit;
+static grub_command_t cmd_clear;
 
 GRUB_MOD_INIT(minicmd)
 {
   cmd_cat =
     grub_register_command ("cat", grub_mini_cmd_cat,
-			   "cat FILE", "show the contents of a file");
+			   N_("FILE"), N_("Show the contents of a file."));
   cmd_help =
     grub_register_command ("help", grub_mini_cmd_help,
-			   0, "show this message");
+			   0, N_("Show this message."));
   cmd_root =
     grub_register_command ("root", grub_mini_cmd_root,
-			   "root [DEVICE]", "set the root device");
+			   N_("[DEVICE]"), N_("Set the root device."));
   cmd_dump =
     grub_register_command ("dump", grub_mini_cmd_dump,
-			   "dump ADDR", "dump memory");
+			   N_("ADDR"), N_("Dump memory."));
   cmd_rmmod =
     grub_register_command ("rmmod", grub_mini_cmd_rmmod,
-			   "rmmod MODULE", "remove a module");
+			   N_("MODULE"), N_("Remove a module."));
   cmd_lsmod =
     grub_register_command ("lsmod", grub_mini_cmd_lsmod,
-			   0, "show loaded modules");
+			   0, N_("Show loaded modules."));
   cmd_exit =
     grub_register_command ("exit", grub_mini_cmd_exit,
-			   0, "exit from GRUB");
+			   0, N_("Exit from GRUB."));
+  cmd_clear =
+    grub_register_command ("clear", grub_mini_cmd_clear,
+			   0, N_("Clear the screen."));
 }
 
 GRUB_MOD_FINI(minicmd)
@@ -373,4 +387,5 @@ GRUB_MOD_FINI(minicmd)
   grub_unregister_command (cmd_rmmod);
   grub_unregister_command (cmd_lsmod);
   grub_unregister_command (cmd_exit);
+  grub_unregister_command (cmd_clear);
 }

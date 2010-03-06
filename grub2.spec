@@ -1,6 +1,6 @@
 Name: grub2
-Version: 1.97
-Release: alt3
+Version: 1.98
+Release: alt1
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -55,6 +55,9 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Sat Mar 06 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt1
+- 1.98
+
 * Sat Jan 30 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.97-alt3
 - 1.97.2
 

@@ -25,6 +25,7 @@
 #include <grub/util/misc.h>
 #include <grub/util/hostdisk.h>
 #include <grub/misc.h>
+#include <grub/i18n.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -127,7 +128,7 @@ find_grub_drive (const char *name)
 
   if (name)
     {
-      for (i = 0; i < sizeof (map) / sizeof (map[0]); i++)
+      for (i = 0; i < ARRAY_SIZE (map); i++)
 	if (map[i].drive && ! strcmp (map[i].drive, name))
 	  return i;
     }
@@ -136,7 +137,7 @@ find_grub_drive (const char *name)
 }
 
 static int
-find_free_slot ()
+find_free_slot (void)
 {
   unsigned int i;
 
@@ -335,11 +336,12 @@ open_device (const grub_disk_t disk, grub_disk_addr_t sector, int flags)
     char dev[PATH_MAX];
 
     strcpy (dev, map[disk->id].device);
-    if (disk->partition && strncmp (map[disk->id].device, "/dev/", 5) == 0)
+    if (disk->partition && sector >= disk->partition->start
+	&& strncmp (map[disk->id].device, "/dev/", 5) == 0)
       is_partition = linux_find_partition (dev, disk->partition->start);
 
     /* Open the partition.  */
-    grub_dprintf ("hostdisk", "opening the device `%s' in open_device()", dev);
+    grub_dprintf ("hostdisk", "opening the device `%s' in open_device()\n", dev);
     fd = open (dev, flags);
     if (fd < 0)
       {
@@ -347,7 +349,8 @@ open_device (const grub_disk_t disk, grub_disk_addr_t sector, int flags)
 	return -1;
       }
 
-    /* Make the buffer cache consistent with the physical disk.  */
+    /* Flush the buffer cache to the physical disk.
+       XXX: This also empties the buffer cache.  */
     ioctl (fd, BLKFLSBUF, 0);
 
     if (is_partition)
@@ -488,6 +491,23 @@ grub_util_biosdisk_read (grub_disk_t disk, grub_disk_addr_t sector,
 {
   int fd;
 
+  /* Split pre-partition and partition reads.  */
+  if (disk->partition && sector < disk->partition->start
+      && sector + size > disk->partition->start)
+    {
+      grub_err_t err;
+      err = grub_util_biosdisk_read (disk, sector,
+				     disk->partition->start - sector,
+				     buf);
+      if (err)
+	return err;
+
+      return grub_util_biosdisk_read (disk, disk->partition->start,
+				      size - (disk->partition->start - sector),
+				      buf + ((disk->partition->start - sector)
+					     << GRUB_DISK_SECTOR_BITS));
+    }
+
   fd = open_device (disk, sector, O_RDONLY);
   if (fd < 0)
     return grub_errno;
@@ -524,6 +544,23 @@ grub_util_biosdisk_write (grub_disk_t disk, grub_disk_addr_t sector,
 			  grub_size_t size, const char *buf)
 {
   int fd;
+
+  /* Split pre-partition and partition writes.  */
+  if (disk->partition && sector < disk->partition->start
+      && sector + size > disk->partition->start)
+    {
+      grub_err_t err;
+      err = grub_util_biosdisk_write (disk, sector,
+				      disk->partition->start - sector,
+				      buf);
+      if (err)
+	return err;
+
+      return grub_util_biosdisk_write (disk, disk->partition->start,
+				       size - (disk->partition->start - sector),
+				       buf + ((disk->partition->start - sector)
+					      << GRUB_DISK_SECTOR_BITS));
+    }
 
   fd = open_device (disk, sector, O_WRONLY);
   if (fd < 0)
@@ -565,7 +602,10 @@ read_device_map (const char *dev_map)
 
   fp = fopen (dev_map, "r");
   if (! fp)
-    grub_util_error ("Cannot open `%s'", dev_map);
+    {
+      grub_util_info (_("cannot open `%s'"), dev_map);
+      return;
+    }
 
   while (fgets (buf, sizeof (buf), fp))
     {
@@ -634,7 +674,7 @@ read_device_map (const char *dev_map)
 	 symbolic links.  */
       map[drive].device = xmalloc (PATH_MAX);
       if (! realpath (p, map[drive].device))
-	grub_util_error ("Cannot get the real path of `%s'", p);
+	grub_util_error ("cannot get the real path of `%s'", p);
 #else
       map[drive].device = xstrdup (p);
 #endif
@@ -670,34 +710,27 @@ grub_util_biosdisk_fini (void)
 static char *
 make_device_name (int drive, int dos_part, int bsd_part)
 {
-  int len = strlen(map[drive].drive);
-  char *p;
+  char *ret;
+  char *dos_part_str = NULL;
+  char *bsd_part_str = NULL;
 
   if (dos_part >= 0)
-    {
-      /* Add in char length of dos_part+1 */
-      int tmp = dos_part + 1;
-      len++;
-      while ((tmp /= 10) != 0)
-	len++;
-    }
-  if (bsd_part >= 0)
-    len += 2;
-
-  /* Length to alloc is: char length of map[drive].drive, plus
-   *                     char length of (dos_part+1) or of bsd_part, plus
-   *                     2 for the comma and a null/end of string (\0)
-   */
-  p = xmalloc (len + 2);
-  sprintf (p, "%s", map[drive].drive);
-
-  if (dos_part >= 0)
-    sprintf (p + strlen (p), ",%d", dos_part + 1);
+    dos_part_str = xasprintf (",%d", dos_part + 1);
 
   if (bsd_part >= 0)
-    sprintf (p + strlen (p), ",%c", bsd_part + 'a');
+    bsd_part_str = xasprintf (",%c", dos_part + 'a');
 
-  return p;
+  ret = xasprintf ("%s%s%s", map[drive].drive,
+                   dos_part_str ? : "",
+                   bsd_part_str ? : "");
+
+  if (dos_part_str)
+    free (dos_part_str);
+
+  if (bsd_part_str)
+    free (bsd_part_str);
+
+  return ret;
 }
 
 static char *
@@ -706,7 +739,7 @@ convert_system_partition_to_system_disk (const char *os_dev)
 #if defined(__linux__)
   char *path = xmalloc (PATH_MAX);
   if (! realpath (os_dev, path))
-    return 0;
+    return NULL;
 
   if (strncmp ("/dev/", path, 5) == 0)
     {
@@ -876,22 +909,29 @@ device_is_wholedisk (const char *os_dev)
 static int
 find_system_device (const char *os_dev)
 {
-  int i;
+  unsigned int i;
   char *os_disk;
 
   os_disk = convert_system_partition_to_system_disk (os_dev);
   if (! os_disk)
     return -1;
 
-  for (i = 0; i < (int) (sizeof (map) / sizeof (map[0])); i++)
-    if (map[i].device && strcmp (map[i].device, os_disk) == 0)
+  for (i = 0; i < ARRAY_SIZE (map); i++)
+    if (! map[i].device)
+      break;
+    else if (strcmp (map[i].device, os_disk) == 0)
       {
 	free (os_disk);
 	return i;
       }
 
-  free (os_disk);
-  return -1;
+  if (i == ARRAY_SIZE (map))
+    grub_util_error (_("device count exceeds limit"));
+
+  map[i].device = os_disk;
+  map[i].drive = xstrdup (os_disk);
+
+  return i;
 }
 
 char *
@@ -941,10 +981,10 @@ grub_util_biosdisk_get_grub_dev (const char *os_dev)
     struct hd_geometry hdg;
     int dos_part = -1;
     int bsd_part = -1;
-    auto int find_partition (grub_disk_t disk,
+    auto int find_partition (grub_disk_t dsk,
 			     const grub_partition_t partition);
 
-    int find_partition (grub_disk_t disk __attribute__ ((unused)),
+    int find_partition (grub_disk_t dsk __attribute__ ((unused)),
 			const grub_partition_t partition)
       {
  	struct grub_msdos_partition *pcdata = NULL;

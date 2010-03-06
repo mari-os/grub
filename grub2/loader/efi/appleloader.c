@@ -1,7 +1,7 @@
 /* appleloader.c - apple legacy boot loader.  */
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 2008  Free Software Foundation, Inc.
+ *  Copyright (C) 2008,2009  Free Software Foundation, Inc.
  *
  *  GRUB is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <grub/efi/api.h>
 #include <grub/efi/efi.h>
 #include <grub/command.h>
+#include <grub/i18n.h>
 
 static grub_dl_t my_mod;
 
@@ -321,7 +322,7 @@ static grub_command_t cmd;
 GRUB_MOD_INIT(appleloader)
 {
   cmd = grub_register_command ("appleloader", grub_cmd_appleloader,
-			       "appleloader [OPTS]", "Boot legacy system.");
+			       "[OPTS]", N_("Boot legacy system."));
   my_mod = mod;
 }
 

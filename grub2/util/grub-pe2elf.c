@@ -1,7 +1,7 @@
 /* grub-pe2elf.c - tool to convert pe image to elf.  */
 /*
  *  GRUB  --  GRand Unified Bootloader
- *  Copyright (C) 2008 Free Software Foundation, Inc.
+ *  Copyright (C) 2008,2009 Free Software Foundation, Inc.
  *
  *  GRUB is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <getopt.h>
 
+#include "progname.h"
+
 static struct option options[] = {
   {"help", no_argument, 0, 'h'},
   {"version", no_argument, 0, 'V'},
@@ -40,10 +42,10 @@ static void
 usage (int status)
 {
   if (status)
-    fprintf (stderr, "Try ``grub-pe2elf --help'' for more information.\n");
+    fprintf (stderr, "Try `%s --help' for more information.\n", program_name);
   else
     printf ("\
-Usage: grub-pe2elf [OPTIONS] input [output]\n\
+Usage: %s [OPTIONS] input [output]\n\
 \n\
 Tool to convert pe image to elf.\n\
 \nOptions:\n\
@@ -51,7 +53,7 @@ Tool to convert pe image to elf.\n\
   -V, --version             print version information and exit\n\
   -v, --verbose             print verbose messages\n\
 \n\
-Report bugs to <%s>.\n", PACKAGE_BUGREPORT);
+Report bugs to <%s>.\n", program_name, PACKAGE_BUGREPORT);
 
   exit (status);
 }
@@ -182,7 +184,7 @@ write_section_data (FILE* fp, char *image,
           char name[5 + strlen (pe_shdr->name)];
 
           if (num_sections >= MAX_SECTIONS)
-            grub_util_error ("Too many sections");
+            grub_util_error ("too many sections");
 
           sprintf (name, ".rel%s", pe_shdr->name);
 
@@ -230,14 +232,14 @@ write_reloc_section (FILE* fp, char *image,
 
           if ((pe_rel->symtab_index >= pe_chdr->num_symbols) ||
               (symtab_map[pe_rel->symtab_index] == -1))
-            grub_util_error ("Invalid symbol");
+            grub_util_error ("invalid symbol");
 
           if (pe_rel->type == GRUB_PE32_REL_I386_DIR32)
             type = R_386_32;
           else if (pe_rel->type == GRUB_PE32_REL_I386_REL32)
             type = R_386_PC32;
           else
-            grub_util_error ("Unknown pe relocation type %d\n", pe_rel->type);
+            grub_util_error ("unknown pe relocation type %d\n", pe_rel->type);
 
           ofs = pe_rel->offset - pe_sec->virtual_address;
           addr = (grub_uint32_t *)(image + pe_sec->raw_data_offset + ofs);
@@ -248,14 +250,14 @@ write_reloc_section (FILE* fp, char *image,
               code = image[pe_sec->raw_data_offset + ofs - 1];
 
               if (((code != 0xe8) && (code != 0xe9)) || (*addr))
-                grub_util_error ("Invalid relocation (%x %x)", code, *addr);
+                grub_util_error ("invalid relocation (%x %x)", code, *addr);
 
               modified = 1;
               if (symtab[symtab_map[pe_rel->symtab_index]].st_shndx)
                 {
                   if (symtab[symtab_map[pe_rel->symtab_index]].st_shndx
                       != shdr[i].sh_info)
-                    grub_util_error ("Cross section call is not allowed");
+                    grub_util_error ("cross section call is not allowed");
 
                   *addr = (symtab[symtab_map[pe_rel->symtab_index]].st_value
                            - ofs - 4);
@@ -440,7 +442,7 @@ convert_pe (FILE* fp, char *image)
 
   pe_chdr = (struct grub_pe32_coff_header *) image;
   if (grub_le_to_cpu16 (pe_chdr->machine) != GRUB_PE32_MACHINE_I386)
-    grub_util_error ("Invalid coff image");
+    grub_util_error ("invalid coff image");
 
   strtab = xmalloc (STRTAB_BLOCK);
   strtab_max = STRTAB_BLOCK;
@@ -467,7 +469,7 @@ main (int argc, char *argv[])
   char *image;
   FILE* fp;
 
-  progname = "grub-pe2elf";
+  set_program_name (argv[0]);
 
     /* Check for options.  */
   while (1)
@@ -484,7 +486,7 @@ main (int argc, char *argv[])
 	    break;
 
 	  case 'V':
-	    printf ("%s (%s) %s\n", progname, PACKAGE_NAME, PACKAGE_VERSION);
+	    printf ("%s (%s) %s\n", program_name, PACKAGE_NAME, PACKAGE_VERSION);
 	    return 0;
 
 	  case 'v':

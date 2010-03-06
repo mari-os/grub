@@ -31,18 +31,17 @@ grub_register_command_prio (const char *name,
 {
   grub_command_t cmd;
 
-  cmd = (grub_command_t) grub_malloc (sizeof (*cmd));
+  cmd = (grub_command_t) grub_zalloc (sizeof (*cmd));
   if (! cmd)
     return 0;
 
   cmd->name = name;
   cmd->func = func;
-  cmd->summary = (summary) ? summary : name;
+  cmd->summary = (summary) ? summary : "";
   cmd->description = description;
 
   cmd->flags = GRUB_COMMAND_FLAG_BOTH;
   cmd->prio = prio;
-  cmd->data = 0;
 
   grub_prio_list_insert (GRUB_AS_PRIO_LIST_P (&grub_command_list),
 			 GRUB_AS_PRIO_LIST (cmd));

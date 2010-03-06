@@ -6,7 +6,7 @@ COMMON_CFLAGS = -fno-builtin -mrtd -mregparm=3 -m32
 COMMON_LDFLAGS	= -m32 -nostdlib
 
 # Used by various components.  These rules need to precede them.
-script/sh/lexer.c_DEPENDENCIES = grub_script.tab.h
+script/lexer.c_DEPENDENCIES = grub_script.tab.h
 
 # Images.
 
@@ -19,9 +19,10 @@ kernel_img_SOURCES = kern/i386/coreboot/startup.S \
 	kern/i386/misc.S \
 	kern/i386/coreboot/init.c \
 	kern/i386/multiboot_mmap.c \
+	kern/i386/halt.c \
 	kern/main.c kern/device.c \
 	kern/disk.c kern/dl.c kern/file.c kern/fs.c kern/err.c \
-	kern/misc.c kern/mm.c kern/reader.c kern/term.c \
+	kern/misc.c kern/mm.c kern/term.c \
 	kern/rescue_parser.c kern/rescue_reader.c \
 	kern/time.c kern/list.c kern/handler.c kern/command.c kern/corecmd.c \
 	kern/$(target_cpu)/dl.c kern/parser.c kern/partition.c \
@@ -31,149 +32,190 @@ kernel_img_SOURCES = kern/i386/coreboot/startup.S \
 	kern/env.c \
 	term/i386/pc/vga_text.c term/i386/vga_common.c \
 	symlist.c
-CLEANFILES += kernel.img kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_reader.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
-MOSTLYCLEANFILES += kernel_img-kern_i386_coreboot_startup.d kernel_img-kern_i386_misc.d kernel_img-kern_i386_coreboot_init.d kernel_img-kern_i386_multiboot_mmap.d kernel_img-kern_main.d kernel_img-kern_device.d kernel_img-kern_disk.d kernel_img-kern_dl.d kernel_img-kern_file.d kernel_img-kern_fs.d kernel_img-kern_err.d kernel_img-kern_misc.d kernel_img-kern_mm.d kernel_img-kern_reader.d kernel_img-kern_term.d kernel_img-kern_rescue_parser.d kernel_img-kern_rescue_reader.d kernel_img-kern_time.d kernel_img-kern_list.d kernel_img-kern_handler.d kernel_img-kern_command.d kernel_img-kern_corecmd.d kernel_img-kern___target_cpu__dl.d kernel_img-kern_parser.d kernel_img-kern_partition.d kernel_img-kern_i386_tsc.d kernel_img-kern_i386_pit.d kernel_img-kern_generic_rtc_get_time_ms.d kernel_img-kern_generic_millisleep.d kernel_img-kern_env.d kernel_img-term_i386_pc_vga_text.d kernel_img-term_i386_vga_common.d kernel_img-symlist.d
+CLEANFILES += kernel.img kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_i386_halt.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
+MOSTLYCLEANFILES += kernel_img-kern_i386_coreboot_startup.d kernel_img-kern_i386_misc.d kernel_img-kern_i386_coreboot_init.d kernel_img-kern_i386_multiboot_mmap.d kernel_img-kern_i386_halt.d kernel_img-kern_main.d kernel_img-kern_device.d kernel_img-kern_disk.d kernel_img-kern_dl.d kernel_img-kern_file.d kernel_img-kern_fs.d kernel_img-kern_err.d kernel_img-kern_misc.d kernel_img-kern_mm.d kernel_img-kern_term.d kernel_img-kern_rescue_parser.d kernel_img-kern_rescue_reader.d kernel_img-kern_time.d kernel_img-kern_list.d kernel_img-kern_handler.d kernel_img-kern_command.d kernel_img-kern_corecmd.d kernel_img-kern___target_cpu__dl.d kernel_img-kern_parser.d kernel_img-kern_partition.d kernel_img-kern_i386_tsc.d kernel_img-kern_i386_pit.d kernel_img-kern_generic_rtc_get_time_ms.d kernel_img-kern_generic_millisleep.d kernel_img-kern_env.d kernel_img-term_i386_pc_vga_text.d kernel_img-term_i386_vga_common.d kernel_img-symlist.d
 
-kernel.img: $(kernel_img_DEPENDENCIES) kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_reader.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
-	$(TARGET_CC) -o $@ kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_reader.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o $(TARGET_LDFLAGS) $(kernel_img_LDFLAGS)
+ifeq ($(kernel_img_RELOCATABLE),yes)
+kernel.img: $(kernel_img_DEPENDENCIES) kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_i386_halt.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
+	$(TARGET_CC) -Wl,-r,-d -o $@ kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_i386_halt.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o $(TARGET_LDFLAGS) $(kernel_img_LDFLAGS)
+	$(STRIP) --strip-unneeded -K start -R .note -R .comment $@
+else
+kernel.img: $(kernel_img_DEPENDENCIES) kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_i386_halt.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
+	$(TARGET_CC) -o $@ kernel_img-kern_i386_coreboot_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_multiboot_mmap.o kernel_img-kern_i386_halt.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o $(TARGET_LDFLAGS) $(kernel_img_LDFLAGS)
+	$(STRIP) -R .rel.dyn -R .reginfo -R .note -R .comment $@
+endif
 
 kernel_img-kern_i386_coreboot_startup.o: kern/i386/coreboot/startup.S $(kern/i386/coreboot/startup.S_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/i386/coreboot -I$(srcdir)/kern/i386/coreboot $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(kernel_img_ASFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_i386_coreboot_startup.d
 
 kernel_img-kern_i386_misc.o: kern/i386/misc.S $(kern/i386/misc.S_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(kernel_img_ASFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_i386_misc.d
 
 kernel_img-kern_i386_coreboot_init.o: kern/i386/coreboot/init.c $(kern/i386/coreboot/init.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/i386/coreboot -I$(srcdir)/kern/i386/coreboot $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_i386_coreboot_init.d
 
 kernel_img-kern_i386_multiboot_mmap.o: kern/i386/multiboot_mmap.c $(kern/i386/multiboot_mmap.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_i386_multiboot_mmap.d
+
+kernel_img-kern_i386_halt.o: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES)
+	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
+-include kernel_img-kern_i386_halt.d
 
 kernel_img-kern_main.o: kern/main.c $(kern/main.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_main.d
 
 kernel_img-kern_device.o: kern/device.c $(kern/device.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_device.d
 
 kernel_img-kern_disk.o: kern/disk.c $(kern/disk.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_disk.d
 
 kernel_img-kern_dl.o: kern/dl.c $(kern/dl.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_dl.d
 
 kernel_img-kern_file.o: kern/file.c $(kern/file.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_file.d
 
 kernel_img-kern_fs.o: kern/fs.c $(kern/fs.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_fs.d
 
 kernel_img-kern_err.o: kern/err.c $(kern/err.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_err.d
 
 kernel_img-kern_misc.o: kern/misc.c $(kern/misc.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_misc.d
 
 kernel_img-kern_mm.o: kern/mm.c $(kern/mm.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
--include kernel_img-kern_mm.d
 
-kernel_img-kern_reader.o: kern/reader.c $(kern/reader.c_DEPENDENCIES)
-	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
--include kernel_img-kern_reader.d
+-include kernel_img-kern_mm.d
 
 kernel_img-kern_term.o: kern/term.c $(kern/term.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_term.d
 
 kernel_img-kern_rescue_parser.o: kern/rescue_parser.c $(kern/rescue_parser.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_rescue_parser.d
 
 kernel_img-kern_rescue_reader.o: kern/rescue_reader.c $(kern/rescue_reader.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_rescue_reader.d
 
 kernel_img-kern_time.o: kern/time.c $(kern/time.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_time.d
 
 kernel_img-kern_list.o: kern/list.c $(kern/list.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_list.d
 
 kernel_img-kern_handler.o: kern/handler.c $(kern/handler.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_handler.d
 
 kernel_img-kern_command.o: kern/command.c $(kern/command.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_command.d
 
 kernel_img-kern_corecmd.o: kern/corecmd.c $(kern/corecmd.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_corecmd.d
 
 kernel_img-kern___target_cpu__dl.o: kern/$(target_cpu)/dl.c $(kern/$(target_cpu)/dl.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/$(target_cpu) -I$(srcdir)/kern/$(target_cpu) $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern___target_cpu__dl.d
 
 kernel_img-kern_parser.o: kern/parser.c $(kern/parser.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_parser.d
 
 kernel_img-kern_partition.o: kern/partition.c $(kern/partition.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_partition.d
 
 kernel_img-kern_i386_tsc.o: kern/i386/tsc.c $(kern/i386/tsc.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_i386_tsc.d
 
 kernel_img-kern_i386_pit.o: kern/i386/pit.c $(kern/i386/pit.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_i386_pit.d
 
 kernel_img-kern_generic_rtc_get_time_ms.o: kern/generic/rtc_get_time_ms.c $(kern/generic/rtc_get_time_ms.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/generic -I$(srcdir)/kern/generic $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_generic_rtc_get_time_ms.d
 
 kernel_img-kern_generic_millisleep.o: kern/generic/millisleep.c $(kern/generic/millisleep.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/generic -I$(srcdir)/kern/generic $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_generic_millisleep.d
 
 kernel_img-kern_env.o: kern/env.c $(kern/env.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-kern_env.d
 
 kernel_img-term_i386_pc_vga_text.o: term/i386/pc/vga_text.c $(term/i386/pc/vga_text.c_DEPENDENCIES)
 	$(TARGET_CC) -Iterm/i386/pc -I$(srcdir)/term/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-term_i386_pc_vga_text.d
 
 kernel_img-term_i386_vga_common.o: term/i386/vga_common.c $(term/i386/vga_common.c_DEPENDENCIES)
 	$(TARGET_CC) -Iterm/i386 -I$(srcdir)/term/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-term_i386_vga_common.d
 
 kernel_img-symlist.o: symlist.c $(symlist.c_DEPENDENCIES)
 	$(TARGET_CC) -I. -I$(srcdir)/. $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+
 -include kernel_img-symlist.d
 
 kernel_img_HEADERS = boot.h cache.h device.h disk.h dl.h elf.h elfload.h \
 	env.h err.h file.h fs.h kernel.h loader.h misc.h mm.h net.h parser.h \
 	partition.h msdos_partition.h reader.h symbol.h term.h time.h types.h \
 	machine/boot.h machine/console.h machine/init.h \
-	machine/memory.h machine/loader.h list.h handler.h command.h
+	machine/memory.h machine/loader.h list.h handler.h command.h i18n.h \
+	env_private.h
 kernel_img_CFLAGS = $(COMMON_CFLAGS)
 kernel_img_ASFLAGS = $(COMMON_ASFLAGS)
 kernel_img_LDFLAGS = $(COMMON_LDFLAGS) -Wl,-N,-S,-Ttext,$(GRUB_KERNEL_MACHINE_LINK_ADDR),-Bstatic
@@ -199,7 +241,7 @@ MOSTLYCLEAN_IMAGE_TARGETS += mostlyclean-image-boot.img.1
 
 ifneq ($(TARGET_APPLE_CC),1)
 boot.img: boot.exec
-	$(OBJCOPY) -O $(boot_img_FORMAT) --strip-unneeded -R .note -R .comment -R .note.gnu.build-id $< $@
+	$(OBJCOPY) -O $(boot_img_FORMAT) --strip-unneeded -R .note -R .comment -R .note.gnu.build-id -R .reginfo -R .rel.dyn $< $@
 else
 ifneq (boot.exec,kernel.exec)
 boot.img: boot.exec ./grub-macho2img
@@ -222,24 +264,24 @@ boot_img_LDFLAGS = $(COMMON_LDFLAGS) $(TARGET_IMG_LDFLAGS)$(GRUB_BOOT_MACHINE_LI
 boot_img_FORMAT = binary
 
 bin_UTILITIES += grub-mkimage
-grub_mkimage_SOURCES = util/i386/pc/grub-mkimage.c util/misc.c \
-	util/resolve.c
+grub_mkimage_SOURCES = util/grub-mkrawimage.c util/misc.c \
+	util/resolve.c gnulib/progname.c
 
 clean-utility-grub-mkimage.1:
-	rm -f grub-mkimage$(EXEEXT) grub_mkimage-util_i386_pc_grub_mkimage.o grub_mkimage-util_misc.o grub_mkimage-util_resolve.o
+	rm -f grub-mkimage$(EXEEXT) grub_mkimage-util_grub_mkrawimage.o grub_mkimage-util_misc.o grub_mkimage-util_resolve.o grub_mkimage-gnulib_progname.o
 
 CLEAN_UTILITY_TARGETS += clean-utility-grub-mkimage.1
 
 mostlyclean-utility-grub-mkimage.1:
-	rm -f grub_mkimage-util_i386_pc_grub_mkimage.d grub_mkimage-util_misc.d grub_mkimage-util_resolve.d
+	rm -f grub_mkimage-util_grub_mkrawimage.d grub_mkimage-util_misc.d grub_mkimage-util_resolve.d grub_mkimage-gnulib_progname.d
 
 MOSTLYCLEAN_UTILITY_TARGETS += mostlyclean-utility-grub-mkimage.1
 
-grub_mkimage_OBJECTS += grub_mkimage-util_i386_pc_grub_mkimage.o grub_mkimage-util_misc.o grub_mkimage-util_resolve.o
+grub_mkimage_OBJECTS += grub_mkimage-util_grub_mkrawimage.o grub_mkimage-util_misc.o grub_mkimage-util_resolve.o grub_mkimage-gnulib_progname.o
 
-grub_mkimage-util_i386_pc_grub_mkimage.o: util/i386/pc/grub-mkimage.c $(util/i386/pc/grub-mkimage.c_DEPENDENCIES)
-	$(CC) -Iutil/i386/pc -I$(srcdir)/util/i386/pc $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkimage_CFLAGS) -MD -c -o $@ $<
--include grub_mkimage-util_i386_pc_grub_mkimage.d
+grub_mkimage-util_grub_mkrawimage.o: util/grub-mkrawimage.c $(util/grub-mkrawimage.c_DEPENDENCIES)
+	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkimage_CFLAGS) -MD -c -o $@ $<
+-include grub_mkimage-util_grub_mkrawimage.d
 
 grub_mkimage-util_misc.o: util/misc.c $(util/misc.c_DEPENDENCIES)
 	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkimage_CFLAGS) -MD -c -o $@ $<
@@ -249,16 +291,23 @@ grub_mkimage-util_resolve.o: util/resolve.c $(util/resolve.c_DEPENDENCIES)
 	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkimage_CFLAGS) -MD -c -o $@ $<
 -include grub_mkimage-util_resolve.d
 
+grub_mkimage-gnulib_progname.o: gnulib/progname.c $(gnulib/progname.c_DEPENDENCIES)
+	$(CC) -Ignulib -I$(srcdir)/gnulib $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkimage_CFLAGS) -MD -c -o $@ $<
+-include grub_mkimage-gnulib_progname.d
+
 grub_mkimage_CFLAGS = -DGRUB_KERNEL_MACHINE_LINK_ADDR=$(GRUB_KERNEL_MACHINE_LINK_ADDR)
+util/grub-mkrawimage.c_DEPENDENCIES = Makefile
+
 
 pkglib_IMAGES += kernel.img
 kernel_img_SOURCES = kern/i386/qemu/startup.S \
 	kern/i386/misc.S \
 	kern/i386/coreboot/init.c \
 	kern/i386/qemu/mmap.c \
+	kern/i386/halt.c \
 	kern/main.c kern/device.c \
 	kern/disk.c kern/dl.c kern/file.c kern/fs.c kern/err.c \
-	kern/misc.c kern/mm.c kern/reader.c kern/term.c \
+	kern/misc.c kern/mm.c kern/term.c \
 	kern/rescue_parser.c kern/rescue_reader.c \
 	kern/time.c kern/list.c kern/handler.c kern/command.c kern/corecmd.c \
 	kern/$(target_cpu)/dl.c kern/parser.c kern/partition.c \
@@ -270,18 +319,18 @@ kernel_img_SOURCES = kern/i386/qemu/startup.S \
 	symlist.c
 
 clean-image-kernel.img.1:
-	rm -f kernel.img kernel.exec kernel_img-kern_i386_qemu_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_qemu_mmap.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_reader.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
+	rm -f kernel.img kernel.exec kernel_img-kern_i386_qemu_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_qemu_mmap.o kernel_img-kern_i386_halt.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
 
 CLEAN_IMAGE_TARGETS += clean-image-kernel.img.1
 
 mostlyclean-image-kernel.img.1:
-	rm -f kernel_img-kern_i386_qemu_startup.d kernel_img-kern_i386_misc.d kernel_img-kern_i386_coreboot_init.d kernel_img-kern_i386_qemu_mmap.d kernel_img-kern_main.d kernel_img-kern_device.d kernel_img-kern_disk.d kernel_img-kern_dl.d kernel_img-kern_file.d kernel_img-kern_fs.d kernel_img-kern_err.d kernel_img-kern_misc.d kernel_img-kern_mm.d kernel_img-kern_reader.d kernel_img-kern_term.d kernel_img-kern_rescue_parser.d kernel_img-kern_rescue_reader.d kernel_img-kern_time.d kernel_img-kern_list.d kernel_img-kern_handler.d kernel_img-kern_command.d kernel_img-kern_corecmd.d kernel_img-kern___target_cpu__dl.d kernel_img-kern_parser.d kernel_img-kern_partition.d kernel_img-kern_i386_tsc.d kernel_img-kern_i386_pit.d kernel_img-kern_generic_rtc_get_time_ms.d kernel_img-kern_generic_millisleep.d kernel_img-kern_env.d kernel_img-term_i386_pc_vga_text.d kernel_img-term_i386_vga_common.d kernel_img-symlist.d
+	rm -f kernel_img-kern_i386_qemu_startup.d kernel_img-kern_i386_misc.d kernel_img-kern_i386_coreboot_init.d kernel_img-kern_i386_qemu_mmap.d kernel_img-kern_i386_halt.d kernel_img-kern_main.d kernel_img-kern_device.d kernel_img-kern_disk.d kernel_img-kern_dl.d kernel_img-kern_file.d kernel_img-kern_fs.d kernel_img-kern_err.d kernel_img-kern_misc.d kernel_img-kern_mm.d kernel_img-kern_term.d kernel_img-kern_rescue_parser.d kernel_img-kern_rescue_reader.d kernel_img-kern_time.d kernel_img-kern_list.d kernel_img-kern_handler.d kernel_img-kern_command.d kernel_img-kern_corecmd.d kernel_img-kern___target_cpu__dl.d kernel_img-kern_parser.d kernel_img-kern_partition.d kernel_img-kern_i386_tsc.d kernel_img-kern_i386_pit.d kernel_img-kern_generic_rtc_get_time_ms.d kernel_img-kern_generic_millisleep.d kernel_img-kern_env.d kernel_img-term_i386_pc_vga_text.d kernel_img-term_i386_vga_common.d kernel_img-symlist.d
 
 MOSTLYCLEAN_IMAGE_TARGETS += mostlyclean-image-kernel.img.1
 
 ifneq ($(TARGET_APPLE_CC),1)
 kernel.img: kernel.exec
-	$(OBJCOPY) -O $(kernel_img_FORMAT) --strip-unneeded -R .note -R .comment -R .note.gnu.build-id $< $@
+	$(OBJCOPY) -O $(kernel_img_FORMAT) --strip-unneeded -R .note -R .comment -R .note.gnu.build-id -R .reginfo -R .rel.dyn $< $@
 else
 ifneq (kernel.exec,kernel.exec)
 kernel.img: kernel.exec ./grub-macho2img
@@ -292,7 +341,7 @@ kernel.img: kernel.exec ./grub-macho2img
 endif
 endif
 
-kernel.exec: kernel_img-kern_i386_qemu_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_qemu_mmap.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_reader.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
+kernel.exec: kernel_img-kern_i386_qemu_startup.o kernel_img-kern_i386_misc.o kernel_img-kern_i386_coreboot_init.o kernel_img-kern_i386_qemu_mmap.o kernel_img-kern_i386_halt.o kernel_img-kern_main.o kernel_img-kern_device.o kernel_img-kern_disk.o kernel_img-kern_dl.o kernel_img-kern_file.o kernel_img-kern_fs.o kernel_img-kern_err.o kernel_img-kern_misc.o kernel_img-kern_mm.o kernel_img-kern_term.o kernel_img-kern_rescue_parser.o kernel_img-kern_rescue_reader.o kernel_img-kern_time.o kernel_img-kern_list.o kernel_img-kern_handler.o kernel_img-kern_command.o kernel_img-kern_corecmd.o kernel_img-kern___target_cpu__dl.o kernel_img-kern_parser.o kernel_img-kern_partition.o kernel_img-kern_i386_tsc.o kernel_img-kern_i386_pit.o kernel_img-kern_generic_rtc_get_time_ms.o kernel_img-kern_generic_millisleep.o kernel_img-kern_env.o kernel_img-term_i386_pc_vga_text.o kernel_img-term_i386_vga_common.o kernel_img-symlist.o
 	$(TARGET_CC) -o $@ $^ $(TARGET_LDFLAGS) $(kernel_img_LDFLAGS)
 
 kernel_img-kern_i386_qemu_startup.o: kern/i386/qemu/startup.S $(kern/i386/qemu/startup.S_DEPENDENCIES)
@@ -310,6 +359,10 @@ kernel_img-kern_i386_coreboot_init.o: kern/i386/coreboot/init.c $(kern/i386/core
 kernel_img-kern_i386_qemu_mmap.o: kern/i386/qemu/mmap.c $(kern/i386/qemu/mmap.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern/i386/qemu -I$(srcdir)/kern/i386/qemu $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
 -include kernel_img-kern_i386_qemu_mmap.d
+
+kernel_img-kern_i386_halt.o: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES)
+	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
+-include kernel_img-kern_i386_halt.d
 
 kernel_img-kern_main.o: kern/main.c $(kern/main.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
@@ -346,10 +399,6 @@ kernel_img-kern_misc.o: kern/misc.c $(kern/misc.c_DEPENDENCIES)
 kernel_img-kern_mm.o: kern/mm.c $(kern/mm.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
 -include kernel_img-kern_mm.d
-
-kernel_img-kern_reader.o: kern/reader.c $(kern/reader.c_DEPENDENCIES)
-	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
--include kernel_img-kern_reader.d
 
 kernel_img-kern_term.o: kern/term.c $(kern/term.c_DEPENDENCIES)
 	$(TARGET_CC) -Ikern -I$(srcdir)/kern $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(kernel_img_CFLAGS) -MD -c -o $@ $<
@@ -431,7 +480,8 @@ kernel_img_HEADERS = boot.h cache.h device.h disk.h dl.h elf.h elfload.h \
 	env.h err.h file.h fs.h kernel.h loader.h misc.h mm.h net.h parser.h \
 	partition.h msdos_partition.h reader.h symbol.h term.h time.h types.h \
 	machine/boot.h machine/console.h machine/init.h \
-	machine/memory.h machine/loader.h list.h handler.h command.h
+	machine/memory.h machine/loader.h list.h handler.h command.h i18n.h \
+	env_private.h
 kernel_img_CFLAGS = $(COMMON_CFLAGS) -DGRUB_BOOT_MACHINE_LINK_ADDR=$(GRUB_BOOT_MACHINE_LINK_ADDR)
 kernel_img_ASFLAGS = $(COMMON_ASFLAGS) -DGRUB_KERNEL_MACHINE_LINK_ADDR=$(GRUB_KERNEL_MACHINE_LINK_ADDR)
 kernel_img_LDFLAGS = $(COMMON_LDFLAGS) $(TARGET_IMG_LDFLAGS)$(GRUB_KERNEL_MACHINE_LINK_ADDR)
@@ -447,562 +497,33 @@ symlist.c: $(addprefix include/grub/,$(kernel_img_HEADERS)) config.h gensymlist.
 kernel_syms.lst: $(addprefix include/grub/,$(kernel_img_HEADERS)) config.h genkernsyms.sh
 	/bin/sh genkernsyms.sh $(filter %.h,$^) > $@ || (rm -f $@; exit 1)
 
-# Utilities.
-sbin_UTILITIES = grub-mkdevicemap
-ifeq ($(enable_grub_emu), yes)
-sbin_UTILITIES += grub-emu
-endif
-
-# For grub-mkdevicemap.
-grub_mkdevicemap_SOURCES = util/grub-mkdevicemap.c util/deviceiter.c \
-	util/devicemap.c util/misc.c
-
-clean-utility-grub-mkdevicemap.1:
-	rm -f grub-mkdevicemap$(EXEEXT) grub_mkdevicemap-util_grub_mkdevicemap.o grub_mkdevicemap-util_deviceiter.o grub_mkdevicemap-util_devicemap.o grub_mkdevicemap-util_misc.o
-
-CLEAN_UTILITY_TARGETS += clean-utility-grub-mkdevicemap.1
-
-mostlyclean-utility-grub-mkdevicemap.1:
-	rm -f grub_mkdevicemap-util_grub_mkdevicemap.d grub_mkdevicemap-util_deviceiter.d grub_mkdevicemap-util_devicemap.d grub_mkdevicemap-util_misc.d
-
-MOSTLYCLEAN_UTILITY_TARGETS += mostlyclean-utility-grub-mkdevicemap.1
-
-grub_mkdevicemap_OBJECTS += grub_mkdevicemap-util_grub_mkdevicemap.o grub_mkdevicemap-util_deviceiter.o grub_mkdevicemap-util_devicemap.o grub_mkdevicemap-util_misc.o
-
-grub_mkdevicemap-util_grub_mkdevicemap.o: util/grub-mkdevicemap.c $(util/grub-mkdevicemap.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkdevicemap_CFLAGS) -MD -c -o $@ $<
--include grub_mkdevicemap-util_grub_mkdevicemap.d
-
-grub_mkdevicemap-util_deviceiter.o: util/deviceiter.c $(util/deviceiter.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkdevicemap_CFLAGS) -MD -c -o $@ $<
--include grub_mkdevicemap-util_deviceiter.d
-
-grub_mkdevicemap-util_devicemap.o: util/devicemap.c $(util/devicemap.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkdevicemap_CFLAGS) -MD -c -o $@ $<
--include grub_mkdevicemap-util_devicemap.d
-
-grub_mkdevicemap-util_misc.o: util/misc.c $(util/misc.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_mkdevicemap_CFLAGS) -MD -c -o $@ $<
--include grub_mkdevicemap-util_misc.d
-
-
-# For grub-emu.
-util/grub-emu.c_DEPENDENCIES = grub_emu_init.h
-grub_emu_SOURCES = commands/minicmd.c commands/cat.c commands/cmp.c	\
-	commands/configfile.c commands/echo.c commands/help.c		\
-	commands/handler.c commands/ls.c commands/test.c 		\
-	commands/search.c commands/blocklist.c commands/hexdump.c	\
-	commands/gptsync.c commands/probe.c commands/xnu_uuid.c		\
-	commands/password.c commands/keystatus.c			\
-	lib/hexdump.c commands/i386/cpuid.c				\
-	lib/envblk.c commands/loadenv.c					\
-	disk/host.c disk/loopback.c					\
-	\
-	fs/affs.c fs/cpio.c fs/fat.c fs/ext2.c  fs/hfs.c		\
-	fs/hfsplus.c fs/iso9660.c fs/udf.c fs/jfs.c fs/minix.c		\
-	fs/ntfs.c fs/ntfscomp.c fs/reiserfs.c fs/sfs.c			\
-	fs/ufs.c fs/ufs2.c fs/xfs.c fs/afs.c fs/afs_be.c		\
-	fs/befs.c fs/befs_be.c fs/tar.c				\
-	\
-	fs/fshelp.c							\
-	io/gzio.c							\
-	kern/device.c kern/disk.c kern/dl.c kern/elf.c kern/env.c	\
-	kern/err.c kern/list.c kern/handler.c				\
-	kern/command.c kern/corecmd.c commands/extcmd.c kern/file.c	\
-	kern/fs.c commands/boot.c kern/main.c kern/misc.c kern/parser.c	\
-	kern/partition.c kern/reader.c kern/term.c			\
-	kern/rescue_reader.c kern/rescue_parser.c                       \
-	lib/arg.c normal/cmdline.c normal/misc.c			\
-	normal/handler.c normal/auth.c normal/autofs.c			\
-	normal/completion.c normal/datetime.c normal/main.c 		\
-	normal/menu_text.c						\
-	normal/menu.c normal/menu_entry.c normal/menu_viewer.c		\
-	normal/color.c							\
-	script/sh/main.c script/sh/execute.c script/sh/function.c       \
-	script/sh/lexer.c script/sh/script.c grub_script.tab.c          \
-	partmap/amiga.c	partmap/apple.c partmap/msdos.c partmap/sun.c	\
-	partmap/acorn.c partmap/gpt.c					\
-	util/console.c util/hostfs.c util/grub-emu.c util/misc.c	\
-	util/hostdisk.c util/getroot.c					\
-	\
-	disk/raid.c disk/raid5_recover.c disk/raid6_recover.c		\
-	disk/mdraid_linux.c disk/dmraid_nvidia.c disk/lvm.c		\
-	commands/parttool.c parttool/msdospart.c				\
-	grub_emu_init.c
-
-clean-utility-grub-emu.1:
-	rm -f grub-emu$(EXEEXT) grub_emu-commands_minicmd.o grub_emu-commands_cat.o grub_emu-commands_cmp.o grub_emu-commands_configfile.o grub_emu-commands_echo.o grub_emu-commands_help.o grub_emu-commands_handler.o grub_emu-commands_ls.o grub_emu-commands_test.o grub_emu-commands_search.o grub_emu-commands_blocklist.o grub_emu-commands_hexdump.o grub_emu-commands_gptsync.o grub_emu-commands_probe.o grub_emu-commands_xnu_uuid.o grub_emu-commands_password.o grub_emu-commands_keystatus.o grub_emu-lib_hexdump.o grub_emu-commands_i386_cpuid.o grub_emu-lib_envblk.o grub_emu-commands_loadenv.o grub_emu-disk_host.o grub_emu-disk_loopback.o grub_emu-fs_affs.o grub_emu-fs_cpio.o grub_emu-fs_fat.o grub_emu-fs_ext2.o grub_emu-fs_hfs.o grub_emu-fs_hfsplus.o grub_emu-fs_iso9660.o grub_emu-fs_udf.o grub_emu-fs_jfs.o grub_emu-fs_minix.o grub_emu-fs_ntfs.o grub_emu-fs_ntfscomp.o grub_emu-fs_reiserfs.o grub_emu-fs_sfs.o grub_emu-fs_ufs.o grub_emu-fs_ufs2.o grub_emu-fs_xfs.o grub_emu-fs_afs.o grub_emu-fs_afs_be.o grub_emu-fs_befs.o grub_emu-fs_befs_be.o grub_emu-fs_tar.o grub_emu-fs_fshelp.o grub_emu-io_gzio.o grub_emu-kern_device.o grub_emu-kern_disk.o grub_emu-kern_dl.o grub_emu-kern_elf.o grub_emu-kern_env.o grub_emu-kern_err.o grub_emu-kern_list.o grub_emu-kern_handler.o grub_emu-kern_command.o grub_emu-kern_corecmd.o grub_emu-commands_extcmd.o grub_emu-kern_file.o grub_emu-kern_fs.o grub_emu-commands_boot.o grub_emu-kern_main.o grub_emu-kern_misc.o grub_emu-kern_parser.o grub_emu-kern_partition.o grub_emu-kern_reader.o grub_emu-kern_term.o grub_emu-kern_rescue_reader.o grub_emu-kern_rescue_parser.o grub_emu-lib_arg.o grub_emu-normal_cmdline.o grub_emu-normal_misc.o grub_emu-normal_handler.o grub_emu-normal_auth.o grub_emu-normal_autofs.o grub_emu-normal_completion.o grub_emu-normal_datetime.o grub_emu-normal_main.o grub_emu-normal_menu_text.o grub_emu-normal_menu.o grub_emu-normal_menu_entry.o grub_emu-normal_menu_viewer.o grub_emu-normal_color.o grub_emu-script_sh_main.o grub_emu-script_sh_execute.o grub_emu-script_sh_function.o grub_emu-script_sh_lexer.o grub_emu-script_sh_script.o grub_emu-grub_script_tab.o grub_emu-partmap_amiga.o grub_emu-partmap_apple.o grub_emu-partmap_msdos.o grub_emu-partmap_sun.o grub_emu-partmap_acorn.o grub_emu-partmap_gpt.o grub_emu-util_console.o grub_emu-util_hostfs.o grub_emu-util_grub_emu.o grub_emu-util_misc.o grub_emu-util_hostdisk.o grub_emu-util_getroot.o grub_emu-disk_raid.o grub_emu-disk_raid5_recover.o grub_emu-disk_raid6_recover.o grub_emu-disk_mdraid_linux.o grub_emu-disk_dmraid_nvidia.o grub_emu-disk_lvm.o grub_emu-commands_parttool.o grub_emu-parttool_msdospart.o grub_emu-grub_emu_init.o
-
-CLEAN_UTILITY_TARGETS += clean-utility-grub-emu.1
-
-mostlyclean-utility-grub-emu.1:
-	rm -f grub_emu-commands_minicmd.d grub_emu-commands_cat.d grub_emu-commands_cmp.d grub_emu-commands_configfile.d grub_emu-commands_echo.d grub_emu-commands_help.d grub_emu-commands_handler.d grub_emu-commands_ls.d grub_emu-commands_test.d grub_emu-commands_search.d grub_emu-commands_blocklist.d grub_emu-commands_hexdump.d grub_emu-commands_gptsync.d grub_emu-commands_probe.d grub_emu-commands_xnu_uuid.d grub_emu-commands_password.d grub_emu-commands_keystatus.d grub_emu-lib_hexdump.d grub_emu-commands_i386_cpuid.d grub_emu-lib_envblk.d grub_emu-commands_loadenv.d grub_emu-disk_host.d grub_emu-disk_loopback.d grub_emu-fs_affs.d grub_emu-fs_cpio.d grub_emu-fs_fat.d grub_emu-fs_ext2.d grub_emu-fs_hfs.d grub_emu-fs_hfsplus.d grub_emu-fs_iso9660.d grub_emu-fs_udf.d grub_emu-fs_jfs.d grub_emu-fs_minix.d grub_emu-fs_ntfs.d grub_emu-fs_ntfscomp.d grub_emu-fs_reiserfs.d grub_emu-fs_sfs.d grub_emu-fs_ufs.d grub_emu-fs_ufs2.d grub_emu-fs_xfs.d grub_emu-fs_afs.d grub_emu-fs_afs_be.d grub_emu-fs_befs.d grub_emu-fs_befs_be.d grub_emu-fs_tar.d grub_emu-fs_fshelp.d grub_emu-io_gzio.d grub_emu-kern_device.d grub_emu-kern_disk.d grub_emu-kern_dl.d grub_emu-kern_elf.d grub_emu-kern_env.d grub_emu-kern_err.d grub_emu-kern_list.d grub_emu-kern_handler.d grub_emu-kern_command.d grub_emu-kern_corecmd.d grub_emu-commands_extcmd.d grub_emu-kern_file.d grub_emu-kern_fs.d grub_emu-commands_boot.d grub_emu-kern_main.d grub_emu-kern_misc.d grub_emu-kern_parser.d grub_emu-kern_partition.d grub_emu-kern_reader.d grub_emu-kern_term.d grub_emu-kern_rescue_reader.d grub_emu-kern_rescue_parser.d grub_emu-lib_arg.d grub_emu-normal_cmdline.d grub_emu-normal_misc.d grub_emu-normal_handler.d grub_emu-normal_auth.d grub_emu-normal_autofs.d grub_emu-normal_completion.d grub_emu-normal_datetime.d grub_emu-normal_main.d grub_emu-normal_menu_text.d grub_emu-normal_menu.d grub_emu-normal_menu_entry.d grub_emu-normal_menu_viewer.d grub_emu-normal_color.d grub_emu-script_sh_main.d grub_emu-script_sh_execute.d grub_emu-script_sh_function.d grub_emu-script_sh_lexer.d grub_emu-script_sh_script.d grub_emu-grub_script_tab.d grub_emu-partmap_amiga.d grub_emu-partmap_apple.d grub_emu-partmap_msdos.d grub_emu-partmap_sun.d grub_emu-partmap_acorn.d grub_emu-partmap_gpt.d grub_emu-util_console.d grub_emu-util_hostfs.d grub_emu-util_grub_emu.d grub_emu-util_misc.d grub_emu-util_hostdisk.d grub_emu-util_getroot.d grub_emu-disk_raid.d grub_emu-disk_raid5_recover.d grub_emu-disk_raid6_recover.d grub_emu-disk_mdraid_linux.d grub_emu-disk_dmraid_nvidia.d grub_emu-disk_lvm.d grub_emu-commands_parttool.d grub_emu-parttool_msdospart.d grub_emu-grub_emu_init.d
-
-MOSTLYCLEAN_UTILITY_TARGETS += mostlyclean-utility-grub-emu.1
-
-grub_emu_OBJECTS += grub_emu-commands_minicmd.o grub_emu-commands_cat.o grub_emu-commands_cmp.o grub_emu-commands_configfile.o grub_emu-commands_echo.o grub_emu-commands_help.o grub_emu-commands_handler.o grub_emu-commands_ls.o grub_emu-commands_test.o grub_emu-commands_search.o grub_emu-commands_blocklist.o grub_emu-commands_hexdump.o grub_emu-commands_gptsync.o grub_emu-commands_probe.o grub_emu-commands_xnu_uuid.o grub_emu-commands_password.o grub_emu-commands_keystatus.o grub_emu-lib_hexdump.o grub_emu-commands_i386_cpuid.o grub_emu-lib_envblk.o grub_emu-commands_loadenv.o grub_emu-disk_host.o grub_emu-disk_loopback.o grub_emu-fs_affs.o grub_emu-fs_cpio.o grub_emu-fs_fat.o grub_emu-fs_ext2.o grub_emu-fs_hfs.o grub_emu-fs_hfsplus.o grub_emu-fs_iso9660.o grub_emu-fs_udf.o grub_emu-fs_jfs.o grub_emu-fs_minix.o grub_emu-fs_ntfs.o grub_emu-fs_ntfscomp.o grub_emu-fs_reiserfs.o grub_emu-fs_sfs.o grub_emu-fs_ufs.o grub_emu-fs_ufs2.o grub_emu-fs_xfs.o grub_emu-fs_afs.o grub_emu-fs_afs_be.o grub_emu-fs_befs.o grub_emu-fs_befs_be.o grub_emu-fs_tar.o grub_emu-fs_fshelp.o grub_emu-io_gzio.o grub_emu-kern_device.o grub_emu-kern_disk.o grub_emu-kern_dl.o grub_emu-kern_elf.o grub_emu-kern_env.o grub_emu-kern_err.o grub_emu-kern_list.o grub_emu-kern_handler.o grub_emu-kern_command.o grub_emu-kern_corecmd.o grub_emu-commands_extcmd.o grub_emu-kern_file.o grub_emu-kern_fs.o grub_emu-commands_boot.o grub_emu-kern_main.o grub_emu-kern_misc.o grub_emu-kern_parser.o grub_emu-kern_partition.o grub_emu-kern_reader.o grub_emu-kern_term.o grub_emu-kern_rescue_reader.o grub_emu-kern_rescue_parser.o grub_emu-lib_arg.o grub_emu-normal_cmdline.o grub_emu-normal_misc.o grub_emu-normal_handler.o grub_emu-normal_auth.o grub_emu-normal_autofs.o grub_emu-normal_completion.o grub_emu-normal_datetime.o grub_emu-normal_main.o grub_emu-normal_menu_text.o grub_emu-normal_menu.o grub_emu-normal_menu_entry.o grub_emu-normal_menu_viewer.o grub_emu-normal_color.o grub_emu-script_sh_main.o grub_emu-script_sh_execute.o grub_emu-script_sh_function.o grub_emu-script_sh_lexer.o grub_emu-script_sh_script.o grub_emu-grub_script_tab.o grub_emu-partmap_amiga.o grub_emu-partmap_apple.o grub_emu-partmap_msdos.o grub_emu-partmap_sun.o grub_emu-partmap_acorn.o grub_emu-partmap_gpt.o grub_emu-util_console.o grub_emu-util_hostfs.o grub_emu-util_grub_emu.o grub_emu-util_misc.o grub_emu-util_hostdisk.o grub_emu-util_getroot.o grub_emu-disk_raid.o grub_emu-disk_raid5_recover.o grub_emu-disk_raid6_recover.o grub_emu-disk_mdraid_linux.o grub_emu-disk_dmraid_nvidia.o grub_emu-disk_lvm.o grub_emu-commands_parttool.o grub_emu-parttool_msdospart.o grub_emu-grub_emu_init.o
-
-grub_emu-commands_minicmd.o: commands/minicmd.c $(commands/minicmd.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_minicmd.d
-
-grub_emu-commands_cat.o: commands/cat.c $(commands/cat.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_cat.d
-
-grub_emu-commands_cmp.o: commands/cmp.c $(commands/cmp.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_cmp.d
-
-grub_emu-commands_configfile.o: commands/configfile.c $(commands/configfile.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_configfile.d
-
-grub_emu-commands_echo.o: commands/echo.c $(commands/echo.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_echo.d
-
-grub_emu-commands_help.o: commands/help.c $(commands/help.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_help.d
-
-grub_emu-commands_handler.o: commands/handler.c $(commands/handler.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_handler.d
-
-grub_emu-commands_ls.o: commands/ls.c $(commands/ls.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_ls.d
-
-grub_emu-commands_test.o: commands/test.c $(commands/test.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_test.d
-
-grub_emu-commands_search.o: commands/search.c $(commands/search.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_search.d
-
-grub_emu-commands_blocklist.o: commands/blocklist.c $(commands/blocklist.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_blocklist.d
-
-grub_emu-commands_hexdump.o: commands/hexdump.c $(commands/hexdump.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_hexdump.d
-
-grub_emu-commands_gptsync.o: commands/gptsync.c $(commands/gptsync.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_gptsync.d
-
-grub_emu-commands_probe.o: commands/probe.c $(commands/probe.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_probe.d
-
-grub_emu-commands_xnu_uuid.o: commands/xnu_uuid.c $(commands/xnu_uuid.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_xnu_uuid.d
-
-grub_emu-commands_password.o: commands/password.c $(commands/password.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_password.d
-
-grub_emu-commands_keystatus.o: commands/keystatus.c $(commands/keystatus.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_keystatus.d
-
-grub_emu-lib_hexdump.o: lib/hexdump.c $(lib/hexdump.c_DEPENDENCIES)
-	$(CC) -Ilib -I$(srcdir)/lib $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-lib_hexdump.d
-
-grub_emu-commands_i386_cpuid.o: commands/i386/cpuid.c $(commands/i386/cpuid.c_DEPENDENCIES)
-	$(CC) -Icommands/i386 -I$(srcdir)/commands/i386 $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_i386_cpuid.d
-
-grub_emu-lib_envblk.o: lib/envblk.c $(lib/envblk.c_DEPENDENCIES)
-	$(CC) -Ilib -I$(srcdir)/lib $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-lib_envblk.d
-
-grub_emu-commands_loadenv.o: commands/loadenv.c $(commands/loadenv.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_loadenv.d
-
-grub_emu-disk_host.o: disk/host.c $(disk/host.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_host.d
-
-grub_emu-disk_loopback.o: disk/loopback.c $(disk/loopback.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_loopback.d
-
-grub_emu-fs_affs.o: fs/affs.c $(fs/affs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_affs.d
-
-grub_emu-fs_cpio.o: fs/cpio.c $(fs/cpio.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_cpio.d
-
-grub_emu-fs_fat.o: fs/fat.c $(fs/fat.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_fat.d
-
-grub_emu-fs_ext2.o: fs/ext2.c $(fs/ext2.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_ext2.d
-
-grub_emu-fs_hfs.o: fs/hfs.c $(fs/hfs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_hfs.d
-
-grub_emu-fs_hfsplus.o: fs/hfsplus.c $(fs/hfsplus.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_hfsplus.d
-
-grub_emu-fs_iso9660.o: fs/iso9660.c $(fs/iso9660.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_iso9660.d
-
-grub_emu-fs_udf.o: fs/udf.c $(fs/udf.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_udf.d
-
-grub_emu-fs_jfs.o: fs/jfs.c $(fs/jfs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_jfs.d
-
-grub_emu-fs_minix.o: fs/minix.c $(fs/minix.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_minix.d
-
-grub_emu-fs_ntfs.o: fs/ntfs.c $(fs/ntfs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_ntfs.d
-
-grub_emu-fs_ntfscomp.o: fs/ntfscomp.c $(fs/ntfscomp.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_ntfscomp.d
-
-grub_emu-fs_reiserfs.o: fs/reiserfs.c $(fs/reiserfs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_reiserfs.d
-
-grub_emu-fs_sfs.o: fs/sfs.c $(fs/sfs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_sfs.d
-
-grub_emu-fs_ufs.o: fs/ufs.c $(fs/ufs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_ufs.d
-
-grub_emu-fs_ufs2.o: fs/ufs2.c $(fs/ufs2.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_ufs2.d
-
-grub_emu-fs_xfs.o: fs/xfs.c $(fs/xfs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_xfs.d
-
-grub_emu-fs_afs.o: fs/afs.c $(fs/afs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_afs.d
-
-grub_emu-fs_afs_be.o: fs/afs_be.c $(fs/afs_be.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_afs_be.d
-
-grub_emu-fs_befs.o: fs/befs.c $(fs/befs.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_befs.d
-
-grub_emu-fs_befs_be.o: fs/befs_be.c $(fs/befs_be.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_befs_be.d
-
-grub_emu-fs_tar.o: fs/tar.c $(fs/tar.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_tar.d
-
-grub_emu-fs_fshelp.o: fs/fshelp.c $(fs/fshelp.c_DEPENDENCIES)
-	$(CC) -Ifs -I$(srcdir)/fs $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-fs_fshelp.d
-
-grub_emu-io_gzio.o: io/gzio.c $(io/gzio.c_DEPENDENCIES)
-	$(CC) -Iio -I$(srcdir)/io $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-io_gzio.d
-
-grub_emu-kern_device.o: kern/device.c $(kern/device.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_device.d
-
-grub_emu-kern_disk.o: kern/disk.c $(kern/disk.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_disk.d
-
-grub_emu-kern_dl.o: kern/dl.c $(kern/dl.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_dl.d
-
-grub_emu-kern_elf.o: kern/elf.c $(kern/elf.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_elf.d
-
-grub_emu-kern_env.o: kern/env.c $(kern/env.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_env.d
-
-grub_emu-kern_err.o: kern/err.c $(kern/err.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_err.d
-
-grub_emu-kern_list.o: kern/list.c $(kern/list.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_list.d
-
-grub_emu-kern_handler.o: kern/handler.c $(kern/handler.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_handler.d
-
-grub_emu-kern_command.o: kern/command.c $(kern/command.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_command.d
-
-grub_emu-kern_corecmd.o: kern/corecmd.c $(kern/corecmd.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_corecmd.d
-
-grub_emu-commands_extcmd.o: commands/extcmd.c $(commands/extcmd.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_extcmd.d
-
-grub_emu-kern_file.o: kern/file.c $(kern/file.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_file.d
-
-grub_emu-kern_fs.o: kern/fs.c $(kern/fs.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_fs.d
-
-grub_emu-commands_boot.o: commands/boot.c $(commands/boot.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_boot.d
-
-grub_emu-kern_main.o: kern/main.c $(kern/main.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_main.d
-
-grub_emu-kern_misc.o: kern/misc.c $(kern/misc.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_misc.d
-
-grub_emu-kern_parser.o: kern/parser.c $(kern/parser.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_parser.d
-
-grub_emu-kern_partition.o: kern/partition.c $(kern/partition.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_partition.d
-
-grub_emu-kern_reader.o: kern/reader.c $(kern/reader.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_reader.d
-
-grub_emu-kern_term.o: kern/term.c $(kern/term.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_term.d
-
-grub_emu-kern_rescue_reader.o: kern/rescue_reader.c $(kern/rescue_reader.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_rescue_reader.d
-
-grub_emu-kern_rescue_parser.o: kern/rescue_parser.c $(kern/rescue_parser.c_DEPENDENCIES)
-	$(CC) -Ikern -I$(srcdir)/kern $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-kern_rescue_parser.d
-
-grub_emu-lib_arg.o: lib/arg.c $(lib/arg.c_DEPENDENCIES)
-	$(CC) -Ilib -I$(srcdir)/lib $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-lib_arg.d
-
-grub_emu-normal_cmdline.o: normal/cmdline.c $(normal/cmdline.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_cmdline.d
-
-grub_emu-normal_misc.o: normal/misc.c $(normal/misc.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_misc.d
-
-grub_emu-normal_handler.o: normal/handler.c $(normal/handler.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_handler.d
-
-grub_emu-normal_auth.o: normal/auth.c $(normal/auth.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_auth.d
-
-grub_emu-normal_autofs.o: normal/autofs.c $(normal/autofs.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_autofs.d
-
-grub_emu-normal_completion.o: normal/completion.c $(normal/completion.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_completion.d
-
-grub_emu-normal_datetime.o: normal/datetime.c $(normal/datetime.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_datetime.d
-
-grub_emu-normal_main.o: normal/main.c $(normal/main.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_main.d
-
-grub_emu-normal_menu_text.o: normal/menu_text.c $(normal/menu_text.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_menu_text.d
-
-grub_emu-normal_menu.o: normal/menu.c $(normal/menu.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_menu.d
-
-grub_emu-normal_menu_entry.o: normal/menu_entry.c $(normal/menu_entry.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_menu_entry.d
-
-grub_emu-normal_menu_viewer.o: normal/menu_viewer.c $(normal/menu_viewer.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_menu_viewer.d
-
-grub_emu-normal_color.o: normal/color.c $(normal/color.c_DEPENDENCIES)
-	$(CC) -Inormal -I$(srcdir)/normal $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-normal_color.d
-
-grub_emu-script_sh_main.o: script/sh/main.c $(script/sh/main.c_DEPENDENCIES)
-	$(CC) -Iscript/sh -I$(srcdir)/script/sh $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-script_sh_main.d
-
-grub_emu-script_sh_execute.o: script/sh/execute.c $(script/sh/execute.c_DEPENDENCIES)
-	$(CC) -Iscript/sh -I$(srcdir)/script/sh $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-script_sh_execute.d
-
-grub_emu-script_sh_function.o: script/sh/function.c $(script/sh/function.c_DEPENDENCIES)
-	$(CC) -Iscript/sh -I$(srcdir)/script/sh $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-script_sh_function.d
-
-grub_emu-script_sh_lexer.o: script/sh/lexer.c $(script/sh/lexer.c_DEPENDENCIES)
-	$(CC) -Iscript/sh -I$(srcdir)/script/sh $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-script_sh_lexer.d
-
-grub_emu-script_sh_script.o: script/sh/script.c $(script/sh/script.c_DEPENDENCIES)
-	$(CC) -Iscript/sh -I$(srcdir)/script/sh $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-script_sh_script.d
-
-grub_emu-grub_script_tab.o: grub_script.tab.c $(grub_script.tab.c_DEPENDENCIES)
-	$(CC) -I. -I$(srcdir)/. $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-grub_script_tab.d
-
-grub_emu-partmap_amiga.o: partmap/amiga.c $(partmap/amiga.c_DEPENDENCIES)
-	$(CC) -Ipartmap -I$(srcdir)/partmap $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-partmap_amiga.d
-
-grub_emu-partmap_apple.o: partmap/apple.c $(partmap/apple.c_DEPENDENCIES)
-	$(CC) -Ipartmap -I$(srcdir)/partmap $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-partmap_apple.d
-
-grub_emu-partmap_msdos.o: partmap/msdos.c $(partmap/msdos.c_DEPENDENCIES)
-	$(CC) -Ipartmap -I$(srcdir)/partmap $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-partmap_msdos.d
-
-grub_emu-partmap_sun.o: partmap/sun.c $(partmap/sun.c_DEPENDENCIES)
-	$(CC) -Ipartmap -I$(srcdir)/partmap $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-partmap_sun.d
-
-grub_emu-partmap_acorn.o: partmap/acorn.c $(partmap/acorn.c_DEPENDENCIES)
-	$(CC) -Ipartmap -I$(srcdir)/partmap $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-partmap_acorn.d
-
-grub_emu-partmap_gpt.o: partmap/gpt.c $(partmap/gpt.c_DEPENDENCIES)
-	$(CC) -Ipartmap -I$(srcdir)/partmap $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-partmap_gpt.d
-
-grub_emu-util_console.o: util/console.c $(util/console.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-util_console.d
-
-grub_emu-util_hostfs.o: util/hostfs.c $(util/hostfs.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-util_hostfs.d
-
-grub_emu-util_grub_emu.o: util/grub-emu.c $(util/grub-emu.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-util_grub_emu.d
-
-grub_emu-util_misc.o: util/misc.c $(util/misc.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-util_misc.d
-
-grub_emu-util_hostdisk.o: util/hostdisk.c $(util/hostdisk.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-util_hostdisk.d
-
-grub_emu-util_getroot.o: util/getroot.c $(util/getroot.c_DEPENDENCIES)
-	$(CC) -Iutil -I$(srcdir)/util $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-util_getroot.d
-
-grub_emu-disk_raid.o: disk/raid.c $(disk/raid.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_raid.d
-
-grub_emu-disk_raid5_recover.o: disk/raid5_recover.c $(disk/raid5_recover.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_raid5_recover.d
-
-grub_emu-disk_raid6_recover.o: disk/raid6_recover.c $(disk/raid6_recover.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_raid6_recover.d
-
-grub_emu-disk_mdraid_linux.o: disk/mdraid_linux.c $(disk/mdraid_linux.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_mdraid_linux.d
-
-grub_emu-disk_dmraid_nvidia.o: disk/dmraid_nvidia.c $(disk/dmraid_nvidia.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_dmraid_nvidia.d
-
-grub_emu-disk_lvm.o: disk/lvm.c $(disk/lvm.c_DEPENDENCIES)
-	$(CC) -Idisk -I$(srcdir)/disk $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-disk_lvm.d
-
-grub_emu-commands_parttool.o: commands/parttool.c $(commands/parttool.c_DEPENDENCIES)
-	$(CC) -Icommands -I$(srcdir)/commands $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-commands_parttool.d
-
-grub_emu-parttool_msdospart.o: parttool/msdospart.c $(parttool/msdospart.c_DEPENDENCIES)
-	$(CC) -Iparttool -I$(srcdir)/parttool $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-parttool_msdospart.d
-
-grub_emu-grub_emu_init.o: grub_emu_init.c $(grub_emu_init.c_DEPENDENCIES)
-	$(CC) -I. -I$(srcdir)/. $(CPPFLAGS) $(CFLAGS) -DGRUB_UTIL=1 $(grub_emu_CFLAGS) -MD -c -o $@ $<
--include grub_emu-grub_emu_init.d
-
-
-grub_emu_LDFLAGS = $(LIBCURSES)
-
 sbin_SCRIPTS += grub-install
-grub_install_SOURCES = util/i386/pc/grub-install.in
+grub_install_SOURCES = util/grub-install.in
 CLEANFILES += grub-install
 
-grub-install: util/i386/pc/grub-install.in $(util/i386/pc/grub-install.in_DEPENDENCIES) config.status
-	./config.status --file=grub-install:util/i386/pc/grub-install.in
+grub-install: util/grub-install.in $(util/grub-install.in_DEPENDENCIES) config.status
+	./config.status --file=-:util/grub-install.in | sed -e 's,@pkglib_DATA@,$(pkglib_DATA),g' > $@
+	chmod +x $@
+
+
+bin_SCRIPTS += grub-mkrescue
+grub_mkrescue_SOURCES = util/grub-mkrescue.in
+CLEANFILES += grub-mkrescue
+
+grub-mkrescue: util/grub-mkrescue.in $(util/grub-mkrescue.in_DEPENDENCIES) config.status
+	./config.status --file=-:util/grub-mkrescue.in | sed -e 's,@pkglib_DATA@,$(pkglib_DATA),g' > $@
 	chmod +x $@
 
 
 # Modules.
-pkglib_MODULES = linux.mod multiboot.mod 		\
-	aout.mod play.mod serial.mod ata.mod		\
+pkglib_MODULES = linux.mod 				\
+	aout.mod play.mod serial.mod 			\
 	memdisk.mod pci.mod lspci.mod reboot.mod	\
 	halt.mod datetime.mod date.mod datehook.mod	\
 	lsmmap.mod mmap.mod
 
 # For boot.mod.
-pkglib_MODULES += boot.mod 
+pkglib_MODULES += boot.mod
 boot_mod_SOURCES = commands/boot.c
 
 clean-module-boot.mod.1:
@@ -1010,13 +531,11 @@ clean-module-boot.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-boot.mod.1
 
-ifneq ($(boot_mod_EXPORTS),no)
 clean-module-boot.mod-symbol.1:
 	rm -f def-boot.lst
 
 CLEAN_MODULE_TARGETS += clean-module-boot.mod-symbol.1
 DEFSYMFILES += def-boot.lst
-endif
 mostlyclean-module-boot.mod.1:
 	rm -f boot_mod-commands_boot.d
 
@@ -1048,14 +567,12 @@ mod-boot.o: mod-boot.c
 mod-boot.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'boot' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(boot_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-boot.lst: pre-boot.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 boot/' > $@
 else
 def-boot.lst: pre-boot.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 boot/' > $@
-endif
 endif
 
 und-boot.lst: pre-boot.o
@@ -1067,7 +584,7 @@ boot_mod-commands_boot.o: commands/boot.c $(commands/boot.c_DEPENDENCIES)
 -include boot_mod-commands_boot.d
 
 clean-module-boot_mod-commands_boot-extra.1:
-	rm -f cmd-boot_mod-commands_boot.lst fs-boot_mod-commands_boot.lst partmap-boot_mod-commands_boot.lst handler-boot_mod-commands_boot.lst parttool-boot_mod-commands_boot.lst
+	rm -f cmd-boot_mod-commands_boot.lst fs-boot_mod-commands_boot.lst partmap-boot_mod-commands_boot.lst handler-boot_mod-commands_boot.lst parttool-boot_mod-commands_boot.lst video-boot_mod-commands_boot.lst terminal-boot_mod-commands_boot.lst
 
 CLEAN_MODULE_TARGETS += clean-module-boot_mod-commands_boot-extra.1
 
@@ -1076,6 +593,8 @@ FSFILES += fs-boot_mod-commands_boot.lst
 PARTTOOLFILES += parttool-boot_mod-commands_boot.lst
 PARTMAPFILES += partmap-boot_mod-commands_boot.lst
 HANDLERFILES += handler-boot_mod-commands_boot.lst
+TERMINALFILES += terminal-boot_mod-commands_boot.lst
+VIDEOFILES += video-boot_mod-commands_boot.lst
 
 cmd-boot_mod-commands_boot.lst: commands/boot.c $(commands/boot.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(boot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh boot > $@ || (rm -f $@; exit 1)
@@ -1092,6 +611,12 @@ partmap-boot_mod-commands_boot.lst: commands/boot.c $(commands/boot.c_DEPENDENCI
 handler-boot_mod-commands_boot.lst: commands/boot.c $(commands/boot.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(boot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh boot > $@ || (rm -f $@; exit 1)
 
+terminal-boot_mod-commands_boot.lst: commands/boot.c $(commands/boot.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(boot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh boot > $@ || (rm -f $@; exit 1)
+
+video-boot_mod-commands_boot.lst: commands/boot.c $(commands/boot.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(boot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh boot > $@ || (rm -f $@; exit 1)
+
 boot_mod_CFLAGS = $(COMMON_CFLAGS)
 boot_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
@@ -1103,13 +628,11 @@ clean-module-mmap.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-mmap.mod.1
 
-ifneq ($(mmap_mod_EXPORTS),no)
 clean-module-mmap.mod-symbol.1:
 	rm -f def-mmap.lst
 
 CLEAN_MODULE_TARGETS += clean-module-mmap.mod-symbol.1
 DEFSYMFILES += def-mmap.lst
-endif
 mostlyclean-module-mmap.mod.1:
 	rm -f mmap_mod-mmap_mmap.d mmap_mod-mmap_i386_uppermem.d mmap_mod-mmap_i386_mmap.d
 
@@ -1141,14 +664,12 @@ mod-mmap.o: mod-mmap.c
 mod-mmap.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'mmap' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(mmap_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-mmap.lst: pre-mmap.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 mmap/' > $@
 else
 def-mmap.lst: pre-mmap.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 mmap/' > $@
-endif
 endif
 
 und-mmap.lst: pre-mmap.o
@@ -1160,7 +681,7 @@ mmap_mod-mmap_mmap.o: mmap/mmap.c $(mmap/mmap.c_DEPENDENCIES)
 -include mmap_mod-mmap_mmap.d
 
 clean-module-mmap_mod-mmap_mmap-extra.1:
-	rm -f cmd-mmap_mod-mmap_mmap.lst fs-mmap_mod-mmap_mmap.lst partmap-mmap_mod-mmap_mmap.lst handler-mmap_mod-mmap_mmap.lst parttool-mmap_mod-mmap_mmap.lst
+	rm -f cmd-mmap_mod-mmap_mmap.lst fs-mmap_mod-mmap_mmap.lst partmap-mmap_mod-mmap_mmap.lst handler-mmap_mod-mmap_mmap.lst parttool-mmap_mod-mmap_mmap.lst video-mmap_mod-mmap_mmap.lst terminal-mmap_mod-mmap_mmap.lst
 
 CLEAN_MODULE_TARGETS += clean-module-mmap_mod-mmap_mmap-extra.1
 
@@ -1169,6 +690,8 @@ FSFILES += fs-mmap_mod-mmap_mmap.lst
 PARTTOOLFILES += parttool-mmap_mod-mmap_mmap.lst
 PARTMAPFILES += partmap-mmap_mod-mmap_mmap.lst
 HANDLERFILES += handler-mmap_mod-mmap_mmap.lst
+TERMINALFILES += terminal-mmap_mod-mmap_mmap.lst
+VIDEOFILES += video-mmap_mod-mmap_mmap.lst
 
 cmd-mmap_mod-mmap_mmap.lst: mmap/mmap.c $(mmap/mmap.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Immap -I$(srcdir)/mmap $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh mmap > $@ || (rm -f $@; exit 1)
@@ -1185,12 +708,18 @@ partmap-mmap_mod-mmap_mmap.lst: mmap/mmap.c $(mmap/mmap.c_DEPENDENCIES) genpartm
 handler-mmap_mod-mmap_mmap.lst: mmap/mmap.c $(mmap/mmap.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Immap -I$(srcdir)/mmap $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh mmap > $@ || (rm -f $@; exit 1)
 
+terminal-mmap_mod-mmap_mmap.lst: mmap/mmap.c $(mmap/mmap.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Immap -I$(srcdir)/mmap $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh mmap > $@ || (rm -f $@; exit 1)
+
+video-mmap_mod-mmap_mmap.lst: mmap/mmap.c $(mmap/mmap.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Immap -I$(srcdir)/mmap $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh mmap > $@ || (rm -f $@; exit 1)
+
 mmap_mod-mmap_i386_uppermem.o: mmap/i386/uppermem.c $(mmap/i386/uppermem.c_DEPENDENCIES)
 	$(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -MD -c -o $@ $<
 -include mmap_mod-mmap_i386_uppermem.d
 
 clean-module-mmap_mod-mmap_i386_uppermem-extra.1:
-	rm -f cmd-mmap_mod-mmap_i386_uppermem.lst fs-mmap_mod-mmap_i386_uppermem.lst partmap-mmap_mod-mmap_i386_uppermem.lst handler-mmap_mod-mmap_i386_uppermem.lst parttool-mmap_mod-mmap_i386_uppermem.lst
+	rm -f cmd-mmap_mod-mmap_i386_uppermem.lst fs-mmap_mod-mmap_i386_uppermem.lst partmap-mmap_mod-mmap_i386_uppermem.lst handler-mmap_mod-mmap_i386_uppermem.lst parttool-mmap_mod-mmap_i386_uppermem.lst video-mmap_mod-mmap_i386_uppermem.lst terminal-mmap_mod-mmap_i386_uppermem.lst
 
 CLEAN_MODULE_TARGETS += clean-module-mmap_mod-mmap_i386_uppermem-extra.1
 
@@ -1199,6 +728,8 @@ FSFILES += fs-mmap_mod-mmap_i386_uppermem.lst
 PARTTOOLFILES += parttool-mmap_mod-mmap_i386_uppermem.lst
 PARTMAPFILES += partmap-mmap_mod-mmap_i386_uppermem.lst
 HANDLERFILES += handler-mmap_mod-mmap_i386_uppermem.lst
+TERMINALFILES += terminal-mmap_mod-mmap_i386_uppermem.lst
+VIDEOFILES += video-mmap_mod-mmap_i386_uppermem.lst
 
 cmd-mmap_mod-mmap_i386_uppermem.lst: mmap/i386/uppermem.c $(mmap/i386/uppermem.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh mmap > $@ || (rm -f $@; exit 1)
@@ -1215,12 +746,18 @@ partmap-mmap_mod-mmap_i386_uppermem.lst: mmap/i386/uppermem.c $(mmap/i386/upperm
 handler-mmap_mod-mmap_i386_uppermem.lst: mmap/i386/uppermem.c $(mmap/i386/uppermem.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh mmap > $@ || (rm -f $@; exit 1)
 
+terminal-mmap_mod-mmap_i386_uppermem.lst: mmap/i386/uppermem.c $(mmap/i386/uppermem.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh mmap > $@ || (rm -f $@; exit 1)
+
+video-mmap_mod-mmap_i386_uppermem.lst: mmap/i386/uppermem.c $(mmap/i386/uppermem.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh mmap > $@ || (rm -f $@; exit 1)
+
 mmap_mod-mmap_i386_mmap.o: mmap/i386/mmap.c $(mmap/i386/mmap.c_DEPENDENCIES)
 	$(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -MD -c -o $@ $<
 -include mmap_mod-mmap_i386_mmap.d
 
 clean-module-mmap_mod-mmap_i386_mmap-extra.1:
-	rm -f cmd-mmap_mod-mmap_i386_mmap.lst fs-mmap_mod-mmap_i386_mmap.lst partmap-mmap_mod-mmap_i386_mmap.lst handler-mmap_mod-mmap_i386_mmap.lst parttool-mmap_mod-mmap_i386_mmap.lst
+	rm -f cmd-mmap_mod-mmap_i386_mmap.lst fs-mmap_mod-mmap_i386_mmap.lst partmap-mmap_mod-mmap_i386_mmap.lst handler-mmap_mod-mmap_i386_mmap.lst parttool-mmap_mod-mmap_i386_mmap.lst video-mmap_mod-mmap_i386_mmap.lst terminal-mmap_mod-mmap_i386_mmap.lst
 
 CLEAN_MODULE_TARGETS += clean-module-mmap_mod-mmap_i386_mmap-extra.1
 
@@ -1229,6 +766,8 @@ FSFILES += fs-mmap_mod-mmap_i386_mmap.lst
 PARTTOOLFILES += parttool-mmap_mod-mmap_i386_mmap.lst
 PARTMAPFILES += partmap-mmap_mod-mmap_i386_mmap.lst
 HANDLERFILES += handler-mmap_mod-mmap_i386_mmap.lst
+TERMINALFILES += terminal-mmap_mod-mmap_i386_mmap.lst
+VIDEOFILES += video-mmap_mod-mmap_i386_mmap.lst
 
 cmd-mmap_mod-mmap_i386_mmap.lst: mmap/i386/mmap.c $(mmap/i386/mmap.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh mmap > $@ || (rm -f $@; exit 1)
@@ -1245,6 +784,12 @@ partmap-mmap_mod-mmap_i386_mmap.lst: mmap/i386/mmap.c $(mmap/i386/mmap.c_DEPENDE
 handler-mmap_mod-mmap_i386_mmap.lst: mmap/i386/mmap.c $(mmap/i386/mmap.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh mmap > $@ || (rm -f $@; exit 1)
 
+terminal-mmap_mod-mmap_i386_mmap.lst: mmap/i386/mmap.c $(mmap/i386/mmap.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh mmap > $@ || (rm -f $@; exit 1)
+
+video-mmap_mod-mmap_i386_mmap.lst: mmap/i386/mmap.c $(mmap/i386/mmap.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Immap/i386 -I$(srcdir)/mmap/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(mmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh mmap > $@ || (rm -f $@; exit 1)
+
 mmap_mod_CFLAGS = $(COMMON_CFLAGS)
 mmap_mod_LDFLAGS = $(COMMON_LDFLAGS)
 mmap_mod_ASFLAGS = $(COMMON_ASFLAGS)
@@ -1257,13 +802,11 @@ clean-module-linux.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-linux.mod.1
 
-ifneq ($(linux_mod_EXPORTS),no)
 clean-module-linux.mod-symbol.1:
 	rm -f def-linux.lst
 
 CLEAN_MODULE_TARGETS += clean-module-linux.mod-symbol.1
 DEFSYMFILES += def-linux.lst
-endif
 mostlyclean-module-linux.mod.1:
 	rm -f linux_mod-loader_i386_linux.d
 
@@ -1295,14 +838,12 @@ mod-linux.o: mod-linux.c
 mod-linux.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'linux' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(linux_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-linux.lst: pre-linux.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 linux/' > $@
 else
 def-linux.lst: pre-linux.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 linux/' > $@
-endif
 endif
 
 und-linux.lst: pre-linux.o
@@ -1314,7 +855,7 @@ linux_mod-loader_i386_linux.o: loader/i386/linux.c $(loader/i386/linux.c_DEPENDE
 -include linux_mod-loader_i386_linux.d
 
 clean-module-linux_mod-loader_i386_linux-extra.1:
-	rm -f cmd-linux_mod-loader_i386_linux.lst fs-linux_mod-loader_i386_linux.lst partmap-linux_mod-loader_i386_linux.lst handler-linux_mod-loader_i386_linux.lst parttool-linux_mod-loader_i386_linux.lst
+	rm -f cmd-linux_mod-loader_i386_linux.lst fs-linux_mod-loader_i386_linux.lst partmap-linux_mod-loader_i386_linux.lst handler-linux_mod-loader_i386_linux.lst parttool-linux_mod-loader_i386_linux.lst video-linux_mod-loader_i386_linux.lst terminal-linux_mod-loader_i386_linux.lst
 
 CLEAN_MODULE_TARGETS += clean-module-linux_mod-loader_i386_linux-extra.1
 
@@ -1323,6 +864,8 @@ FSFILES += fs-linux_mod-loader_i386_linux.lst
 PARTTOOLFILES += parttool-linux_mod-loader_i386_linux.lst
 PARTMAPFILES += partmap-linux_mod-loader_i386_linux.lst
 HANDLERFILES += handler-linux_mod-loader_i386_linux.lst
+TERMINALFILES += terminal-linux_mod-loader_i386_linux.lst
+VIDEOFILES += video-linux_mod-loader_i386_linux.lst
 
 cmd-linux_mod-loader_i386_linux.lst: loader/i386/linux.c $(loader/i386/linux.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(linux_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh linux > $@ || (rm -f $@; exit 1)
@@ -1339,26 +882,30 @@ partmap-linux_mod-loader_i386_linux.lst: loader/i386/linux.c $(loader/i386/linux
 handler-linux_mod-loader_i386_linux.lst: loader/i386/linux.c $(loader/i386/linux.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(linux_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh linux > $@ || (rm -f $@; exit 1)
 
+terminal-linux_mod-loader_i386_linux.lst: loader/i386/linux.c $(loader/i386/linux.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(linux_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh linux > $@ || (rm -f $@; exit 1)
+
+video-linux_mod-loader_i386_linux.lst: loader/i386/linux.c $(loader/i386/linux.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(linux_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh linux > $@ || (rm -f $@; exit 1)
+
 linux_mod_CFLAGS = $(COMMON_CFLAGS)
 linux_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
 # For reboot.mod.
-reboot_mod_SOURCES = commands/reboot.c kern/i386/reboot.c
+reboot_mod_SOURCES = commands/reboot.c
 
 clean-module-reboot.mod.1:
-	rm -f reboot.mod mod-reboot.o mod-reboot.c pre-reboot.o reboot_mod-commands_reboot.o reboot_mod-kern_i386_reboot.o und-reboot.lst
+	rm -f reboot.mod mod-reboot.o mod-reboot.c pre-reboot.o reboot_mod-commands_reboot.o und-reboot.lst
 
 CLEAN_MODULE_TARGETS += clean-module-reboot.mod.1
 
-ifneq ($(reboot_mod_EXPORTS),no)
 clean-module-reboot.mod-symbol.1:
 	rm -f def-reboot.lst
 
 CLEAN_MODULE_TARGETS += clean-module-reboot.mod-symbol.1
 DEFSYMFILES += def-reboot.lst
-endif
 mostlyclean-module-reboot.mod.1:
-	rm -f reboot_mod-commands_reboot.d reboot_mod-kern_i386_reboot.d
+	rm -f reboot_mod-commands_reboot.d
 
 MOSTLYCLEAN_MODULE_TARGETS += mostlyclean-module-reboot.mod.1
 UNDSYMFILES += und-reboot.lst
@@ -1378,9 +925,9 @@ reboot.mod: pre-reboot.o mod-reboot.o $(TARGET_OBJ2ELF)
 	-rm -f $@.bin
 endif
 
-pre-reboot.o: $(reboot_mod_DEPENDENCIES) reboot_mod-commands_reboot.o reboot_mod-kern_i386_reboot.o
+pre-reboot.o: $(reboot_mod_DEPENDENCIES) reboot_mod-commands_reboot.o
 	-rm -f $@
-	$(TARGET_CC) $(reboot_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ reboot_mod-commands_reboot.o reboot_mod-kern_i386_reboot.o
+	$(TARGET_CC) $(reboot_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ reboot_mod-commands_reboot.o
 
 mod-reboot.o: mod-reboot.c
 	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -c -o $@ $<
@@ -1388,14 +935,12 @@ mod-reboot.o: mod-reboot.c
 mod-reboot.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'reboot' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(reboot_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-reboot.lst: pre-reboot.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 reboot/' > $@
 else
 def-reboot.lst: pre-reboot.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 reboot/' > $@
-endif
 endif
 
 und-reboot.lst: pre-reboot.o
@@ -1407,7 +952,7 @@ reboot_mod-commands_reboot.o: commands/reboot.c $(commands/reboot.c_DEPENDENCIES
 -include reboot_mod-commands_reboot.d
 
 clean-module-reboot_mod-commands_reboot-extra.1:
-	rm -f cmd-reboot_mod-commands_reboot.lst fs-reboot_mod-commands_reboot.lst partmap-reboot_mod-commands_reboot.lst handler-reboot_mod-commands_reboot.lst parttool-reboot_mod-commands_reboot.lst
+	rm -f cmd-reboot_mod-commands_reboot.lst fs-reboot_mod-commands_reboot.lst partmap-reboot_mod-commands_reboot.lst handler-reboot_mod-commands_reboot.lst parttool-reboot_mod-commands_reboot.lst video-reboot_mod-commands_reboot.lst terminal-reboot_mod-commands_reboot.lst
 
 CLEAN_MODULE_TARGETS += clean-module-reboot_mod-commands_reboot-extra.1
 
@@ -1416,6 +961,8 @@ FSFILES += fs-reboot_mod-commands_reboot.lst
 PARTTOOLFILES += parttool-reboot_mod-commands_reboot.lst
 PARTMAPFILES += partmap-reboot_mod-commands_reboot.lst
 HANDLERFILES += handler-reboot_mod-commands_reboot.lst
+TERMINALFILES += terminal-reboot_mod-commands_reboot.lst
+VIDEOFILES += video-reboot_mod-commands_reboot.lst
 
 cmd-reboot_mod-commands_reboot.lst: commands/reboot.c $(commands/reboot.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh reboot > $@ || (rm -f $@; exit 1)
@@ -1432,56 +979,30 @@ partmap-reboot_mod-commands_reboot.lst: commands/reboot.c $(commands/reboot.c_DE
 handler-reboot_mod-commands_reboot.lst: commands/reboot.c $(commands/reboot.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh reboot > $@ || (rm -f $@; exit 1)
 
-reboot_mod-kern_i386_reboot.o: kern/i386/reboot.c $(kern/i386/reboot.c_DEPENDENCIES)
-	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -MD -c -o $@ $<
--include reboot_mod-kern_i386_reboot.d
+terminal-reboot_mod-commands_reboot.lst: commands/reboot.c $(commands/reboot.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh reboot > $@ || (rm -f $@; exit 1)
 
-clean-module-reboot_mod-kern_i386_reboot-extra.1:
-	rm -f cmd-reboot_mod-kern_i386_reboot.lst fs-reboot_mod-kern_i386_reboot.lst partmap-reboot_mod-kern_i386_reboot.lst handler-reboot_mod-kern_i386_reboot.lst parttool-reboot_mod-kern_i386_reboot.lst
-
-CLEAN_MODULE_TARGETS += clean-module-reboot_mod-kern_i386_reboot-extra.1
-
-COMMANDFILES += cmd-reboot_mod-kern_i386_reboot.lst
-FSFILES += fs-reboot_mod-kern_i386_reboot.lst
-PARTTOOLFILES += parttool-reboot_mod-kern_i386_reboot.lst
-PARTMAPFILES += partmap-reboot_mod-kern_i386_reboot.lst
-HANDLERFILES += handler-reboot_mod-kern_i386_reboot.lst
-
-cmd-reboot_mod-kern_i386_reboot.lst: kern/i386/reboot.c $(kern/i386/reboot.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh reboot > $@ || (rm -f $@; exit 1)
-
-fs-reboot_mod-kern_i386_reboot.lst: kern/i386/reboot.c $(kern/i386/reboot.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh reboot > $@ || (rm -f $@; exit 1)
-
-parttool-reboot_mod-kern_i386_reboot.lst: kern/i386/reboot.c $(kern/i386/reboot.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh reboot > $@ || (rm -f $@; exit 1)
-
-partmap-reboot_mod-kern_i386_reboot.lst: kern/i386/reboot.c $(kern/i386/reboot.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh reboot > $@ || (rm -f $@; exit 1)
-
-handler-reboot_mod-kern_i386_reboot.lst: kern/i386/reboot.c $(kern/i386/reboot.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh reboot > $@ || (rm -f $@; exit 1)
+video-reboot_mod-commands_reboot.lst: commands/reboot.c $(commands/reboot.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(reboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh reboot > $@ || (rm -f $@; exit 1)
 
 reboot_mod_CFLAGS = $(COMMON_CFLAGS)
 reboot_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
 # For halt.mod.
-halt_mod_SOURCES = commands/halt.c kern/i386/halt.c
+halt_mod_SOURCES = commands/halt.c
 
 clean-module-halt.mod.1:
-	rm -f halt.mod mod-halt.o mod-halt.c pre-halt.o halt_mod-commands_halt.o halt_mod-kern_i386_halt.o und-halt.lst
+	rm -f halt.mod mod-halt.o mod-halt.c pre-halt.o halt_mod-commands_halt.o und-halt.lst
 
 CLEAN_MODULE_TARGETS += clean-module-halt.mod.1
 
-ifneq ($(halt_mod_EXPORTS),no)
 clean-module-halt.mod-symbol.1:
 	rm -f def-halt.lst
 
 CLEAN_MODULE_TARGETS += clean-module-halt.mod-symbol.1
 DEFSYMFILES += def-halt.lst
-endif
 mostlyclean-module-halt.mod.1:
-	rm -f halt_mod-commands_halt.d halt_mod-kern_i386_halt.d
+	rm -f halt_mod-commands_halt.d
 
 MOSTLYCLEAN_MODULE_TARGETS += mostlyclean-module-halt.mod.1
 UNDSYMFILES += und-halt.lst
@@ -1501,9 +1022,9 @@ halt.mod: pre-halt.o mod-halt.o $(TARGET_OBJ2ELF)
 	-rm -f $@.bin
 endif
 
-pre-halt.o: $(halt_mod_DEPENDENCIES) halt_mod-commands_halt.o halt_mod-kern_i386_halt.o
+pre-halt.o: $(halt_mod_DEPENDENCIES) halt_mod-commands_halt.o
 	-rm -f $@
-	$(TARGET_CC) $(halt_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ halt_mod-commands_halt.o halt_mod-kern_i386_halt.o
+	$(TARGET_CC) $(halt_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ halt_mod-commands_halt.o
 
 mod-halt.o: mod-halt.c
 	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -c -o $@ $<
@@ -1511,14 +1032,12 @@ mod-halt.o: mod-halt.c
 mod-halt.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'halt' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(halt_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-halt.lst: pre-halt.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 halt/' > $@
 else
 def-halt.lst: pre-halt.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 halt/' > $@
-endif
 endif
 
 und-halt.lst: pre-halt.o
@@ -1530,7 +1049,7 @@ halt_mod-commands_halt.o: commands/halt.c $(commands/halt.c_DEPENDENCIES)
 -include halt_mod-commands_halt.d
 
 clean-module-halt_mod-commands_halt-extra.1:
-	rm -f cmd-halt_mod-commands_halt.lst fs-halt_mod-commands_halt.lst partmap-halt_mod-commands_halt.lst handler-halt_mod-commands_halt.lst parttool-halt_mod-commands_halt.lst
+	rm -f cmd-halt_mod-commands_halt.lst fs-halt_mod-commands_halt.lst partmap-halt_mod-commands_halt.lst handler-halt_mod-commands_halt.lst parttool-halt_mod-commands_halt.lst video-halt_mod-commands_halt.lst terminal-halt_mod-commands_halt.lst
 
 CLEAN_MODULE_TARGETS += clean-module-halt_mod-commands_halt-extra.1
 
@@ -1539,6 +1058,8 @@ FSFILES += fs-halt_mod-commands_halt.lst
 PARTTOOLFILES += parttool-halt_mod-commands_halt.lst
 PARTMAPFILES += partmap-halt_mod-commands_halt.lst
 HANDLERFILES += handler-halt_mod-commands_halt.lst
+TERMINALFILES += terminal-halt_mod-commands_halt.lst
+VIDEOFILES += video-halt_mod-commands_halt.lst
 
 cmd-halt_mod-commands_halt.lst: commands/halt.c $(commands/halt.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh halt > $@ || (rm -f $@; exit 1)
@@ -1555,56 +1076,30 @@ partmap-halt_mod-commands_halt.lst: commands/halt.c $(commands/halt.c_DEPENDENCI
 handler-halt_mod-commands_halt.lst: commands/halt.c $(commands/halt.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh halt > $@ || (rm -f $@; exit 1)
 
-halt_mod-kern_i386_halt.o: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES)
-	$(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -MD -c -o $@ $<
--include halt_mod-kern_i386_halt.d
+terminal-halt_mod-commands_halt.lst: commands/halt.c $(commands/halt.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh halt > $@ || (rm -f $@; exit 1)
 
-clean-module-halt_mod-kern_i386_halt-extra.1:
-	rm -f cmd-halt_mod-kern_i386_halt.lst fs-halt_mod-kern_i386_halt.lst partmap-halt_mod-kern_i386_halt.lst handler-halt_mod-kern_i386_halt.lst parttool-halt_mod-kern_i386_halt.lst
-
-CLEAN_MODULE_TARGETS += clean-module-halt_mod-kern_i386_halt-extra.1
-
-COMMANDFILES += cmd-halt_mod-kern_i386_halt.lst
-FSFILES += fs-halt_mod-kern_i386_halt.lst
-PARTTOOLFILES += parttool-halt_mod-kern_i386_halt.lst
-PARTMAPFILES += partmap-halt_mod-kern_i386_halt.lst
-HANDLERFILES += handler-halt_mod-kern_i386_halt.lst
-
-cmd-halt_mod-kern_i386_halt.lst: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh halt > $@ || (rm -f $@; exit 1)
-
-fs-halt_mod-kern_i386_halt.lst: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh halt > $@ || (rm -f $@; exit 1)
-
-parttool-halt_mod-kern_i386_halt.lst: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh halt > $@ || (rm -f $@; exit 1)
-
-partmap-halt_mod-kern_i386_halt.lst: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh halt > $@ || (rm -f $@; exit 1)
-
-handler-halt_mod-kern_i386_halt.lst: kern/i386/halt.c $(kern/i386/halt.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Ikern/i386 -I$(srcdir)/kern/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh halt > $@ || (rm -f $@; exit 1)
+video-halt_mod-commands_halt.lst: commands/halt.c $(commands/halt.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(halt_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh halt > $@ || (rm -f $@; exit 1)
 
 halt_mod_CFLAGS = $(COMMON_CFLAGS)
 halt_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
 # For serial.mod.
-serial_mod_SOURCES = term/i386/pc/serial.c
+serial_mod_SOURCES = term/serial.c
 
 clean-module-serial.mod.1:
-	rm -f serial.mod mod-serial.o mod-serial.c pre-serial.o serial_mod-term_i386_pc_serial.o und-serial.lst
+	rm -f serial.mod mod-serial.o mod-serial.c pre-serial.o serial_mod-term_serial.o und-serial.lst
 
 CLEAN_MODULE_TARGETS += clean-module-serial.mod.1
 
-ifneq ($(serial_mod_EXPORTS),no)
 clean-module-serial.mod-symbol.1:
 	rm -f def-serial.lst
 
 CLEAN_MODULE_TARGETS += clean-module-serial.mod-symbol.1
 DEFSYMFILES += def-serial.lst
-endif
 mostlyclean-module-serial.mod.1:
-	rm -f serial_mod-term_i386_pc_serial.d
+	rm -f serial_mod-term_serial.d
 
 MOSTLYCLEAN_MODULE_TARGETS += mostlyclean-module-serial.mod.1
 UNDSYMFILES += und-serial.lst
@@ -1624,9 +1119,9 @@ serial.mod: pre-serial.o mod-serial.o $(TARGET_OBJ2ELF)
 	-rm -f $@.bin
 endif
 
-pre-serial.o: $(serial_mod_DEPENDENCIES) serial_mod-term_i386_pc_serial.o
+pre-serial.o: $(serial_mod_DEPENDENCIES) serial_mod-term_serial.o
 	-rm -f $@
-	$(TARGET_CC) $(serial_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ serial_mod-term_i386_pc_serial.o
+	$(TARGET_CC) $(serial_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ serial_mod-term_serial.o
 
 mod-serial.o: mod-serial.c
 	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -c -o $@ $<
@@ -1634,7 +1129,6 @@ mod-serial.o: mod-serial.c
 mod-serial.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'serial' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(serial_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-serial.lst: pre-serial.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 serial/' > $@
@@ -1642,262 +1136,51 @@ else
 def-serial.lst: pre-serial.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 serial/' > $@
 endif
-endif
 
 und-serial.lst: pre-serial.o
 	echo 'serial' > $@
 	$(NM) -u -P -p $< | cut -f1 -d' ' >> $@
 
-serial_mod-term_i386_pc_serial.o: term/i386/pc/serial.c $(term/i386/pc/serial.c_DEPENDENCIES)
-	$(TARGET_CC) -Iterm/i386/pc -I$(srcdir)/term/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -MD -c -o $@ $<
--include serial_mod-term_i386_pc_serial.d
+serial_mod-term_serial.o: term/serial.c $(term/serial.c_DEPENDENCIES)
+	$(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -MD -c -o $@ $<
+-include serial_mod-term_serial.d
 
-clean-module-serial_mod-term_i386_pc_serial-extra.1:
-	rm -f cmd-serial_mod-term_i386_pc_serial.lst fs-serial_mod-term_i386_pc_serial.lst partmap-serial_mod-term_i386_pc_serial.lst handler-serial_mod-term_i386_pc_serial.lst parttool-serial_mod-term_i386_pc_serial.lst
+clean-module-serial_mod-term_serial-extra.1:
+	rm -f cmd-serial_mod-term_serial.lst fs-serial_mod-term_serial.lst partmap-serial_mod-term_serial.lst handler-serial_mod-term_serial.lst parttool-serial_mod-term_serial.lst video-serial_mod-term_serial.lst terminal-serial_mod-term_serial.lst
 
-CLEAN_MODULE_TARGETS += clean-module-serial_mod-term_i386_pc_serial-extra.1
+CLEAN_MODULE_TARGETS += clean-module-serial_mod-term_serial-extra.1
 
-COMMANDFILES += cmd-serial_mod-term_i386_pc_serial.lst
-FSFILES += fs-serial_mod-term_i386_pc_serial.lst
-PARTTOOLFILES += parttool-serial_mod-term_i386_pc_serial.lst
-PARTMAPFILES += partmap-serial_mod-term_i386_pc_serial.lst
-HANDLERFILES += handler-serial_mod-term_i386_pc_serial.lst
+COMMANDFILES += cmd-serial_mod-term_serial.lst
+FSFILES += fs-serial_mod-term_serial.lst
+PARTTOOLFILES += parttool-serial_mod-term_serial.lst
+PARTMAPFILES += partmap-serial_mod-term_serial.lst
+HANDLERFILES += handler-serial_mod-term_serial.lst
+TERMINALFILES += terminal-serial_mod-term_serial.lst
+VIDEOFILES += video-serial_mod-term_serial.lst
 
-cmd-serial_mod-term_i386_pc_serial.lst: term/i386/pc/serial.c $(term/i386/pc/serial.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Iterm/i386/pc -I$(srcdir)/term/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh serial > $@ || (rm -f $@; exit 1)
+cmd-serial_mod-term_serial.lst: term/serial.c $(term/serial.c_DEPENDENCIES) gencmdlist.sh
+	set -e; 	  $(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh serial > $@ || (rm -f $@; exit 1)
 
-fs-serial_mod-term_i386_pc_serial.lst: term/i386/pc/serial.c $(term/i386/pc/serial.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Iterm/i386/pc -I$(srcdir)/term/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh serial > $@ || (rm -f $@; exit 1)
+fs-serial_mod-term_serial.lst: term/serial.c $(term/serial.c_DEPENDENCIES) genfslist.sh
+	set -e; 	  $(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh serial > $@ || (rm -f $@; exit 1)
 
-parttool-serial_mod-term_i386_pc_serial.lst: term/i386/pc/serial.c $(term/i386/pc/serial.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Iterm/i386/pc -I$(srcdir)/term/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh serial > $@ || (rm -f $@; exit 1)
+parttool-serial_mod-term_serial.lst: term/serial.c $(term/serial.c_DEPENDENCIES) genparttoollist.sh
+	set -e; 	  $(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh serial > $@ || (rm -f $@; exit 1)
 
-partmap-serial_mod-term_i386_pc_serial.lst: term/i386/pc/serial.c $(term/i386/pc/serial.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Iterm/i386/pc -I$(srcdir)/term/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh serial > $@ || (rm -f $@; exit 1)
+partmap-serial_mod-term_serial.lst: term/serial.c $(term/serial.c_DEPENDENCIES) genpartmaplist.sh
+	set -e; 	  $(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh serial > $@ || (rm -f $@; exit 1)
 
-handler-serial_mod-term_i386_pc_serial.lst: term/i386/pc/serial.c $(term/i386/pc/serial.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Iterm/i386/pc -I$(srcdir)/term/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh serial > $@ || (rm -f $@; exit 1)
+handler-serial_mod-term_serial.lst: term/serial.c $(term/serial.c_DEPENDENCIES) genhandlerlist.sh
+	set -e; 	  $(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh serial > $@ || (rm -f $@; exit 1)
+
+terminal-serial_mod-term_serial.lst: term/serial.c $(term/serial.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh serial > $@ || (rm -f $@; exit 1)
+
+video-serial_mod-term_serial.lst: term/serial.c $(term/serial.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iterm -I$(srcdir)/term $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(serial_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh serial > $@ || (rm -f $@; exit 1)
 
 serial_mod_CFLAGS = $(COMMON_CFLAGS)
 serial_mod_LDFLAGS = $(COMMON_LDFLAGS)
-
-# For multiboot.mod.
-multiboot_mod_SOURCES = loader/i386/multiboot.c \
-			loader/i386/multiboot_helper.S \
-                         loader/i386/pc/multiboot2.c \
-                         loader/multiboot2.c \
-                         loader/multiboot_loader.c
-
-clean-module-multiboot.mod.1:
-	rm -f multiboot.mod mod-multiboot.o mod-multiboot.c pre-multiboot.o multiboot_mod-loader_i386_multiboot.o multiboot_mod-loader_i386_multiboot_helper.o multiboot_mod-loader_i386_pc_multiboot2.o multiboot_mod-loader_multiboot2.o multiboot_mod-loader_multiboot_loader.o und-multiboot.lst
-
-CLEAN_MODULE_TARGETS += clean-module-multiboot.mod.1
-
-ifneq ($(multiboot_mod_EXPORTS),no)
-clean-module-multiboot.mod-symbol.1:
-	rm -f def-multiboot.lst
-
-CLEAN_MODULE_TARGETS += clean-module-multiboot.mod-symbol.1
-DEFSYMFILES += def-multiboot.lst
-endif
-mostlyclean-module-multiboot.mod.1:
-	rm -f multiboot_mod-loader_i386_multiboot.d multiboot_mod-loader_i386_multiboot_helper.d multiboot_mod-loader_i386_pc_multiboot2.d multiboot_mod-loader_multiboot2.d multiboot_mod-loader_multiboot_loader.d
-
-MOSTLYCLEAN_MODULE_TARGETS += mostlyclean-module-multiboot.mod.1
-UNDSYMFILES += und-multiboot.lst
-
-ifneq ($(TARGET_APPLE_CC),1)
-multiboot.mod: pre-multiboot.o mod-multiboot.o $(TARGET_OBJ2ELF)
-	-rm -f $@
-	$(TARGET_CC) $(multiboot_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ pre-multiboot.o mod-multiboot.o
-	if test ! -z "$(TARGET_OBJ2ELF)"; then ./$(TARGET_OBJ2ELF) $@ || (rm -f $@; exit 1); fi
-	$(STRIP) --strip-unneeded -K grub_mod_init -K grub_mod_fini -K _grub_mod_init -K _grub_mod_fini -R .note -R .comment $@
-else
-multiboot.mod: pre-multiboot.o mod-multiboot.o $(TARGET_OBJ2ELF)
-	-rm -f $@
-	-rm -f $@.bin
-	$(TARGET_CC) $(multiboot_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@.bin pre-multiboot.o mod-multiboot.o
-	$(OBJCONV) -f$(TARGET_MODULE_FORMAT) -nr:_grub_mod_init:grub_mod_init -nr:_grub_mod_fini:grub_mod_fini -wd1106 -nu -nd $@.bin $@
-	-rm -f $@.bin
-endif
-
-pre-multiboot.o: $(multiboot_mod_DEPENDENCIES) multiboot_mod-loader_i386_multiboot.o multiboot_mod-loader_i386_multiboot_helper.o multiboot_mod-loader_i386_pc_multiboot2.o multiboot_mod-loader_multiboot2.o multiboot_mod-loader_multiboot_loader.o
-	-rm -f $@
-	$(TARGET_CC) $(multiboot_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ multiboot_mod-loader_i386_multiboot.o multiboot_mod-loader_i386_multiboot_helper.o multiboot_mod-loader_i386_pc_multiboot2.o multiboot_mod-loader_multiboot2.o multiboot_mod-loader_multiboot_loader.o
-
-mod-multiboot.o: mod-multiboot.c
-	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -c -o $@ $<
-
-mod-multiboot.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
-	sh $(srcdir)/genmodsrc.sh 'multiboot' $< > $@ || (rm -f $@; exit 1)
-
-ifneq ($(multiboot_mod_EXPORTS),no)
-ifneq ($(TARGET_APPLE_CC),1)
-def-multiboot.lst: pre-multiboot.o
-	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 multiboot/' > $@
-else
-def-multiboot.lst: pre-multiboot.o
-	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 multiboot/' > $@
-endif
-endif
-
-und-multiboot.lst: pre-multiboot.o
-	echo 'multiboot' > $@
-	$(NM) -u -P -p $< | cut -f1 -d' ' >> $@
-
-multiboot_mod-loader_i386_multiboot.o: loader/i386/multiboot.c $(loader/i386/multiboot.c_DEPENDENCIES)
-	$(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -MD -c -o $@ $<
--include multiboot_mod-loader_i386_multiboot.d
-
-clean-module-multiboot_mod-loader_i386_multiboot-extra.1:
-	rm -f cmd-multiboot_mod-loader_i386_multiboot.lst fs-multiboot_mod-loader_i386_multiboot.lst partmap-multiboot_mod-loader_i386_multiboot.lst handler-multiboot_mod-loader_i386_multiboot.lst parttool-multiboot_mod-loader_i386_multiboot.lst
-
-CLEAN_MODULE_TARGETS += clean-module-multiboot_mod-loader_i386_multiboot-extra.1
-
-COMMANDFILES += cmd-multiboot_mod-loader_i386_multiboot.lst
-FSFILES += fs-multiboot_mod-loader_i386_multiboot.lst
-PARTTOOLFILES += parttool-multiboot_mod-loader_i386_multiboot.lst
-PARTMAPFILES += partmap-multiboot_mod-loader_i386_multiboot.lst
-HANDLERFILES += handler-multiboot_mod-loader_i386_multiboot.lst
-
-cmd-multiboot_mod-loader_i386_multiboot.lst: loader/i386/multiboot.c $(loader/i386/multiboot.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-fs-multiboot_mod-loader_i386_multiboot.lst: loader/i386/multiboot.c $(loader/i386/multiboot.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-parttool-multiboot_mod-loader_i386_multiboot.lst: loader/i386/multiboot.c $(loader/i386/multiboot.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-partmap-multiboot_mod-loader_i386_multiboot.lst: loader/i386/multiboot.c $(loader/i386/multiboot.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-handler-multiboot_mod-loader_i386_multiboot.lst: loader/i386/multiboot.c $(loader/i386/multiboot.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-multiboot_mod-loader_i386_multiboot_helper.o: loader/i386/multiboot_helper.S $(loader/i386/multiboot_helper.S_DEPENDENCIES)
-	$(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(multiboot_mod_ASFLAGS) -MD -c -o $@ $<
--include multiboot_mod-loader_i386_multiboot_helper.d
-
-clean-module-multiboot_mod-loader_i386_multiboot_helper-extra.1:
-	rm -f cmd-multiboot_mod-loader_i386_multiboot_helper.lst fs-multiboot_mod-loader_i386_multiboot_helper.lst partmap-multiboot_mod-loader_i386_multiboot_helper.lst handler-multiboot_mod-loader_i386_multiboot_helper.lst parttool-multiboot_mod-loader_i386_multiboot_helper.lst
-
-CLEAN_MODULE_TARGETS += clean-module-multiboot_mod-loader_i386_multiboot_helper-extra.1
-
-COMMANDFILES += cmd-multiboot_mod-loader_i386_multiboot_helper.lst
-FSFILES += fs-multiboot_mod-loader_i386_multiboot_helper.lst
-PARTTOOLFILES += parttool-multiboot_mod-loader_i386_multiboot_helper.lst
-PARTMAPFILES += partmap-multiboot_mod-loader_i386_multiboot_helper.lst
-HANDLERFILES += handler-multiboot_mod-loader_i386_multiboot_helper.lst
-
-cmd-multiboot_mod-loader_i386_multiboot_helper.lst: loader/i386/multiboot_helper.S $(loader/i386/multiboot_helper.S_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(multiboot_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-fs-multiboot_mod-loader_i386_multiboot_helper.lst: loader/i386/multiboot_helper.S $(loader/i386/multiboot_helper.S_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(multiboot_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-parttool-multiboot_mod-loader_i386_multiboot_helper.lst: loader/i386/multiboot_helper.S $(loader/i386/multiboot_helper.S_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(multiboot_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-partmap-multiboot_mod-loader_i386_multiboot_helper.lst: loader/i386/multiboot_helper.S $(loader/i386/multiboot_helper.S_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(multiboot_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-handler-multiboot_mod-loader_i386_multiboot_helper.lst: loader/i386/multiboot_helper.S $(loader/i386/multiboot_helper.S_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(multiboot_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-multiboot_mod-loader_i386_pc_multiboot2.o: loader/i386/pc/multiboot2.c $(loader/i386/pc/multiboot2.c_DEPENDENCIES)
-	$(TARGET_CC) -Iloader/i386/pc -I$(srcdir)/loader/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -MD -c -o $@ $<
--include multiboot_mod-loader_i386_pc_multiboot2.d
-
-clean-module-multiboot_mod-loader_i386_pc_multiboot2-extra.1:
-	rm -f cmd-multiboot_mod-loader_i386_pc_multiboot2.lst fs-multiboot_mod-loader_i386_pc_multiboot2.lst partmap-multiboot_mod-loader_i386_pc_multiboot2.lst handler-multiboot_mod-loader_i386_pc_multiboot2.lst parttool-multiboot_mod-loader_i386_pc_multiboot2.lst
-
-CLEAN_MODULE_TARGETS += clean-module-multiboot_mod-loader_i386_pc_multiboot2-extra.1
-
-COMMANDFILES += cmd-multiboot_mod-loader_i386_pc_multiboot2.lst
-FSFILES += fs-multiboot_mod-loader_i386_pc_multiboot2.lst
-PARTTOOLFILES += parttool-multiboot_mod-loader_i386_pc_multiboot2.lst
-PARTMAPFILES += partmap-multiboot_mod-loader_i386_pc_multiboot2.lst
-HANDLERFILES += handler-multiboot_mod-loader_i386_pc_multiboot2.lst
-
-cmd-multiboot_mod-loader_i386_pc_multiboot2.lst: loader/i386/pc/multiboot2.c $(loader/i386/pc/multiboot2.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386/pc -I$(srcdir)/loader/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-fs-multiboot_mod-loader_i386_pc_multiboot2.lst: loader/i386/pc/multiboot2.c $(loader/i386/pc/multiboot2.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386/pc -I$(srcdir)/loader/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-parttool-multiboot_mod-loader_i386_pc_multiboot2.lst: loader/i386/pc/multiboot2.c $(loader/i386/pc/multiboot2.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386/pc -I$(srcdir)/loader/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-partmap-multiboot_mod-loader_i386_pc_multiboot2.lst: loader/i386/pc/multiboot2.c $(loader/i386/pc/multiboot2.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386/pc -I$(srcdir)/loader/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-handler-multiboot_mod-loader_i386_pc_multiboot2.lst: loader/i386/pc/multiboot2.c $(loader/i386/pc/multiboot2.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader/i386/pc -I$(srcdir)/loader/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-multiboot_mod-loader_multiboot2.o: loader/multiboot2.c $(loader/multiboot2.c_DEPENDENCIES)
-	$(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -MD -c -o $@ $<
--include multiboot_mod-loader_multiboot2.d
-
-clean-module-multiboot_mod-loader_multiboot2-extra.1:
-	rm -f cmd-multiboot_mod-loader_multiboot2.lst fs-multiboot_mod-loader_multiboot2.lst partmap-multiboot_mod-loader_multiboot2.lst handler-multiboot_mod-loader_multiboot2.lst parttool-multiboot_mod-loader_multiboot2.lst
-
-CLEAN_MODULE_TARGETS += clean-module-multiboot_mod-loader_multiboot2-extra.1
-
-COMMANDFILES += cmd-multiboot_mod-loader_multiboot2.lst
-FSFILES += fs-multiboot_mod-loader_multiboot2.lst
-PARTTOOLFILES += parttool-multiboot_mod-loader_multiboot2.lst
-PARTMAPFILES += partmap-multiboot_mod-loader_multiboot2.lst
-HANDLERFILES += handler-multiboot_mod-loader_multiboot2.lst
-
-cmd-multiboot_mod-loader_multiboot2.lst: loader/multiboot2.c $(loader/multiboot2.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-fs-multiboot_mod-loader_multiboot2.lst: loader/multiboot2.c $(loader/multiboot2.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-parttool-multiboot_mod-loader_multiboot2.lst: loader/multiboot2.c $(loader/multiboot2.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-partmap-multiboot_mod-loader_multiboot2.lst: loader/multiboot2.c $(loader/multiboot2.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-handler-multiboot_mod-loader_multiboot2.lst: loader/multiboot2.c $(loader/multiboot2.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-multiboot_mod-loader_multiboot_loader.o: loader/multiboot_loader.c $(loader/multiboot_loader.c_DEPENDENCIES)
-	$(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -MD -c -o $@ $<
--include multiboot_mod-loader_multiboot_loader.d
-
-clean-module-multiboot_mod-loader_multiboot_loader-extra.1:
-	rm -f cmd-multiboot_mod-loader_multiboot_loader.lst fs-multiboot_mod-loader_multiboot_loader.lst partmap-multiboot_mod-loader_multiboot_loader.lst handler-multiboot_mod-loader_multiboot_loader.lst parttool-multiboot_mod-loader_multiboot_loader.lst
-
-CLEAN_MODULE_TARGETS += clean-module-multiboot_mod-loader_multiboot_loader-extra.1
-
-COMMANDFILES += cmd-multiboot_mod-loader_multiboot_loader.lst
-FSFILES += fs-multiboot_mod-loader_multiboot_loader.lst
-PARTTOOLFILES += parttool-multiboot_mod-loader_multiboot_loader.lst
-PARTMAPFILES += partmap-multiboot_mod-loader_multiboot_loader.lst
-HANDLERFILES += handler-multiboot_mod-loader_multiboot_loader.lst
-
-cmd-multiboot_mod-loader_multiboot_loader.lst: loader/multiboot_loader.c $(loader/multiboot_loader.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-fs-multiboot_mod-loader_multiboot_loader.lst: loader/multiboot_loader.c $(loader/multiboot_loader.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-parttool-multiboot_mod-loader_multiboot_loader.lst: loader/multiboot_loader.c $(loader/multiboot_loader.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-partmap-multiboot_mod-loader_multiboot_loader.lst: loader/multiboot_loader.c $(loader/multiboot_loader.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-handler-multiboot_mod-loader_multiboot_loader.lst: loader/multiboot_loader.c $(loader/multiboot_loader.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(multiboot_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh multiboot > $@ || (rm -f $@; exit 1)
-
-multiboot_mod_CFLAGS = $(COMMON_CFLAGS)
-multiboot_mod_LDFLAGS = $(COMMON_LDFLAGS)
-multiboot_mod_ASFLAGS = $(COMMON_ASFLAGS)
 
 # For aout.mod.
 aout_mod_SOURCES = loader/aout.c
@@ -1907,13 +1190,11 @@ clean-module-aout.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-aout.mod.1
 
-ifneq ($(aout_mod_EXPORTS),no)
 clean-module-aout.mod-symbol.1:
 	rm -f def-aout.lst
 
 CLEAN_MODULE_TARGETS += clean-module-aout.mod-symbol.1
 DEFSYMFILES += def-aout.lst
-endif
 mostlyclean-module-aout.mod.1:
 	rm -f aout_mod-loader_aout.d
 
@@ -1945,14 +1226,12 @@ mod-aout.o: mod-aout.c
 mod-aout.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'aout' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(aout_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-aout.lst: pre-aout.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 aout/' > $@
 else
 def-aout.lst: pre-aout.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 aout/' > $@
-endif
 endif
 
 und-aout.lst: pre-aout.o
@@ -1964,7 +1243,7 @@ aout_mod-loader_aout.o: loader/aout.c $(loader/aout.c_DEPENDENCIES)
 -include aout_mod-loader_aout.d
 
 clean-module-aout_mod-loader_aout-extra.1:
-	rm -f cmd-aout_mod-loader_aout.lst fs-aout_mod-loader_aout.lst partmap-aout_mod-loader_aout.lst handler-aout_mod-loader_aout.lst parttool-aout_mod-loader_aout.lst
+	rm -f cmd-aout_mod-loader_aout.lst fs-aout_mod-loader_aout.lst partmap-aout_mod-loader_aout.lst handler-aout_mod-loader_aout.lst parttool-aout_mod-loader_aout.lst video-aout_mod-loader_aout.lst terminal-aout_mod-loader_aout.lst
 
 CLEAN_MODULE_TARGETS += clean-module-aout_mod-loader_aout-extra.1
 
@@ -1973,6 +1252,8 @@ FSFILES += fs-aout_mod-loader_aout.lst
 PARTTOOLFILES += parttool-aout_mod-loader_aout.lst
 PARTMAPFILES += partmap-aout_mod-loader_aout.lst
 HANDLERFILES += handler-aout_mod-loader_aout.lst
+TERMINALFILES += terminal-aout_mod-loader_aout.lst
+VIDEOFILES += video-aout_mod-loader_aout.lst
 
 cmd-aout_mod-loader_aout.lst: loader/aout.c $(loader/aout.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(aout_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh aout > $@ || (rm -f $@; exit 1)
@@ -1989,6 +1270,12 @@ partmap-aout_mod-loader_aout.lst: loader/aout.c $(loader/aout.c_DEPENDENCIES) ge
 handler-aout_mod-loader_aout.lst: loader/aout.c $(loader/aout.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(aout_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh aout > $@ || (rm -f $@; exit 1)
 
+terminal-aout_mod-loader_aout.lst: loader/aout.c $(loader/aout.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(aout_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh aout > $@ || (rm -f $@; exit 1)
+
+video-aout_mod-loader_aout.lst: loader/aout.c $(loader/aout.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iloader -I$(srcdir)/loader $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(aout_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh aout > $@ || (rm -f $@; exit 1)
+
 aout_mod_CFLAGS = $(COMMON_CFLAGS)
 aout_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
@@ -2001,13 +1288,11 @@ clean-module-bsd.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-bsd.mod.1
 
-ifneq ($(bsd_mod_EXPORTS),no)
 clean-module-bsd.mod-symbol.1:
 	rm -f def-bsd.lst
 
 CLEAN_MODULE_TARGETS += clean-module-bsd.mod-symbol.1
 DEFSYMFILES += def-bsd.lst
-endif
 mostlyclean-module-bsd.mod.1:
 	rm -f bsd_mod-loader_i386_bsd.d bsd_mod-loader_i386_bsd32.d bsd_mod-loader_i386_bsd64.d bsd_mod-loader_i386_bsd_helper.d bsd_mod-loader_i386_bsd_trampoline.d
 
@@ -2039,14 +1324,12 @@ mod-bsd.o: mod-bsd.c
 mod-bsd.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'bsd' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(bsd_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-bsd.lst: pre-bsd.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 bsd/' > $@
 else
 def-bsd.lst: pre-bsd.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 bsd/' > $@
-endif
 endif
 
 und-bsd.lst: pre-bsd.o
@@ -2058,7 +1341,7 @@ bsd_mod-loader_i386_bsd.o: loader/i386/bsd.c $(loader/i386/bsd.c_DEPENDENCIES)
 -include bsd_mod-loader_i386_bsd.d
 
 clean-module-bsd_mod-loader_i386_bsd-extra.1:
-	rm -f cmd-bsd_mod-loader_i386_bsd.lst fs-bsd_mod-loader_i386_bsd.lst partmap-bsd_mod-loader_i386_bsd.lst handler-bsd_mod-loader_i386_bsd.lst parttool-bsd_mod-loader_i386_bsd.lst
+	rm -f cmd-bsd_mod-loader_i386_bsd.lst fs-bsd_mod-loader_i386_bsd.lst partmap-bsd_mod-loader_i386_bsd.lst handler-bsd_mod-loader_i386_bsd.lst parttool-bsd_mod-loader_i386_bsd.lst video-bsd_mod-loader_i386_bsd.lst terminal-bsd_mod-loader_i386_bsd.lst
 
 CLEAN_MODULE_TARGETS += clean-module-bsd_mod-loader_i386_bsd-extra.1
 
@@ -2067,6 +1350,8 @@ FSFILES += fs-bsd_mod-loader_i386_bsd.lst
 PARTTOOLFILES += parttool-bsd_mod-loader_i386_bsd.lst
 PARTMAPFILES += partmap-bsd_mod-loader_i386_bsd.lst
 HANDLERFILES += handler-bsd_mod-loader_i386_bsd.lst
+TERMINALFILES += terminal-bsd_mod-loader_i386_bsd.lst
+VIDEOFILES += video-bsd_mod-loader_i386_bsd.lst
 
 cmd-bsd_mod-loader_i386_bsd.lst: loader/i386/bsd.c $(loader/i386/bsd.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh bsd > $@ || (rm -f $@; exit 1)
@@ -2083,12 +1368,18 @@ partmap-bsd_mod-loader_i386_bsd.lst: loader/i386/bsd.c $(loader/i386/bsd.c_DEPEN
 handler-bsd_mod-loader_i386_bsd.lst: loader/i386/bsd.c $(loader/i386/bsd.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh bsd > $@ || (rm -f $@; exit 1)
 
+terminal-bsd_mod-loader_i386_bsd.lst: loader/i386/bsd.c $(loader/i386/bsd.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh bsd > $@ || (rm -f $@; exit 1)
+
+video-bsd_mod-loader_i386_bsd.lst: loader/i386/bsd.c $(loader/i386/bsd.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh bsd > $@ || (rm -f $@; exit 1)
+
 bsd_mod-loader_i386_bsd32.o: loader/i386/bsd32.c $(loader/i386/bsd32.c_DEPENDENCIES)
 	$(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -MD -c -o $@ $<
 -include bsd_mod-loader_i386_bsd32.d
 
 clean-module-bsd_mod-loader_i386_bsd32-extra.1:
-	rm -f cmd-bsd_mod-loader_i386_bsd32.lst fs-bsd_mod-loader_i386_bsd32.lst partmap-bsd_mod-loader_i386_bsd32.lst handler-bsd_mod-loader_i386_bsd32.lst parttool-bsd_mod-loader_i386_bsd32.lst
+	rm -f cmd-bsd_mod-loader_i386_bsd32.lst fs-bsd_mod-loader_i386_bsd32.lst partmap-bsd_mod-loader_i386_bsd32.lst handler-bsd_mod-loader_i386_bsd32.lst parttool-bsd_mod-loader_i386_bsd32.lst video-bsd_mod-loader_i386_bsd32.lst terminal-bsd_mod-loader_i386_bsd32.lst
 
 CLEAN_MODULE_TARGETS += clean-module-bsd_mod-loader_i386_bsd32-extra.1
 
@@ -2097,6 +1388,8 @@ FSFILES += fs-bsd_mod-loader_i386_bsd32.lst
 PARTTOOLFILES += parttool-bsd_mod-loader_i386_bsd32.lst
 PARTMAPFILES += partmap-bsd_mod-loader_i386_bsd32.lst
 HANDLERFILES += handler-bsd_mod-loader_i386_bsd32.lst
+TERMINALFILES += terminal-bsd_mod-loader_i386_bsd32.lst
+VIDEOFILES += video-bsd_mod-loader_i386_bsd32.lst
 
 cmd-bsd_mod-loader_i386_bsd32.lst: loader/i386/bsd32.c $(loader/i386/bsd32.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh bsd > $@ || (rm -f $@; exit 1)
@@ -2113,12 +1406,18 @@ partmap-bsd_mod-loader_i386_bsd32.lst: loader/i386/bsd32.c $(loader/i386/bsd32.c
 handler-bsd_mod-loader_i386_bsd32.lst: loader/i386/bsd32.c $(loader/i386/bsd32.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh bsd > $@ || (rm -f $@; exit 1)
 
+terminal-bsd_mod-loader_i386_bsd32.lst: loader/i386/bsd32.c $(loader/i386/bsd32.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh bsd > $@ || (rm -f $@; exit 1)
+
+video-bsd_mod-loader_i386_bsd32.lst: loader/i386/bsd32.c $(loader/i386/bsd32.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh bsd > $@ || (rm -f $@; exit 1)
+
 bsd_mod-loader_i386_bsd64.o: loader/i386/bsd64.c $(loader/i386/bsd64.c_DEPENDENCIES)
 	$(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -MD -c -o $@ $<
 -include bsd_mod-loader_i386_bsd64.d
 
 clean-module-bsd_mod-loader_i386_bsd64-extra.1:
-	rm -f cmd-bsd_mod-loader_i386_bsd64.lst fs-bsd_mod-loader_i386_bsd64.lst partmap-bsd_mod-loader_i386_bsd64.lst handler-bsd_mod-loader_i386_bsd64.lst parttool-bsd_mod-loader_i386_bsd64.lst
+	rm -f cmd-bsd_mod-loader_i386_bsd64.lst fs-bsd_mod-loader_i386_bsd64.lst partmap-bsd_mod-loader_i386_bsd64.lst handler-bsd_mod-loader_i386_bsd64.lst parttool-bsd_mod-loader_i386_bsd64.lst video-bsd_mod-loader_i386_bsd64.lst terminal-bsd_mod-loader_i386_bsd64.lst
 
 CLEAN_MODULE_TARGETS += clean-module-bsd_mod-loader_i386_bsd64-extra.1
 
@@ -2127,6 +1426,8 @@ FSFILES += fs-bsd_mod-loader_i386_bsd64.lst
 PARTTOOLFILES += parttool-bsd_mod-loader_i386_bsd64.lst
 PARTMAPFILES += partmap-bsd_mod-loader_i386_bsd64.lst
 HANDLERFILES += handler-bsd_mod-loader_i386_bsd64.lst
+TERMINALFILES += terminal-bsd_mod-loader_i386_bsd64.lst
+VIDEOFILES += video-bsd_mod-loader_i386_bsd64.lst
 
 cmd-bsd_mod-loader_i386_bsd64.lst: loader/i386/bsd64.c $(loader/i386/bsd64.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh bsd > $@ || (rm -f $@; exit 1)
@@ -2143,12 +1444,18 @@ partmap-bsd_mod-loader_i386_bsd64.lst: loader/i386/bsd64.c $(loader/i386/bsd64.c
 handler-bsd_mod-loader_i386_bsd64.lst: loader/i386/bsd64.c $(loader/i386/bsd64.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh bsd > $@ || (rm -f $@; exit 1)
 
+terminal-bsd_mod-loader_i386_bsd64.lst: loader/i386/bsd64.c $(loader/i386/bsd64.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh bsd > $@ || (rm -f $@; exit 1)
+
+video-bsd_mod-loader_i386_bsd64.lst: loader/i386/bsd64.c $(loader/i386/bsd64.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(bsd_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh bsd > $@ || (rm -f $@; exit 1)
+
 bsd_mod-loader_i386_bsd_helper.o: loader/i386/bsd_helper.S $(loader/i386/bsd_helper.S_DEPENDENCIES)
 	$(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -MD -c -o $@ $<
 -include bsd_mod-loader_i386_bsd_helper.d
 
 clean-module-bsd_mod-loader_i386_bsd_helper-extra.1:
-	rm -f cmd-bsd_mod-loader_i386_bsd_helper.lst fs-bsd_mod-loader_i386_bsd_helper.lst partmap-bsd_mod-loader_i386_bsd_helper.lst handler-bsd_mod-loader_i386_bsd_helper.lst parttool-bsd_mod-loader_i386_bsd_helper.lst
+	rm -f cmd-bsd_mod-loader_i386_bsd_helper.lst fs-bsd_mod-loader_i386_bsd_helper.lst partmap-bsd_mod-loader_i386_bsd_helper.lst handler-bsd_mod-loader_i386_bsd_helper.lst parttool-bsd_mod-loader_i386_bsd_helper.lst video-bsd_mod-loader_i386_bsd_helper.lst terminal-bsd_mod-loader_i386_bsd_helper.lst
 
 CLEAN_MODULE_TARGETS += clean-module-bsd_mod-loader_i386_bsd_helper-extra.1
 
@@ -2157,6 +1464,8 @@ FSFILES += fs-bsd_mod-loader_i386_bsd_helper.lst
 PARTTOOLFILES += parttool-bsd_mod-loader_i386_bsd_helper.lst
 PARTMAPFILES += partmap-bsd_mod-loader_i386_bsd_helper.lst
 HANDLERFILES += handler-bsd_mod-loader_i386_bsd_helper.lst
+TERMINALFILES += terminal-bsd_mod-loader_i386_bsd_helper.lst
+VIDEOFILES += video-bsd_mod-loader_i386_bsd_helper.lst
 
 cmd-bsd_mod-loader_i386_bsd_helper.lst: loader/i386/bsd_helper.S $(loader/i386/bsd_helper.S_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh bsd > $@ || (rm -f $@; exit 1)
@@ -2173,12 +1482,18 @@ partmap-bsd_mod-loader_i386_bsd_helper.lst: loader/i386/bsd_helper.S $(loader/i3
 handler-bsd_mod-loader_i386_bsd_helper.lst: loader/i386/bsd_helper.S $(loader/i386/bsd_helper.S_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh bsd > $@ || (rm -f $@; exit 1)
 
+terminal-bsd_mod-loader_i386_bsd_helper.lst: loader/i386/bsd_helper.S $(loader/i386/bsd_helper.S_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh bsd > $@ || (rm -f $@; exit 1)
+
+video-bsd_mod-loader_i386_bsd_helper.lst: loader/i386/bsd_helper.S $(loader/i386/bsd_helper.S_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh bsd > $@ || (rm -f $@; exit 1)
+
 bsd_mod-loader_i386_bsd_trampoline.o: loader/i386/bsd_trampoline.S $(loader/i386/bsd_trampoline.S_DEPENDENCIES)
 	$(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -MD -c -o $@ $<
 -include bsd_mod-loader_i386_bsd_trampoline.d
 
 clean-module-bsd_mod-loader_i386_bsd_trampoline-extra.1:
-	rm -f cmd-bsd_mod-loader_i386_bsd_trampoline.lst fs-bsd_mod-loader_i386_bsd_trampoline.lst partmap-bsd_mod-loader_i386_bsd_trampoline.lst handler-bsd_mod-loader_i386_bsd_trampoline.lst parttool-bsd_mod-loader_i386_bsd_trampoline.lst
+	rm -f cmd-bsd_mod-loader_i386_bsd_trampoline.lst fs-bsd_mod-loader_i386_bsd_trampoline.lst partmap-bsd_mod-loader_i386_bsd_trampoline.lst handler-bsd_mod-loader_i386_bsd_trampoline.lst parttool-bsd_mod-loader_i386_bsd_trampoline.lst video-bsd_mod-loader_i386_bsd_trampoline.lst terminal-bsd_mod-loader_i386_bsd_trampoline.lst
 
 CLEAN_MODULE_TARGETS += clean-module-bsd_mod-loader_i386_bsd_trampoline-extra.1
 
@@ -2187,6 +1502,8 @@ FSFILES += fs-bsd_mod-loader_i386_bsd_trampoline.lst
 PARTTOOLFILES += parttool-bsd_mod-loader_i386_bsd_trampoline.lst
 PARTMAPFILES += partmap-bsd_mod-loader_i386_bsd_trampoline.lst
 HANDLERFILES += handler-bsd_mod-loader_i386_bsd_trampoline.lst
+TERMINALFILES += terminal-bsd_mod-loader_i386_bsd_trampoline.lst
+VIDEOFILES += video-bsd_mod-loader_i386_bsd_trampoline.lst
 
 cmd-bsd_mod-loader_i386_bsd_trampoline.lst: loader/i386/bsd_trampoline.S $(loader/i386/bsd_trampoline.S_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh bsd > $@ || (rm -f $@; exit 1)
@@ -2203,6 +1520,12 @@ partmap-bsd_mod-loader_i386_bsd_trampoline.lst: loader/i386/bsd_trampoline.S $(l
 handler-bsd_mod-loader_i386_bsd_trampoline.lst: loader/i386/bsd_trampoline.S $(loader/i386/bsd_trampoline.S_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh bsd > $@ || (rm -f $@; exit 1)
 
+terminal-bsd_mod-loader_i386_bsd_trampoline.lst: loader/i386/bsd_trampoline.S $(loader/i386/bsd_trampoline.S_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh bsd > $@ || (rm -f $@; exit 1)
+
+video-bsd_mod-loader_i386_bsd_trampoline.lst: loader/i386/bsd_trampoline.S $(loader/i386/bsd_trampoline.S_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Iloader/i386 -I$(srcdir)/loader/i386 $(TARGET_CPPFLAGS) -DASM_FILE=1 $(TARGET_ASFLAGS) $(bsd_mod_ASFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh bsd > $@ || (rm -f $@; exit 1)
+
 bsd_mod_CFLAGS = $(COMMON_CFLAGS)
 bsd_mod_LDFLAGS = $(COMMON_LDFLAGS)
 bsd_mod_ASFLAGS = $(COMMON_ASFLAGS)
@@ -2215,13 +1538,11 @@ clean-module-play.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-play.mod.1
 
-ifneq ($(play_mod_EXPORTS),no)
 clean-module-play.mod-symbol.1:
 	rm -f def-play.lst
 
 CLEAN_MODULE_TARGETS += clean-module-play.mod-symbol.1
 DEFSYMFILES += def-play.lst
-endif
 mostlyclean-module-play.mod.1:
 	rm -f play_mod-commands_i386_pc_play.d
 
@@ -2253,14 +1574,12 @@ mod-play.o: mod-play.c
 mod-play.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'play' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(play_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-play.lst: pre-play.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 play/' > $@
 else
 def-play.lst: pre-play.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 play/' > $@
-endif
 endif
 
 und-play.lst: pre-play.o
@@ -2272,7 +1591,7 @@ play_mod-commands_i386_pc_play.o: commands/i386/pc/play.c $(commands/i386/pc/pla
 -include play_mod-commands_i386_pc_play.d
 
 clean-module-play_mod-commands_i386_pc_play-extra.1:
-	rm -f cmd-play_mod-commands_i386_pc_play.lst fs-play_mod-commands_i386_pc_play.lst partmap-play_mod-commands_i386_pc_play.lst handler-play_mod-commands_i386_pc_play.lst parttool-play_mod-commands_i386_pc_play.lst
+	rm -f cmd-play_mod-commands_i386_pc_play.lst fs-play_mod-commands_i386_pc_play.lst partmap-play_mod-commands_i386_pc_play.lst handler-play_mod-commands_i386_pc_play.lst parttool-play_mod-commands_i386_pc_play.lst video-play_mod-commands_i386_pc_play.lst terminal-play_mod-commands_i386_pc_play.lst
 
 CLEAN_MODULE_TARGETS += clean-module-play_mod-commands_i386_pc_play-extra.1
 
@@ -2281,6 +1600,8 @@ FSFILES += fs-play_mod-commands_i386_pc_play.lst
 PARTTOOLFILES += parttool-play_mod-commands_i386_pc_play.lst
 PARTMAPFILES += partmap-play_mod-commands_i386_pc_play.lst
 HANDLERFILES += handler-play_mod-commands_i386_pc_play.lst
+TERMINALFILES += terminal-play_mod-commands_i386_pc_play.lst
+VIDEOFILES += video-play_mod-commands_i386_pc_play.lst
 
 cmd-play_mod-commands_i386_pc_play.lst: commands/i386/pc/play.c $(commands/i386/pc/play.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands/i386/pc -I$(srcdir)/commands/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(play_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh play > $@ || (rm -f $@; exit 1)
@@ -2297,101 +1618,14 @@ partmap-play_mod-commands_i386_pc_play.lst: commands/i386/pc/play.c $(commands/i
 handler-play_mod-commands_i386_pc_play.lst: commands/i386/pc/play.c $(commands/i386/pc/play.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands/i386/pc -I$(srcdir)/commands/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(play_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh play > $@ || (rm -f $@; exit 1)
 
+terminal-play_mod-commands_i386_pc_play.lst: commands/i386/pc/play.c $(commands/i386/pc/play.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Icommands/i386/pc -I$(srcdir)/commands/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(play_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh play > $@ || (rm -f $@; exit 1)
+
+video-play_mod-commands_i386_pc_play.lst: commands/i386/pc/play.c $(commands/i386/pc/play.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Icommands/i386/pc -I$(srcdir)/commands/i386/pc $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(play_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh play > $@ || (rm -f $@; exit 1)
+
 play_mod_CFLAGS = $(COMMON_CFLAGS)
 play_mod_LDFLAGS = $(COMMON_LDFLAGS)
-
-# For ata.mod.
-ata_mod_SOURCES = disk/ata.c
-
-clean-module-ata.mod.1:
-	rm -f ata.mod mod-ata.o mod-ata.c pre-ata.o ata_mod-disk_ata.o und-ata.lst
-
-CLEAN_MODULE_TARGETS += clean-module-ata.mod.1
-
-ifneq ($(ata_mod_EXPORTS),no)
-clean-module-ata.mod-symbol.1:
-	rm -f def-ata.lst
-
-CLEAN_MODULE_TARGETS += clean-module-ata.mod-symbol.1
-DEFSYMFILES += def-ata.lst
-endif
-mostlyclean-module-ata.mod.1:
-	rm -f ata_mod-disk_ata.d
-
-MOSTLYCLEAN_MODULE_TARGETS += mostlyclean-module-ata.mod.1
-UNDSYMFILES += und-ata.lst
-
-ifneq ($(TARGET_APPLE_CC),1)
-ata.mod: pre-ata.o mod-ata.o $(TARGET_OBJ2ELF)
-	-rm -f $@
-	$(TARGET_CC) $(ata_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ pre-ata.o mod-ata.o
-	if test ! -z "$(TARGET_OBJ2ELF)"; then ./$(TARGET_OBJ2ELF) $@ || (rm -f $@; exit 1); fi
-	$(STRIP) --strip-unneeded -K grub_mod_init -K grub_mod_fini -K _grub_mod_init -K _grub_mod_fini -R .note -R .comment $@
-else
-ata.mod: pre-ata.o mod-ata.o $(TARGET_OBJ2ELF)
-	-rm -f $@
-	-rm -f $@.bin
-	$(TARGET_CC) $(ata_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@.bin pre-ata.o mod-ata.o
-	$(OBJCONV) -f$(TARGET_MODULE_FORMAT) -nr:_grub_mod_init:grub_mod_init -nr:_grub_mod_fini:grub_mod_fini -wd1106 -nu -nd $@.bin $@
-	-rm -f $@.bin
-endif
-
-pre-ata.o: $(ata_mod_DEPENDENCIES) ata_mod-disk_ata.o
-	-rm -f $@
-	$(TARGET_CC) $(ata_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ ata_mod-disk_ata.o
-
-mod-ata.o: mod-ata.c
-	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) $(ata_mod_CFLAGS) -c -o $@ $<
-
-mod-ata.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
-	sh $(srcdir)/genmodsrc.sh 'ata' $< > $@ || (rm -f $@; exit 1)
-
-ifneq ($(ata_mod_EXPORTS),no)
-ifneq ($(TARGET_APPLE_CC),1)
-def-ata.lst: pre-ata.o
-	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 ata/' > $@
-else
-def-ata.lst: pre-ata.o
-	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 ata/' > $@
-endif
-endif
-
-und-ata.lst: pre-ata.o
-	echo 'ata' > $@
-	$(NM) -u -P -p $< | cut -f1 -d' ' >> $@
-
-ata_mod-disk_ata.o: disk/ata.c $(disk/ata.c_DEPENDENCIES)
-	$(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(ata_mod_CFLAGS) -MD -c -o $@ $<
--include ata_mod-disk_ata.d
-
-clean-module-ata_mod-disk_ata-extra.1:
-	rm -f cmd-ata_mod-disk_ata.lst fs-ata_mod-disk_ata.lst partmap-ata_mod-disk_ata.lst handler-ata_mod-disk_ata.lst parttool-ata_mod-disk_ata.lst
-
-CLEAN_MODULE_TARGETS += clean-module-ata_mod-disk_ata-extra.1
-
-COMMANDFILES += cmd-ata_mod-disk_ata.lst
-FSFILES += fs-ata_mod-disk_ata.lst
-PARTTOOLFILES += parttool-ata_mod-disk_ata.lst
-PARTMAPFILES += partmap-ata_mod-disk_ata.lst
-HANDLERFILES += handler-ata_mod-disk_ata.lst
-
-cmd-ata_mod-disk_ata.lst: disk/ata.c $(disk/ata.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(ata_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh ata > $@ || (rm -f $@; exit 1)
-
-fs-ata_mod-disk_ata.lst: disk/ata.c $(disk/ata.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(ata_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh ata > $@ || (rm -f $@; exit 1)
-
-parttool-ata_mod-disk_ata.lst: disk/ata.c $(disk/ata.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(ata_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh ata > $@ || (rm -f $@; exit 1)
-
-partmap-ata_mod-disk_ata.lst: disk/ata.c $(disk/ata.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(ata_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh ata > $@ || (rm -f $@; exit 1)
-
-handler-ata_mod-disk_ata.lst: disk/ata.c $(disk/ata.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(ata_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh ata > $@ || (rm -f $@; exit 1)
-
-ata_mod_CFLAGS = $(COMMON_CFLAGS)
-ata_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
 # For memdisk.mod.
 memdisk_mod_SOURCES = disk/memdisk.c
@@ -2401,13 +1635,11 @@ clean-module-memdisk.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-memdisk.mod.1
 
-ifneq ($(memdisk_mod_EXPORTS),no)
 clean-module-memdisk.mod-symbol.1:
 	rm -f def-memdisk.lst
 
 CLEAN_MODULE_TARGETS += clean-module-memdisk.mod-symbol.1
 DEFSYMFILES += def-memdisk.lst
-endif
 mostlyclean-module-memdisk.mod.1:
 	rm -f memdisk_mod-disk_memdisk.d
 
@@ -2439,14 +1671,12 @@ mod-memdisk.o: mod-memdisk.c
 mod-memdisk.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'memdisk' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(memdisk_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-memdisk.lst: pre-memdisk.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 memdisk/' > $@
 else
 def-memdisk.lst: pre-memdisk.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 memdisk/' > $@
-endif
 endif
 
 und-memdisk.lst: pre-memdisk.o
@@ -2458,7 +1688,7 @@ memdisk_mod-disk_memdisk.o: disk/memdisk.c $(disk/memdisk.c_DEPENDENCIES)
 -include memdisk_mod-disk_memdisk.d
 
 clean-module-memdisk_mod-disk_memdisk-extra.1:
-	rm -f cmd-memdisk_mod-disk_memdisk.lst fs-memdisk_mod-disk_memdisk.lst partmap-memdisk_mod-disk_memdisk.lst handler-memdisk_mod-disk_memdisk.lst parttool-memdisk_mod-disk_memdisk.lst
+	rm -f cmd-memdisk_mod-disk_memdisk.lst fs-memdisk_mod-disk_memdisk.lst partmap-memdisk_mod-disk_memdisk.lst handler-memdisk_mod-disk_memdisk.lst parttool-memdisk_mod-disk_memdisk.lst video-memdisk_mod-disk_memdisk.lst terminal-memdisk_mod-disk_memdisk.lst
 
 CLEAN_MODULE_TARGETS += clean-module-memdisk_mod-disk_memdisk-extra.1
 
@@ -2467,6 +1697,8 @@ FSFILES += fs-memdisk_mod-disk_memdisk.lst
 PARTTOOLFILES += parttool-memdisk_mod-disk_memdisk.lst
 PARTMAPFILES += partmap-memdisk_mod-disk_memdisk.lst
 HANDLERFILES += handler-memdisk_mod-disk_memdisk.lst
+TERMINALFILES += terminal-memdisk_mod-disk_memdisk.lst
+VIDEOFILES += video-memdisk_mod-disk_memdisk.lst
 
 cmd-memdisk_mod-disk_memdisk.lst: disk/memdisk.c $(disk/memdisk.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(memdisk_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh memdisk > $@ || (rm -f $@; exit 1)
@@ -2483,6 +1715,12 @@ partmap-memdisk_mod-disk_memdisk.lst: disk/memdisk.c $(disk/memdisk.c_DEPENDENCI
 handler-memdisk_mod-disk_memdisk.lst: disk/memdisk.c $(disk/memdisk.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(memdisk_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh memdisk > $@ || (rm -f $@; exit 1)
 
+terminal-memdisk_mod-disk_memdisk.lst: disk/memdisk.c $(disk/memdisk.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(memdisk_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh memdisk > $@ || (rm -f $@; exit 1)
+
+video-memdisk_mod-disk_memdisk.lst: disk/memdisk.c $(disk/memdisk.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Idisk -I$(srcdir)/disk $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(memdisk_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh memdisk > $@ || (rm -f $@; exit 1)
+
 memdisk_mod_CFLAGS = $(COMMON_CFLAGS)
 memdisk_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
@@ -2494,13 +1732,11 @@ clean-module-pci.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-pci.mod.1
 
-ifneq ($(pci_mod_EXPORTS),no)
 clean-module-pci.mod-symbol.1:
 	rm -f def-pci.lst
 
 CLEAN_MODULE_TARGETS += clean-module-pci.mod-symbol.1
 DEFSYMFILES += def-pci.lst
-endif
 mostlyclean-module-pci.mod.1:
 	rm -f pci_mod-bus_pci.d
 
@@ -2532,14 +1768,12 @@ mod-pci.o: mod-pci.c
 mod-pci.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'pci' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(pci_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-pci.lst: pre-pci.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 pci/' > $@
 else
 def-pci.lst: pre-pci.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 pci/' > $@
-endif
 endif
 
 und-pci.lst: pre-pci.o
@@ -2551,7 +1785,7 @@ pci_mod-bus_pci.o: bus/pci.c $(bus/pci.c_DEPENDENCIES)
 -include pci_mod-bus_pci.d
 
 clean-module-pci_mod-bus_pci-extra.1:
-	rm -f cmd-pci_mod-bus_pci.lst fs-pci_mod-bus_pci.lst partmap-pci_mod-bus_pci.lst handler-pci_mod-bus_pci.lst parttool-pci_mod-bus_pci.lst
+	rm -f cmd-pci_mod-bus_pci.lst fs-pci_mod-bus_pci.lst partmap-pci_mod-bus_pci.lst handler-pci_mod-bus_pci.lst parttool-pci_mod-bus_pci.lst video-pci_mod-bus_pci.lst terminal-pci_mod-bus_pci.lst
 
 CLEAN_MODULE_TARGETS += clean-module-pci_mod-bus_pci-extra.1
 
@@ -2560,6 +1794,8 @@ FSFILES += fs-pci_mod-bus_pci.lst
 PARTTOOLFILES += parttool-pci_mod-bus_pci.lst
 PARTMAPFILES += partmap-pci_mod-bus_pci.lst
 HANDLERFILES += handler-pci_mod-bus_pci.lst
+TERMINALFILES += terminal-pci_mod-bus_pci.lst
+VIDEOFILES += video-pci_mod-bus_pci.lst
 
 cmd-pci_mod-bus_pci.lst: bus/pci.c $(bus/pci.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Ibus -I$(srcdir)/bus $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(pci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh pci > $@ || (rm -f $@; exit 1)
@@ -2576,6 +1812,12 @@ partmap-pci_mod-bus_pci.lst: bus/pci.c $(bus/pci.c_DEPENDENCIES) genpartmaplist.
 handler-pci_mod-bus_pci.lst: bus/pci.c $(bus/pci.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Ibus -I$(srcdir)/bus $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(pci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh pci > $@ || (rm -f $@; exit 1)
 
+terminal-pci_mod-bus_pci.lst: bus/pci.c $(bus/pci.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Ibus -I$(srcdir)/bus $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(pci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh pci > $@ || (rm -f $@; exit 1)
+
+video-pci_mod-bus_pci.lst: bus/pci.c $(bus/pci.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Ibus -I$(srcdir)/bus $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(pci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh pci > $@ || (rm -f $@; exit 1)
+
 pci_mod_CFLAGS = $(COMMON_CFLAGS)
 pci_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
@@ -2587,13 +1829,11 @@ clean-module-lspci.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-lspci.mod.1
 
-ifneq ($(lspci_mod_EXPORTS),no)
 clean-module-lspci.mod-symbol.1:
 	rm -f def-lspci.lst
 
 CLEAN_MODULE_TARGETS += clean-module-lspci.mod-symbol.1
 DEFSYMFILES += def-lspci.lst
-endif
 mostlyclean-module-lspci.mod.1:
 	rm -f lspci_mod-commands_lspci.d
 
@@ -2625,14 +1865,12 @@ mod-lspci.o: mod-lspci.c
 mod-lspci.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'lspci' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(lspci_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-lspci.lst: pre-lspci.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 lspci/' > $@
 else
 def-lspci.lst: pre-lspci.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 lspci/' > $@
-endif
 endif
 
 und-lspci.lst: pre-lspci.o
@@ -2644,7 +1882,7 @@ lspci_mod-commands_lspci.o: commands/lspci.c $(commands/lspci.c_DEPENDENCIES)
 -include lspci_mod-commands_lspci.d
 
 clean-module-lspci_mod-commands_lspci-extra.1:
-	rm -f cmd-lspci_mod-commands_lspci.lst fs-lspci_mod-commands_lspci.lst partmap-lspci_mod-commands_lspci.lst handler-lspci_mod-commands_lspci.lst parttool-lspci_mod-commands_lspci.lst
+	rm -f cmd-lspci_mod-commands_lspci.lst fs-lspci_mod-commands_lspci.lst partmap-lspci_mod-commands_lspci.lst handler-lspci_mod-commands_lspci.lst parttool-lspci_mod-commands_lspci.lst video-lspci_mod-commands_lspci.lst terminal-lspci_mod-commands_lspci.lst
 
 CLEAN_MODULE_TARGETS += clean-module-lspci_mod-commands_lspci-extra.1
 
@@ -2653,6 +1891,8 @@ FSFILES += fs-lspci_mod-commands_lspci.lst
 PARTTOOLFILES += parttool-lspci_mod-commands_lspci.lst
 PARTMAPFILES += partmap-lspci_mod-commands_lspci.lst
 HANDLERFILES += handler-lspci_mod-commands_lspci.lst
+TERMINALFILES += terminal-lspci_mod-commands_lspci.lst
+VIDEOFILES += video-lspci_mod-commands_lspci.lst
 
 cmd-lspci_mod-commands_lspci.lst: commands/lspci.c $(commands/lspci.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lspci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh lspci > $@ || (rm -f $@; exit 1)
@@ -2669,26 +1909,30 @@ partmap-lspci_mod-commands_lspci.lst: commands/lspci.c $(commands/lspci.c_DEPEND
 handler-lspci_mod-commands_lspci.lst: commands/lspci.c $(commands/lspci.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lspci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh lspci > $@ || (rm -f $@; exit 1)
 
+terminal-lspci_mod-commands_lspci.lst: commands/lspci.c $(commands/lspci.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lspci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh lspci > $@ || (rm -f $@; exit 1)
+
+video-lspci_mod-commands_lspci.lst: commands/lspci.c $(commands/lspci.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lspci_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh lspci > $@ || (rm -f $@; exit 1)
+
 lspci_mod_CFLAGS = $(COMMON_CFLAGS)
 lspci_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
 # For datetime.mod
-datetime_mod_SOURCES = lib/i386/datetime.c
+datetime_mod_SOURCES = lib/cmos_datetime.c
 
 clean-module-datetime.mod.1:
-	rm -f datetime.mod mod-datetime.o mod-datetime.c pre-datetime.o datetime_mod-lib_i386_datetime.o und-datetime.lst
+	rm -f datetime.mod mod-datetime.o mod-datetime.c pre-datetime.o datetime_mod-lib_cmos_datetime.o und-datetime.lst
 
 CLEAN_MODULE_TARGETS += clean-module-datetime.mod.1
 
-ifneq ($(datetime_mod_EXPORTS),no)
 clean-module-datetime.mod-symbol.1:
 	rm -f def-datetime.lst
 
 CLEAN_MODULE_TARGETS += clean-module-datetime.mod-symbol.1
 DEFSYMFILES += def-datetime.lst
-endif
 mostlyclean-module-datetime.mod.1:
-	rm -f datetime_mod-lib_i386_datetime.d
+	rm -f datetime_mod-lib_cmos_datetime.d
 
 MOSTLYCLEAN_MODULE_TARGETS += mostlyclean-module-datetime.mod.1
 UNDSYMFILES += und-datetime.lst
@@ -2708,9 +1952,9 @@ datetime.mod: pre-datetime.o mod-datetime.o $(TARGET_OBJ2ELF)
 	-rm -f $@.bin
 endif
 
-pre-datetime.o: $(datetime_mod_DEPENDENCIES) datetime_mod-lib_i386_datetime.o
+pre-datetime.o: $(datetime_mod_DEPENDENCIES) datetime_mod-lib_cmos_datetime.o
 	-rm -f $@
-	$(TARGET_CC) $(datetime_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ datetime_mod-lib_i386_datetime.o
+	$(TARGET_CC) $(datetime_mod_LDFLAGS) $(TARGET_LDFLAGS) -Wl,-r,-d -o $@ datetime_mod-lib_cmos_datetime.o
 
 mod-datetime.o: mod-datetime.c
 	$(TARGET_CC) $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -c -o $@ $<
@@ -2718,7 +1962,6 @@ mod-datetime.o: mod-datetime.c
 mod-datetime.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'datetime' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(datetime_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-datetime.lst: pre-datetime.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 datetime/' > $@
@@ -2726,41 +1969,48 @@ else
 def-datetime.lst: pre-datetime.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 datetime/' > $@
 endif
-endif
 
 und-datetime.lst: pre-datetime.o
 	echo 'datetime' > $@
 	$(NM) -u -P -p $< | cut -f1 -d' ' >> $@
 
-datetime_mod-lib_i386_datetime.o: lib/i386/datetime.c $(lib/i386/datetime.c_DEPENDENCIES)
-	$(TARGET_CC) -Ilib/i386 -I$(srcdir)/lib/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -MD -c -o $@ $<
--include datetime_mod-lib_i386_datetime.d
+datetime_mod-lib_cmos_datetime.o: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES)
+	$(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -MD -c -o $@ $<
+-include datetime_mod-lib_cmos_datetime.d
 
-clean-module-datetime_mod-lib_i386_datetime-extra.1:
-	rm -f cmd-datetime_mod-lib_i386_datetime.lst fs-datetime_mod-lib_i386_datetime.lst partmap-datetime_mod-lib_i386_datetime.lst handler-datetime_mod-lib_i386_datetime.lst parttool-datetime_mod-lib_i386_datetime.lst
+clean-module-datetime_mod-lib_cmos_datetime-extra.1:
+	rm -f cmd-datetime_mod-lib_cmos_datetime.lst fs-datetime_mod-lib_cmos_datetime.lst partmap-datetime_mod-lib_cmos_datetime.lst handler-datetime_mod-lib_cmos_datetime.lst parttool-datetime_mod-lib_cmos_datetime.lst video-datetime_mod-lib_cmos_datetime.lst terminal-datetime_mod-lib_cmos_datetime.lst
 
-CLEAN_MODULE_TARGETS += clean-module-datetime_mod-lib_i386_datetime-extra.1
+CLEAN_MODULE_TARGETS += clean-module-datetime_mod-lib_cmos_datetime-extra.1
 
-COMMANDFILES += cmd-datetime_mod-lib_i386_datetime.lst
-FSFILES += fs-datetime_mod-lib_i386_datetime.lst
-PARTTOOLFILES += parttool-datetime_mod-lib_i386_datetime.lst
-PARTMAPFILES += partmap-datetime_mod-lib_i386_datetime.lst
-HANDLERFILES += handler-datetime_mod-lib_i386_datetime.lst
+COMMANDFILES += cmd-datetime_mod-lib_cmos_datetime.lst
+FSFILES += fs-datetime_mod-lib_cmos_datetime.lst
+PARTTOOLFILES += parttool-datetime_mod-lib_cmos_datetime.lst
+PARTMAPFILES += partmap-datetime_mod-lib_cmos_datetime.lst
+HANDLERFILES += handler-datetime_mod-lib_cmos_datetime.lst
+TERMINALFILES += terminal-datetime_mod-lib_cmos_datetime.lst
+VIDEOFILES += video-datetime_mod-lib_cmos_datetime.lst
 
-cmd-datetime_mod-lib_i386_datetime.lst: lib/i386/datetime.c $(lib/i386/datetime.c_DEPENDENCIES) gencmdlist.sh
-	set -e; 	  $(TARGET_CC) -Ilib/i386 -I$(srcdir)/lib/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh datetime > $@ || (rm -f $@; exit 1)
+cmd-datetime_mod-lib_cmos_datetime.lst: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES) gencmdlist.sh
+	set -e; 	  $(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh datetime > $@ || (rm -f $@; exit 1)
 
-fs-datetime_mod-lib_i386_datetime.lst: lib/i386/datetime.c $(lib/i386/datetime.c_DEPENDENCIES) genfslist.sh
-	set -e; 	  $(TARGET_CC) -Ilib/i386 -I$(srcdir)/lib/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh datetime > $@ || (rm -f $@; exit 1)
+fs-datetime_mod-lib_cmos_datetime.lst: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES) genfslist.sh
+	set -e; 	  $(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genfslist.sh datetime > $@ || (rm -f $@; exit 1)
 
-parttool-datetime_mod-lib_i386_datetime.lst: lib/i386/datetime.c $(lib/i386/datetime.c_DEPENDENCIES) genparttoollist.sh
-	set -e; 	  $(TARGET_CC) -Ilib/i386 -I$(srcdir)/lib/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh datetime > $@ || (rm -f $@; exit 1)
+parttool-datetime_mod-lib_cmos_datetime.lst: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES) genparttoollist.sh
+	set -e; 	  $(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genparttoollist.sh datetime > $@ || (rm -f $@; exit 1)
 
-partmap-datetime_mod-lib_i386_datetime.lst: lib/i386/datetime.c $(lib/i386/datetime.c_DEPENDENCIES) genpartmaplist.sh
-	set -e; 	  $(TARGET_CC) -Ilib/i386 -I$(srcdir)/lib/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh datetime > $@ || (rm -f $@; exit 1)
+partmap-datetime_mod-lib_cmos_datetime.lst: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES) genpartmaplist.sh
+	set -e; 	  $(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genpartmaplist.sh datetime > $@ || (rm -f $@; exit 1)
 
-handler-datetime_mod-lib_i386_datetime.lst: lib/i386/datetime.c $(lib/i386/datetime.c_DEPENDENCIES) genhandlerlist.sh
-	set -e; 	  $(TARGET_CC) -Ilib/i386 -I$(srcdir)/lib/i386 $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh datetime > $@ || (rm -f $@; exit 1)
+handler-datetime_mod-lib_cmos_datetime.lst: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES) genhandlerlist.sh
+	set -e; 	  $(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh datetime > $@ || (rm -f $@; exit 1)
+
+terminal-datetime_mod-lib_cmos_datetime.lst: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh datetime > $@ || (rm -f $@; exit 1)
+
+video-datetime_mod-lib_cmos_datetime.lst: lib/cmos_datetime.c $(lib/cmos_datetime.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Ilib -I$(srcdir)/lib $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datetime_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh datetime > $@ || (rm -f $@; exit 1)
 
 datetime_mod_CFLAGS = $(COMMON_CFLAGS)
 datetime_mod_LDFLAGS = $(COMMON_LDFLAGS)
@@ -2773,13 +2023,11 @@ clean-module-date.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-date.mod.1
 
-ifneq ($(date_mod_EXPORTS),no)
 clean-module-date.mod-symbol.1:
 	rm -f def-date.lst
 
 CLEAN_MODULE_TARGETS += clean-module-date.mod-symbol.1
 DEFSYMFILES += def-date.lst
-endif
 mostlyclean-module-date.mod.1:
 	rm -f date_mod-commands_date.d
 
@@ -2811,14 +2059,12 @@ mod-date.o: mod-date.c
 mod-date.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'date' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(date_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-date.lst: pre-date.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 date/' > $@
 else
 def-date.lst: pre-date.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 date/' > $@
-endif
 endif
 
 und-date.lst: pre-date.o
@@ -2830,7 +2076,7 @@ date_mod-commands_date.o: commands/date.c $(commands/date.c_DEPENDENCIES)
 -include date_mod-commands_date.d
 
 clean-module-date_mod-commands_date-extra.1:
-	rm -f cmd-date_mod-commands_date.lst fs-date_mod-commands_date.lst partmap-date_mod-commands_date.lst handler-date_mod-commands_date.lst parttool-date_mod-commands_date.lst
+	rm -f cmd-date_mod-commands_date.lst fs-date_mod-commands_date.lst partmap-date_mod-commands_date.lst handler-date_mod-commands_date.lst parttool-date_mod-commands_date.lst video-date_mod-commands_date.lst terminal-date_mod-commands_date.lst
 
 CLEAN_MODULE_TARGETS += clean-module-date_mod-commands_date-extra.1
 
@@ -2839,6 +2085,8 @@ FSFILES += fs-date_mod-commands_date.lst
 PARTTOOLFILES += parttool-date_mod-commands_date.lst
 PARTMAPFILES += partmap-date_mod-commands_date.lst
 HANDLERFILES += handler-date_mod-commands_date.lst
+TERMINALFILES += terminal-date_mod-commands_date.lst
+VIDEOFILES += video-date_mod-commands_date.lst
 
 cmd-date_mod-commands_date.lst: commands/date.c $(commands/date.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(date_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh date > $@ || (rm -f $@; exit 1)
@@ -2855,6 +2103,12 @@ partmap-date_mod-commands_date.lst: commands/date.c $(commands/date.c_DEPENDENCI
 handler-date_mod-commands_date.lst: commands/date.c $(commands/date.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(date_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh date > $@ || (rm -f $@; exit 1)
 
+terminal-date_mod-commands_date.lst: commands/date.c $(commands/date.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(date_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh date > $@ || (rm -f $@; exit 1)
+
+video-date_mod-commands_date.lst: commands/date.c $(commands/date.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(date_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh date > $@ || (rm -f $@; exit 1)
+
 date_mod_CFLAGS = $(COMMON_CFLAGS)
 date_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
@@ -2866,13 +2120,11 @@ clean-module-datehook.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-datehook.mod.1
 
-ifneq ($(datehook_mod_EXPORTS),no)
 clean-module-datehook.mod-symbol.1:
 	rm -f def-datehook.lst
 
 CLEAN_MODULE_TARGETS += clean-module-datehook.mod-symbol.1
 DEFSYMFILES += def-datehook.lst
-endif
 mostlyclean-module-datehook.mod.1:
 	rm -f datehook_mod-hook_datehook.d
 
@@ -2904,14 +2156,12 @@ mod-datehook.o: mod-datehook.c
 mod-datehook.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'datehook' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(datehook_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-datehook.lst: pre-datehook.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 datehook/' > $@
 else
 def-datehook.lst: pre-datehook.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 datehook/' > $@
-endif
 endif
 
 und-datehook.lst: pre-datehook.o
@@ -2923,7 +2173,7 @@ datehook_mod-hook_datehook.o: hook/datehook.c $(hook/datehook.c_DEPENDENCIES)
 -include datehook_mod-hook_datehook.d
 
 clean-module-datehook_mod-hook_datehook-extra.1:
-	rm -f cmd-datehook_mod-hook_datehook.lst fs-datehook_mod-hook_datehook.lst partmap-datehook_mod-hook_datehook.lst handler-datehook_mod-hook_datehook.lst parttool-datehook_mod-hook_datehook.lst
+	rm -f cmd-datehook_mod-hook_datehook.lst fs-datehook_mod-hook_datehook.lst partmap-datehook_mod-hook_datehook.lst handler-datehook_mod-hook_datehook.lst parttool-datehook_mod-hook_datehook.lst video-datehook_mod-hook_datehook.lst terminal-datehook_mod-hook_datehook.lst
 
 CLEAN_MODULE_TARGETS += clean-module-datehook_mod-hook_datehook-extra.1
 
@@ -2932,6 +2182,8 @@ FSFILES += fs-datehook_mod-hook_datehook.lst
 PARTTOOLFILES += parttool-datehook_mod-hook_datehook.lst
 PARTMAPFILES += partmap-datehook_mod-hook_datehook.lst
 HANDLERFILES += handler-datehook_mod-hook_datehook.lst
+TERMINALFILES += terminal-datehook_mod-hook_datehook.lst
+VIDEOFILES += video-datehook_mod-hook_datehook.lst
 
 cmd-datehook_mod-hook_datehook.lst: hook/datehook.c $(hook/datehook.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Ihook -I$(srcdir)/hook $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datehook_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh datehook > $@ || (rm -f $@; exit 1)
@@ -2948,6 +2200,12 @@ partmap-datehook_mod-hook_datehook.lst: hook/datehook.c $(hook/datehook.c_DEPEND
 handler-datehook_mod-hook_datehook.lst: hook/datehook.c $(hook/datehook.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Ihook -I$(srcdir)/hook $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datehook_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh datehook > $@ || (rm -f $@; exit 1)
 
+terminal-datehook_mod-hook_datehook.lst: hook/datehook.c $(hook/datehook.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Ihook -I$(srcdir)/hook $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datehook_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh datehook > $@ || (rm -f $@; exit 1)
+
+video-datehook_mod-hook_datehook.lst: hook/datehook.c $(hook/datehook.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Ihook -I$(srcdir)/hook $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(datehook_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh datehook > $@ || (rm -f $@; exit 1)
+
 datehook_mod_CFLAGS = $(COMMON_CFLAGS)
 datehook_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
@@ -2959,13 +2217,11 @@ clean-module-lsmmap.mod.1:
 
 CLEAN_MODULE_TARGETS += clean-module-lsmmap.mod.1
 
-ifneq ($(lsmmap_mod_EXPORTS),no)
 clean-module-lsmmap.mod-symbol.1:
 	rm -f def-lsmmap.lst
 
 CLEAN_MODULE_TARGETS += clean-module-lsmmap.mod-symbol.1
 DEFSYMFILES += def-lsmmap.lst
-endif
 mostlyclean-module-lsmmap.mod.1:
 	rm -f lsmmap_mod-commands_lsmmap.d
 
@@ -2997,14 +2253,12 @@ mod-lsmmap.o: mod-lsmmap.c
 mod-lsmmap.c: $(builddir)/moddep.lst $(srcdir)/genmodsrc.sh
 	sh $(srcdir)/genmodsrc.sh 'lsmmap' $< > $@ || (rm -f $@; exit 1)
 
-ifneq ($(lsmmap_mod_EXPORTS),no)
 ifneq ($(TARGET_APPLE_CC),1)
 def-lsmmap.lst: pre-lsmmap.o
 	$(NM) -g --defined-only -P -p $< | sed 's/^\([^ ]*\).*/\1 lsmmap/' > $@
 else
 def-lsmmap.lst: pre-lsmmap.o
 	$(NM) -g -P -p $< | grep -E '^[a-zA-Z0-9_]* [TDS]'  | sed 's/^\([^ ]*\).*/\1 lsmmap/' > $@
-endif
 endif
 
 und-lsmmap.lst: pre-lsmmap.o
@@ -3016,7 +2270,7 @@ lsmmap_mod-commands_lsmmap.o: commands/lsmmap.c $(commands/lsmmap.c_DEPENDENCIES
 -include lsmmap_mod-commands_lsmmap.d
 
 clean-module-lsmmap_mod-commands_lsmmap-extra.1:
-	rm -f cmd-lsmmap_mod-commands_lsmmap.lst fs-lsmmap_mod-commands_lsmmap.lst partmap-lsmmap_mod-commands_lsmmap.lst handler-lsmmap_mod-commands_lsmmap.lst parttool-lsmmap_mod-commands_lsmmap.lst
+	rm -f cmd-lsmmap_mod-commands_lsmmap.lst fs-lsmmap_mod-commands_lsmmap.lst partmap-lsmmap_mod-commands_lsmmap.lst handler-lsmmap_mod-commands_lsmmap.lst parttool-lsmmap_mod-commands_lsmmap.lst video-lsmmap_mod-commands_lsmmap.lst terminal-lsmmap_mod-commands_lsmmap.lst
 
 CLEAN_MODULE_TARGETS += clean-module-lsmmap_mod-commands_lsmmap-extra.1
 
@@ -3025,6 +2279,8 @@ FSFILES += fs-lsmmap_mod-commands_lsmmap.lst
 PARTTOOLFILES += parttool-lsmmap_mod-commands_lsmmap.lst
 PARTMAPFILES += partmap-lsmmap_mod-commands_lsmmap.lst
 HANDLERFILES += handler-lsmmap_mod-commands_lsmmap.lst
+TERMINALFILES += terminal-lsmmap_mod-commands_lsmmap.lst
+VIDEOFILES += video-lsmmap_mod-commands_lsmmap.lst
 
 cmd-lsmmap_mod-commands_lsmmap.lst: commands/lsmmap.c $(commands/lsmmap.c_DEPENDENCIES) gencmdlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lsmmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/gencmdlist.sh lsmmap > $@ || (rm -f $@; exit 1)
@@ -3041,6 +2297,12 @@ partmap-lsmmap_mod-commands_lsmmap.lst: commands/lsmmap.c $(commands/lsmmap.c_DE
 handler-lsmmap_mod-commands_lsmmap.lst: commands/lsmmap.c $(commands/lsmmap.c_DEPENDENCIES) genhandlerlist.sh
 	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lsmmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genhandlerlist.sh lsmmap > $@ || (rm -f $@; exit 1)
 
+terminal-lsmmap_mod-commands_lsmmap.lst: commands/lsmmap.c $(commands/lsmmap.c_DEPENDENCIES) genterminallist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lsmmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genterminallist.sh lsmmap > $@ || (rm -f $@; exit 1)
+
+video-lsmmap_mod-commands_lsmmap.lst: commands/lsmmap.c $(commands/lsmmap.c_DEPENDENCIES) genvideolist.sh
+	set -e; 	  $(TARGET_CC) -Icommands -I$(srcdir)/commands $(TARGET_CPPFLAGS)  $(TARGET_CFLAGS) $(lsmmap_mod_CFLAGS) -E $< 	  | sh $(srcdir)/genvideolist.sh lsmmap > $@ || (rm -f $@; exit 1)
+
 lsmmap_mod_CFLAGS = $(COMMON_CFLAGS)
 lsmmap_mod_LDFLAGS = $(COMMON_LDFLAGS)
 
@@ -3048,10 +2310,4 @@ include $(srcdir)/conf/i386.mk
 include $(srcdir)/conf/common.mk
 grub-mkimage: $(grub_mkimage_DEPENDENCIES) $(grub_mkimage_OBJECTS)
 	$(CC) -o $@ $(grub_mkimage_OBJECTS) $(LDFLAGS) $(grub_mkimage_LDFLAGS)
-
-grub-mkdevicemap: $(grub_mkdevicemap_DEPENDENCIES) $(grub_mkdevicemap_OBJECTS)
-	$(CC) -o $@ $(grub_mkdevicemap_OBJECTS) $(LDFLAGS) $(grub_mkdevicemap_LDFLAGS)
-
-grub-emu: $(grub_emu_DEPENDENCIES) $(grub_emu_OBJECTS)
-	$(CC) -o $@ $(grub_emu_OBJECTS) $(LDFLAGS) $(grub_emu_LDFLAGS)
 

@@ -23,7 +23,6 @@
 #include <grub/machine/memory.h>
 #include <grub/machine/console.h>
 #include <grub/machine/kernel.h>
-#include <grub/machine/machine.h>
 #include <grub/types.h>
 #include <grub/err.h>
 #include <grub/dl.h>
@@ -66,12 +65,6 @@ grub_exit (void)
      loop, since grub_fatal() calls grub_abort() which in turn calls grub_exit().  */
   while (1)
     grub_cpu_idle ();
-}
-
-void
-grub_arch_sync_caches (void *address __attribute__ ((unused)),
-		       grub_size_t len __attribute__ ((unused)))
-{
 }
 
 void
