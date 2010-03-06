@@ -11,6 +11,7 @@ Source1: grub2-sysconfig
 Patch1: grub-1.97.1-initramfs.patch
 Patch2: grub-1.98-os-alt.patch
 Patch3: grub-1.98-sysconfig-path-alt.patch
+Patch4: grub-1.98-altlinux-theme.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -36,6 +37,7 @@ Hurd).
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %configure --prefix=/
