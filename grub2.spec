@@ -16,7 +16,7 @@ Patch4: grub-1.98-altlinux-theme.patch
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
 # Automatically added by buildreq on Wed Jun 10 2009 (-bb)
-BuildRequires: genisoimage libgoogle-perftools liblzo-devel ruby
+BuildRequires: genisoimage libgoogle-perftools liblzo-devel ruby libfreetype-devel fonts-bitmap-misc
 
 Conflicts:  grub
 
@@ -48,12 +48,14 @@ Hurd).
 mkdir -p %buildroot/etc/sysconfig
 install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %find_lang grub
+%buildroot/%_bindir/grub-mkfont -o %buildroot/%_datadir/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/9x15B.pcf.gz
 
 %files -f grub.lang
 /etc/grub.d
 %config(noreplace) /etc/sysconfig/grub2
 %_bindir/*
 %_libdir/grub
+%_datadir/grub
 %_sbindir/*
 %_infodir/grub.info.*
 
