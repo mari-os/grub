@@ -15,8 +15,8 @@ Patch4: grub-1.98-altlinux-theme.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
-# Automatically added by buildreq on Wed Jun 10 2009 (-bb)
-BuildRequires: genisoimage libgoogle-perftools liblzo-devel ruby libfreetype-devel fonts-bitmap-misc
+# Automatically added by buildreq on Sun Mar 07 2010 (-bb)
+BuildRequires: fonts-bitmap-misc libfreetype-devel ruby
 
 Conflicts:  grub
 
