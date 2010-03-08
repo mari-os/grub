@@ -46,7 +46,7 @@ Hurd).
 mkdir -p %buildroot/etc/sysconfig
 install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %find_lang grub
-%buildroot/%_bindir/grub-mkfont -o %buildroot/%_datadir/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/9x15B.pcf.gz
+%buildroot/%_bindir/grub-mkfont -o %buildroot/%_datadir/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
 
 %files -f grub.lang
 /etc/grub.d
