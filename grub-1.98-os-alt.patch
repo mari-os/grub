@@ -1,17 +1,95 @@
 diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 --- grub2/util/grub.d/10_linux.in	2010-03-06 20:51:37 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2010-03-06 21:33:22 +0000
-@@ -27,12 +27,7 @@
++++ grub2.new/util/grub.d/10_linux.in	2010-03-08 22:48:46 +0000
+@@ -27,11 +27,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
  
 -if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
 -  OS=GNU/Linux
--else
++if [ -r /etc/altlinux-release ]; then
++ OS=`cat /etc/altlinux-release | sed 's/ (.*$//g'`
+ else
 -  OS="${GRUB_DISTRIBUTOR} GNU/Linux"
 -  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr '[A-Z]' '[a-z]') ${CLASS}"
--fi
-+OS=ALTLinux
++ OS=ALTLinux
+ fi
  
  # loop-AES arranges things so that /dev/loop/X can be our root device, but
- # the initrds that Linux uses don't like that.
+@@ -55,10 +54,13 @@
+   version="$2"
+   recovery="$3"
+   args="$4"
++  default="$5"
++  title="$(gettext "%s, with Linux %s")"
++  if ${default} ; then
++    title="`echo $title | sed 's|, .*$||g'`"
++  fi
+   if ${recovery} ; then
+-    title="$(gettext "%s, with Linux %s (recovery mode)")"
+-  else
+-    title="$(gettext "%s, with Linux %s")"
++    title="$title(failsafe mode)"
+   fi
+   printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
+   save_default_entry | sed -e "s/^/\t/"
+@@ -97,30 +99,31 @@
+ EOF
+ }
+ 
+-list=`for i in /boot/vmlinu[xz]-* /vmlinu[xz]-* ; do
+-        if grub_file_is_not_garbage "$i" ; then echo -n "$i " ; fi
+-      done`
+-prepare_boot_cache=
+-
+-while [ "x$list" != "x" ] ; do
+-  linux=`version_find_latest $list`
++ls -c /boot/vmlinuz /boot/vmlinu[xz]-* | while read linux ; do
+   echo "Found linux image: $linux" >&2
+   basename=`basename $linux`
+   dirname=`dirname $linux`
+-  rel_dirname=`make_system_path_relative_to_its_root $dirname`
+-  version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
+-  alt_version=`echo $version | sed -e "s,\.old$,,g"`
+-  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
+-
+   initrd=
+-  for i in "initrd.img-${version}" "initrd-${version}.img" \
++  default=false
++  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
++  rel_dirname=`make_system_path_relative_to_its_root $dirname`
++  if [ x$linux != x/boot/vmlinuz ]; then
++   version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
++   alt_version=`echo $version | sed -e "s,\.old$,,g"`
++   for i in "initrd.img-${version}" "initrd-${version}.img" \
+ 	   "initrd-${version}" "initrd.img-${alt_version}" \
+ 	   "initrd-${alt_version}.img" "initrd-${alt_version}"; do
+     if test -e "${dirname}/${i}" ; then
+       initrd="$i"
+       break
+     fi
+-  done
++   done
++  else
++   if [ -e /boot/initrd.img ]; then 
++    initrd="initrd.img"
++   fi
++   default=true
++  fi
+   if test -n "${initrd}" ; then
+     echo "Found initrd image: ${dirname}/${initrd}" >&2
+   else
+@@ -129,11 +132,10 @@
+   fi
+ 
+   linux_entry "${OS}" "${version}" false \
+-      "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
++      "${GRUB_CMDLINE_LINUX_DEFAULT}" $default
+   if [ "x${GRUB_DISABLE_LINUX_RECOVERY}" != "xtrue" ]; then
+     linux_entry "${OS}" "${version}" true \
+-	"single ${GRUB_CMDLINE_LINUX}"
++	"${GRUB_CMDLINE_LINUX}" $default
+   fi
+ 
+-  list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
+ done
