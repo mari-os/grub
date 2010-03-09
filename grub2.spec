@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt2
+Release: alt3
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -58,6 +58,9 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Tue Mar 09 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt3
+- fix bug in default menuentries
+
 * Mon Mar 08 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt2
 - boot default (/boot/vmlinuz) kernel first
 - change default font to 8x13
