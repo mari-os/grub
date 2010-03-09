@@ -1,6 +1,6 @@
 diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 --- grub2/util/grub.d/10_linux.in	2010-03-06 20:51:37 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2010-03-08 22:48:46 +0000
++++ grub2.new/util/grub.d/10_linux.in	2010-03-09 11:42:13 +0000
 @@ -27,11 +27,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
@@ -16,7 +16,7 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
  fi
  
  # loop-AES arranges things so that /dev/loop/X can be our root device, but
-@@ -55,10 +54,13 @@
+@@ -55,12 +54,19 @@
    version="$2"
    recovery="$3"
    args="$4"
@@ -27,13 +27,19 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 +  fi
    if ${recovery} ; then
 -    title="$(gettext "%s, with Linux %s (recovery mode)")"
--  else
--    title="$(gettext "%s, with Linux %s")"
 +    title="$title(failsafe mode)"
++  fi
++  if ${default} ; then
++    printf "menuentry \"${title}\" ${CLASS} {\n" "${os}"
+   else
+-    title="$(gettext "%s, with Linux %s")"
++    printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
    fi
-   printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
+-  printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
    save_default_entry | sed -e "s/^/\t/"
-@@ -97,30 +99,31 @@
+ 
+   # Use ELILO's generic "efifb" when it's known to be available.
+@@ -97,30 +103,31 @@
  EOF
  }
  
@@ -79,7 +85,7 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
    if test -n "${initrd}" ; then
      echo "Found initrd image: ${dirname}/${initrd}" >&2
    else
-@@ -129,11 +132,10 @@
+@@ -129,11 +136,10 @@
    fi
  
    linux_entry "${OS}" "${version}" false \
