@@ -1,0 +1,16 @@
+diff -ur grub2/util/grub-mkconfig_lib.in grub2.new/util/grub-mkconfig_lib.in
+--- grub2/util/grub-mkconfig_lib.in	2010-03-06 20:51:37 +0000
++++ grub2.new/util/grub-mkconfig_lib.in	2010-03-18 08:22:26 +0000
+@@ -25,10 +25,10 @@
+ pkgdatadir=${datadir}/`echo @PACKAGE_TARNAME@ | sed "${transform}"`
+ 
+ if test "x$grub_probe" = x; then
+-  grub_probe=${sbindir}/`echo grub-probe | sed ${transform}`
++  grub_probe=${sbindir}/`echo grub-probe | sed ${transform} | sed "s|/dev/evms|/dev|g"`
+ fi
+ if test "x$grub_mkrelpath" = x; then
+-  grub_mkrelpath=${bindir}/`echo grub-mkrelpath | sed ${transform}`
++  grub_mkrelpath=${bindir}/`echo grub-mkrelpath | sed ${transform} | sed "s|/dev/evms|/dev|g`
+ fi
+ 
+ grub_warn ()
