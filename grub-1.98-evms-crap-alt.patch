@@ -10,7 +10,7 @@ diff -ur grub2/util/grub-mkconfig_lib.in grub2.new/util/grub-mkconfig_lib.in
  fi
  if test "x$grub_mkrelpath" = x; then
 -  grub_mkrelpath=${bindir}/`echo grub-mkrelpath | sed ${transform}`
-+  grub_mkrelpath=${bindir}/`echo grub-mkrelpath | sed ${transform} | sed "s|/dev/evms|/dev|g`
++  grub_mkrelpath=${bindir}/`echo grub-mkrelpath | sed ${transform} | sed "s|/dev/evms|/dev|g"`
  fi
  
  grub_warn ()
