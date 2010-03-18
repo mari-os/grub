@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt3
+Release: alt4
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -11,6 +11,7 @@ Source1: grub2-sysconfig
 Patch1: grub-1.98-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-1.98-altlinux-theme.patch
+Patch4: grub-1.98-evms-crap-alt.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -36,6 +37,7 @@ Hurd).
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %configure --prefix=/
@@ -58,6 +60,9 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Thu Mar 18 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt4
+- remove evms crap (for installer)
+
 * Tue Mar 09 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt3
 - fix bug in default menuentries
 
