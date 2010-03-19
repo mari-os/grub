@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt5
+Release: alt6
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -60,6 +60,9 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Fri Mar 19 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt6
+- make evms-crap-alt patch more common
+
 * Fri Mar 19 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt5
 - rewrite stupid evms-crap-alt patch
 
