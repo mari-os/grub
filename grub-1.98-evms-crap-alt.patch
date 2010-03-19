@@ -1,16 +1,27 @@
-diff -ur grub2/util/grub-mkconfig_lib.in grub2.new/util/grub-mkconfig_lib.in
---- grub2/util/grub-mkconfig_lib.in	2010-03-06 20:51:37 +0000
-+++ grub2.new/util/grub-mkconfig_lib.in	2010-03-18 08:22:26 +0000
-@@ -25,10 +25,10 @@
- pkgdatadir=${datadir}/`echo @PACKAGE_TARNAME@ | sed "${transform}"`
+diff --git a/grub2/util/grub-probe.c b/grub2/util/grub-probe.c
+index ba2fe4c..9e4e78f 100644
+--- a/grub2/util/grub-probe.c
++++ b/grub2/util/grub-probe.c
+@@ -112,6 +112,7 @@ probe (const char *path, char *device_name)
+   char *grub_path = NULL;
+   char *filebuf_via_grub = NULL, *filebuf_via_sys = NULL;
+   grub_device_t dev = NULL;
++  char *dest = NULL;
+   grub_fs_t fs;
  
- if test "x$grub_probe" = x; then
--  grub_probe=${sbindir}/`echo grub-probe | sed ${transform}`
-+  grub_probe=${sbindir}/`echo grub-probe | sed ${transform} | sed "s|/dev/evms|/dev|g"`
- fi
- if test "x$grub_mkrelpath" = x; then
--  grub_mkrelpath=${bindir}/`echo grub-mkrelpath | sed ${transform}`
-+  grub_mkrelpath=${bindir}/`echo grub-mkrelpath | sed ${transform} | sed "s|/dev/evms|/dev|g"`
- fi
+   if (path == NULL)
+@@ -127,6 +128,14 @@ probe (const char *path, char *device_name)
+   else
+     device_name = grub_guess_root_device (path);
  
- grub_warn ()
++  if (dest=strstr(device_name,"/evms/"))
++    {
++        char *tail=(char *)malloc(strlen(strstr(device_name,"/evms/")+5)+1);
++        strncpy(tail,strstr(device_name,"/evms/")+5,strlen(strstr(device_name,"/evms/")+5)+1);
++        strcpy(dest,tail);
++        free(tail);
++    }
++
+   if (! device_name)
+     grub_util_error ("cannot find a device for %s (is /dev mounted?)", path);
+ 
