@@ -1,27 +1,27 @@
-diff --git a/grub2/util/grub-probe.c b/grub2/util/grub-probe.c
-index ba2fe4c..9e4e78f 100644
---- a/grub2/util/grub-probe.c
-+++ b/grub2/util/grub-probe.c
-@@ -112,6 +112,7 @@ probe (const char *path, char *device_name)
-   char *grub_path = NULL;
-   char *filebuf_via_grub = NULL, *filebuf_via_sys = NULL;
-   grub_device_t dev = NULL;
-+  char *dest = NULL;
-   grub_fs_t fs;
+diff --git a/grub2/util/getroot.c b/grub2/util/getroot.c
+index 8239363..4d0f57b 100644
+--- a/grub2/util/getroot.c
++++ b/grub2/util/getroot.c
+@@ -511,6 +511,7 @@ char *
+ grub_util_get_grub_dev (const char *os_dev)
+ {
+   char *grub_dev;
++  char *dest=NULL;
  
-   if (path == NULL)
-@@ -127,6 +128,14 @@ probe (const char *path, char *device_name)
-   else
-     device_name = grub_guess_root_device (path);
+   switch (grub_util_get_dev_abstraction (os_dev))
+     {
+@@ -600,6 +601,14 @@ grub_util_get_grub_dev (const char *os_dev)
+       grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
+     }
  
-+  if (dest=strstr(device_name,"/evms/"))
++  if (dest=strstr(grub_dev,"/evms/"))
 +    {
-+        char *tail=(char *)malloc(strlen(strstr(device_name,"/evms/")+5)+1);
-+        strncpy(tail,strstr(device_name,"/evms/")+5,strlen(strstr(device_name,"/evms/")+5)+1);
++        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/evms/")+5)+1);
++        strncpy(tail,strstr(grub_dev,"/evms/")+5,strlen(strstr(grub_dev,"/evms/")+5)+1);
 +        strcpy(dest,tail);
 +        free(tail);
 +    }
 +
-   if (! device_name)
-     grub_util_error ("cannot find a device for %s (is /dev mounted?)", path);
+   return grub_dev;
+ }
  
