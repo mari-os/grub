@@ -14,7 +14,7 @@ index 8239363..4d0f57b 100644
        grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
      }
  
-+  if (dest=strstr(grub_dev,"/evms/"))
++  if ((grub_dev)&&(dest=strstr(grub_dev,"/evms/")))
 +    {
 +        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/evms/")+5)+1);
 +        strncpy(tail,strstr(grub_dev,"/evms/")+5,strlen(strstr(grub_dev,"/evms/")+5)+1);
@@ -24,4 +24,25 @@ index 8239363..4d0f57b 100644
 +
    return grub_dev;
  }
+ 
+diff --git a/grub2/util/getroot.c b/grub2/util/getroot.c
+index 8239363..aed7165 100644
+--- a/grub2/util/getroot.c
++++ b/grub2/util/getroot.c
+@@ -455,6 +456,16 @@ grub_guess_root_device (const char *dir)
+ 
+   /* This might be truly slow, but is there any better way?  */
+   os_dev = find_root_device ("/dev", st.st_dev);
++
++  char *dest;
++  if ((os_dev)&&(dest=strstr(os_dev,"/evms/")))
++    {
++        char *tail=(char *)malloc(strlen(strstr(os_dev,"/evms/")+5)+1);
++        strncpy(tail,strstr(os_dev,"/evms/")+5,strlen(strstr(os_dev,"/evms/")+5)+1);
++        strcpy(dest,tail);
++        free(tail);
++    }
++
+ #endif
+ #endif /* !__GNU__ */
  
