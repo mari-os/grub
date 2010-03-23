@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt7
+Release: alt8
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -62,6 +62,10 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Tue Mar 23 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt8
+- add 950-quick-boot.patch from debian
+- enable savedefault feature by default
+
 * Mon Mar 22 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt7
 - remove evms crap in one more place
 
