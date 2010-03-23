@@ -12,6 +12,7 @@ Patch1: grub-1.98-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-1.98-altlinux-theme.patch
 Patch4: grub-1.98-evms-crap-alt.patch
+Patch5: grub-1.98-debian-950-quick-boot.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -38,6 +39,7 @@ Hurd).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p2
+%patch5 -p1
 
 %build
 %configure --prefix=/
