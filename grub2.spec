@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt8
+Release: alt9
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -13,13 +13,15 @@ Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-1.98-altlinux-theme.patch
 Patch4: grub-1.98-evms-crap-alt.patch
 Patch5: grub-1.98-debian-950-quick-boot.patch
+Patch6: grub-1.98-debian-904_disable_floppies.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
 # Automatically added by buildreq on Sun Mar 07 2010 (-bb)
 BuildRequires: fonts-bitmap-misc libfreetype-devel ruby
 
-Conflicts:  grub
+Provides: grub = %version-%release
+Obsoletes: grub < %version-%release
 
 %description
 GNU GRUB is a multiboot boot loader. It was derived from GRUB. It is an
@@ -40,6 +42,7 @@ Hurd).
 %patch3 -p1
 %patch4 -p2
 %patch5 -p1
+%patch6 -p0
 
 %build
 %configure --prefix=/
@@ -53,7 +56,12 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %buildroot/%_bindir/grub-mkfont -o %buildroot/%_datadir/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
 
 %files -f grub.lang
-/etc/grub.d
+%dir %_sysconfdir/grub.d
+%_sysconfdir/grub.d/00_header
+%_sysconfdir/grub.d/05_altlinux_theme
+%_sysconfdir/grub.d/10_linux
+%_sysconfdir/grub.d/30_os-prober
+%config(noreplace) %_sysconfdir/grub.d/40_custom
 %config(noreplace) /etc/sysconfig/grub2
 %_bindir/*
 %_libdir/grub
@@ -62,6 +70,11 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Mon Apr 12 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt9
+- add 904_disable_floppies.patch from debian
+- mark %_sysconfdir/grub.d/40_custom as config(noreplace)
+- add Provides/Obsoletes for grub
+
 * Tue Mar 23 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt8
 - add 950-quick-boot.patch from debian
 - enable savedefault feature by default
