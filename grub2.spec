@@ -20,6 +20,8 @@ Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 # Automatically added by buildreq on Sun Mar 07 2010 (-bb)
 BuildRequires: fonts-bitmap-misc libfreetype-devel ruby
 
+Exclusivearch: %ix86 x86_64
+
 Provides: grub = %version-%release
 Obsoletes: grub < %version-%release
 
