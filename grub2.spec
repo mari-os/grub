@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt9
+Release: alt10
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -22,7 +22,7 @@ BuildRequires: fonts-bitmap-misc libfreetype-devel ruby
 
 Exclusivearch: %ix86 x86_64
 
-Provides: grub = %version-%release
+Conflicts: grub
 Obsoletes: grub < %version-%release
 
 %description
@@ -72,6 +72,10 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Fri Apr 16 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt10
+- do not provide grub
+- fix for evms/lvm device probing
+
 * Mon Apr 12 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt9
 - add 904_disable_floppies.patch from debian
 - mark %_sysconfdir/grub.d/40_custom as config(noreplace)

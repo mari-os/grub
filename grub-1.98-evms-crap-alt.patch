@@ -14,7 +14,7 @@ index 8239363..4d0f57b 100644
        grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
      }
  
-+  if ((grub_dev)&&(dest=strstr(grub_dev,"/evms/")))
++  if ((grub_dev)&&(dest=strstr(grub_dev,"/evms/"))&&(!strstr(grub_dev,"/evms/lvm2/")))
 +    {
 +        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/evms/")+5)+1);
 +        strncpy(tail,strstr(grub_dev,"/evms/")+5,strlen(strstr(grub_dev,"/evms/")+5)+1);
@@ -35,7 +35,7 @@ index 8239363..aed7165 100644
    os_dev = find_root_device ("/dev", st.st_dev);
 +
 +  char *dest;
-+  if ((os_dev)&&(dest=strstr(os_dev,"/evms/")))
++  if ((os_dev)&&(dest=strstr(os_dev,"/evms/"))&&(!strstr(os_dev,"/evms/lvm2/")))
 +    {
 +        char *tail=(char *)malloc(strlen(strstr(os_dev,"/evms/")+5)+1);
 +        strncpy(tail,strstr(os_dev,"/evms/")+5,strlen(strstr(os_dev,"/evms/")+5)+1);
