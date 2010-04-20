@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt10
+Release: alt11
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -8,6 +8,10 @@ Url: http://www.gnu.org/software/grub/grub.en.html
 Group: System/Kernel and hardware
 Source0: %name-%version.tar.bz2
 Source1: grub2-sysconfig
+
+Source2: 35_xen
+Source3: 39_memtest
+
 Patch1: grub-1.98-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-1.98-altlinux-theme.patch
@@ -56,6 +60,11 @@ mkdir -p %buildroot/etc/sysconfig
 install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %find_lang grub
 %buildroot/%_bindir/grub-mkfont -o %buildroot/%_datadir/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
+install -pD -m755 %SOURCE2 %buildroot/etc/grub.d/
+install -pD -m755 %SOURCE3 %buildroot/etc/grub.d/
+sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/35_xen
+sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/39_memtest
+sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
 
 %files -f grub.lang
 %dir %_sysconfdir/grub.d
@@ -63,6 +72,8 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_sysconfdir/grub.d/05_altlinux_theme
 %_sysconfdir/grub.d/10_linux
 %_sysconfdir/grub.d/30_os-prober
+%_sysconfdir/grub.d/35_xen
+%_sysconfdir/grub.d/39_memtest
 %config(noreplace) %_sysconfdir/grub.d/40_custom
 %config(noreplace) /etc/sysconfig/grub2
 %_bindir/*
@@ -72,6 +83,10 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %_infodir/grub.info.*
 
 %changelog
+* Mon Apr 19 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt11
+- add memtest and xen detection
+- set localedir
+
 * Fri Apr 16 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt10
 - do not provide grub
 - fix for evms/lvm device probing

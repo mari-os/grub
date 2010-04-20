@@ -1,0 +1,157 @@
+#! /bin/sh -e
+
+# grub-mkconfig helper script.
+# Copyright (C) 2006,2007,2008,2009,2010  Free Software Foundation, Inc.
+#
+# GRUB is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# GRUB is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
+
+prefix=/
+exec_prefix=/usr
+bindir=/usr/bin
+libdir=
+. ${libdir}/grub/grub-mkconfig_lib
+
+export TEXTDOMAIN=grub
+export TEXTDOMAINDIR=/usr/share/locale
+
+CLASS="--class gnu-linux --class gnu --class os"
+
+if [ -r /etc/altlinux-release ]; then
+ OS=`cat /etc/altlinux-release | sed 's/ (.*$//g'`
+else
+ OS=ALTLinux
+fi
+
+# loop-AES arranges things so that /dev/loop/X can be our root device, but
+# the initrds that Linux uses don't like that.
+case ${GRUB_DEVICE} in
+  /dev/loop/*|/dev/loop[0-9])
+    GRUB_DEVICE=`losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
+  ;;
+esac
+
+if [ "x${GRUB_DEVICE_UUID}" = "x" ] || [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] \
+    || ! test -e "/dev/disk/by-uuid/${GRUB_DEVICE_UUID}" ; then
+  LINUX_ROOT_DEVICE=${GRUB_DEVICE}
+else
+  LINUX_ROOT_DEVICE=UUID=${GRUB_DEVICE_UUID}
+fi
+
+xen_entry ()
+{
+  xen="$1"
+  os="$2"
+  version="$3"
+  recovery="$4"
+  args="$5"
+  default="$6"
+  basename_xen=`basename $xen`
+  dirname_xen=`dirname $xen`
+  if [ x$xen != x/boot/xen.gz ]; then
+   version_xen=`echo $basename_xen | sed -e "s,^[^0-9]*-,,g" | sed -e "s,.gz$,,"`
+  else
+   version_xen="default"
+  fi
+  if [ "x$version" != x ]; then
+   title="$(gettext "%s with Xen %s, Linux %s")"
+   printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version_xen}" "${version}"
+  else
+   title="$(gettext "%s with Xen %s")"
+   printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version_xen}"
+  fi
+  save_default_entry | sed -e "s/^/\t/"
+
+  # Use ELILO's generic "efifb" when it's known to be available.
+  # FIXME: We need an interface to select vesafb in case efifb can't be used.
+  if [ "x$GRUB_GFXPAYLOAD_LINUX" = x ]; then
+      if grep -qx "CONFIG_FB_EFI=y" /boot/config-${version} 2> /dev/null \
+	  && grep -qx "CONFIG_VT_HW_CONSOLE_BINDING=y" /boot/config-${version} 2> /dev/null; then
+	  cat << EOF
+	set gfxpayload=keep
+EOF
+      fi
+  else
+	  cat << EOF
+	set gfxpayload=$GRUB_GFXPAYLOAD_LINUX
+EOF
+  fi
+
+  if [ -z "${prepare_boot_cache}" ]; then
+    prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | sed -e "s/^/\t/")"
+  fi
+  printf '%s\n' "${prepare_boot_cache}"
+  cat << EOF
+	echo	$(printf "$(gettext "Loading Xen %s with Linux %s ...")" ${version_xen} ${version})
+	multiboot ${xen}
+	module	${rel_dirname}/${basename} xen root=${linux_root_device_thisversion} ro ${args}
+EOF
+  if test -n "${initrd}" ; then
+    cat << EOF
+	module	${rel_dirname}/${initrd}
+EOF
+  fi
+  cat << EOF
+}
+EOF
+}
+
+find_linux_entries ()
+{
+ xen="$1"
+ ls -c /boot/vmlinuz /boot/vmlinu[xz]-* | grep "\-xen" | while read linux ; do
+  echo "Found linux image: $linux" >&2
+  basename=`basename $linux`
+  dirname=`dirname $linux`
+  initrd=
+  default=false
+  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
+  rel_dirname=`make_system_path_relative_to_its_root $dirname`
+  if [ x$linux != x/boot/vmlinuz-xen ]; then
+   version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
+   alt_version=`echo $version | sed -e "s,\.old$,,g"`
+   for i in "initrd.img-${version}" "initrd-${version}.img" \
+	   "initrd-${version}" "initrd.img-${alt_version}" \
+	   "initrd-${alt_version}.img" "initrd-${alt_version}"; do
+    if test -e "${dirname}/${i}" ; then
+      initrd="$i"
+      break
+    fi
+   done
+  else
+   if [ -e /boot/initrd.img ]; then 
+    initrd="initrd.img"
+   fi
+   default=true
+  fi
+  if test -n "${initrd}" ; then
+    echo "Found initrd image: ${dirname}/${initrd}" >&2
+  else
+    # "UUID=" magic is parsed by initrds.  Since there's no initrd, it can't work here.
+    linux_root_device_thisversion=${GRUB_DEVICE}
+  fi
+
+  xen_entry "${xen}" "${OS}" "${version}" false \
+      "${GRUB_CMDLINE_LINUX_DEFAULT}" $default
+ done
+}
+
+if [ -e /boot/xen.gz ]; then
+ echo "Found xen image: xen.gz" >&2
+ find_linux_entries "/boot/xen.gz"
+fi
+
+find /boot/ -name "xen-*.gz" -type f | while read xen ; do
+ echo "Found xen image: $xen" >&2
+ find_linux_entries "$xen"
+done
