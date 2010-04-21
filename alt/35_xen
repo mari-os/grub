@@ -129,8 +129,8 @@ find_linux_entries ()
     fi
    done
   else
-   if [ -e /boot/initrd.img ]; then 
-    initrd="initrd.img"
+   if [ -e /boot/initrd-xen.img ]; then
+    initrd="initrd-xen.img"
    fi
    default=true
   fi
