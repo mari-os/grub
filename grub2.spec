@@ -85,6 +85,7 @@ sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
 %changelog
 * Wed Apr 21 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt12
 - add space before (failsafe mode) (ALT #23361)
+- fix default xen initrd name
 
 * Mon Apr 19 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt11
 - add memtest and xen detection
