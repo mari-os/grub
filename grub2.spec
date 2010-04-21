@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt11
+Release: alt12
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -83,6 +83,9 @@ sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
 %_infodir/grub.info.*
 
 %changelog
+* Wed Apr 21 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt12
+- add space before (failsafe mode) (ALT #23361)
+
 * Mon Apr 19 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt11
 - add memtest and xen detection
 - set localedir
