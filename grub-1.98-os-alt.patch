@@ -27,7 +27,7 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 +  fi
    if ${recovery} ; then
 -    title="$(gettext "%s, with Linux %s (recovery mode)")"
-+    title="$title(failsafe mode)"
++    title="$title (failsafe mode)"
 +  fi
 +  if ${default} ; then
 +    printf "menuentry \"${title}\" ${CLASS} {\n" "${os}"
