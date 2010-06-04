@@ -48,7 +48,7 @@ else
   LINUX_ROOT_DEVICE=UUID=${GRUB_DEVICE_UUID}
 fi
 
-ls -c /boot/memtest-*.bin | while read memtest ; do
+find /boot/ -name "memtest-*.bin" | while read memtest ; do
   prepare_boot_cache=
   echo "Found memtest image: $memtest" >&2
   basename=`basename $memtest`
