@@ -2,3 +2,4 @@ tar.bz2: grub2
 copy: grub2-sysconfig
 copy: *.patch
 copy: alt/*
+copy: *.filetrigger

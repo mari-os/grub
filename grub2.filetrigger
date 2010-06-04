@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# RPM filetrigger for grub2 menu update.
+#
+
+if egrep -qs '^/boot/vmlinuz|^/boot/xen|^/boot/memtest'; then
+	/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg ||:
+fi
