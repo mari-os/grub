@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt12
+Release: alt13
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -11,6 +11,7 @@ Source1: grub2-sysconfig
 
 Source2: 35_xen
 Source3: 39_memtest
+Source4: grub2.filetrigger
 
 Patch1: grub-1.98-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
@@ -65,6 +66,8 @@ install -pD -m755 %SOURCE3 %buildroot/etc/grub.d/
 sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/35_xen
 sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/39_memtest
 sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
+mkdir -p %buildroot/%_rpmlibdir
+install -pD -m755 %SOURCE4 %buildroot/%_rpmlibdir/
 
 %files -f grub.lang
 %dir %_sysconfdir/grub.d
@@ -81,8 +84,13 @@ sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
 %_datadir/grub
 %_sbindir/*
 %_infodir/grub.info.*
+%_rpmlibdir/*.filetrigger
 
 %changelog
+* Fri Jun 04 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt13
+- update grub menu in filetrigger (ALT #23332)
+- fix memtest finding
+
 * Wed Apr 21 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt12
 - add space before (failsafe mode) (ALT #23361)
 - fix default xen initrd name
