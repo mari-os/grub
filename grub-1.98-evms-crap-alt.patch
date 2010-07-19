@@ -1,35 +1,7 @@
-diff --git a/grub2/util/getroot.c b/grub2/util/getroot.c
-index 8239363..4d0f57b 100644
---- a/grub2/util/getroot.c
-+++ b/grub2/util/getroot.c
-@@ -511,6 +511,7 @@ char *
- grub_util_get_grub_dev (const char *os_dev)
- {
-   char *grub_dev;
-+  char *dest=NULL;
- 
-   switch (grub_util_get_dev_abstraction (os_dev))
-     {
-@@ -600,6 +601,14 @@ grub_util_get_grub_dev (const char *os_dev)
-       grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
-     }
- 
-+  if ((grub_dev)&&(dest=strstr(grub_dev,"/evms/"))&&(!strstr(grub_dev,"/evms/lvm2/")))
-+    {
-+        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/evms/")+5)+1);
-+        strncpy(tail,strstr(grub_dev,"/evms/")+5,strlen(strstr(grub_dev,"/evms/")+5)+1);
-+        strcpy(dest,tail);
-+        free(tail);
-+    }
-+
-   return grub_dev;
- }
- 
-diff --git a/grub2/util/getroot.c b/grub2/util/getroot.c
-index 8239363..aed7165 100644
---- a/grub2/util/getroot.c
-+++ b/grub2/util/getroot.c
-@@ -455,6 +456,16 @@ grub_guess_root_device (const char *dir)
+diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
+--- grub2/kern/emu/getroot.c	2010-07-05 00:50:20 +0000
++++ grub2.new/kern/emu/getroot.c	2010-07-19 19:02:58 +0000
+@@ -464,6 +464,16 @@
  
    /* This might be truly slow, but is there any better way?  */
    os_dev = find_root_device ("/dev", st.st_dev);
@@ -45,4 +17,27 @@ index 8239363..aed7165 100644
 +
  #endif
  #endif /* !__GNU__ */
+ 
+@@ -520,6 +530,7 @@
+ grub_util_get_grub_dev (const char *os_dev)
+ {
+   char *grub_dev;
++  char *dest=NULL;
+ 
+   switch (grub_util_get_dev_abstraction (os_dev))
+     {
+@@ -609,6 +620,14 @@
+       grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
+     }
+ 
++  if ((grub_dev)&&(dest=strstr(grub_dev,"/evms/"))&&(!strstr(grub_dev,"/evms/lvm2/")))
++    {
++        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/evms/")+5)+1);
++        strncpy(tail,strstr(grub_dev,"/evms/")+5,strlen(strstr(grub_dev,"/evms/")+5)+1);
++        strcpy(dest,tail);
++        free(tail);
++    }
++
+   return grub_dev;
+ }
  
