@@ -1,22 +1,22 @@
 diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
---- grub2/util/grub.d/10_linux.in	2010-03-06 20:51:37 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2010-03-09 11:42:13 +0000
-@@ -27,11 +27,10 @@
+--- grub2/util/grub.d/10_linux.in	2010-07-12 10:43:57 +0000
++++ grub2.new/util/grub.d/10_linux.in	2010-07-19 18:48:17 +0000
+@@ -28,11 +28,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
  
 -if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
 -  OS=GNU/Linux
 +if [ -r /etc/altlinux-release ]; then
-+ OS=`cat /etc/altlinux-release | sed 's/ (.*$//g'`
++  OS=`cat /etc/altlinux-release | sed 's/ (.*$//g'`
  else
 -  OS="${GRUB_DISTRIBUTOR} GNU/Linux"
--  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr '[A-Z]' '[a-z]') ${CLASS}"
-+ OS=ALTLinux
+-  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr '[A-Z]' '[a-z]' | cut -d' ' -f1) ${CLASS}"
++  OS=ALTLinux
  fi
  
  # loop-AES arranges things so that /dev/loop/X can be our root device, but
-@@ -55,12 +54,19 @@
+@@ -57,12 +56,19 @@
    version="$2"
    recovery="$3"
    args="$4"
@@ -26,24 +26,24 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 +    title="`echo $title | sed 's|, .*$||g'`"
 +  fi
    if ${recovery} ; then
--    title="$(gettext "%s, with Linux %s (recovery mode)")"
-+    title="$title (failsafe mode)"
+-    title="$(gettext_quoted "%s, with Linux %s (recovery mode)")"
++     title="$title (failsafe mode)"
 +  fi
 +  if ${default} ; then
-+    printf "menuentry \"${title}\" ${CLASS} {\n" "${os}"
++     printf "menuentry \"${title}\" ${CLASS} {\n" "${os}"
    else
--    title="$(gettext "%s, with Linux %s")"
-+    printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
+-    title="$(gettext_quoted "%s, with Linux %s")"
++     printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
    fi
--  printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
+-  printf "menuentry '${title}' ${CLASS} {\n" "${os}" "${version}"
    save_default_entry | sed -e "s/^/\t/"
  
    # Use ELILO's generic "efifb" when it's known to be available.
-@@ -97,30 +103,31 @@
+@@ -102,22 +108,17 @@
  EOF
  }
  
--list=`for i in /boot/vmlinu[xz]-* /vmlinu[xz]-* ; do
+-list=`for i in /boot/vmlinu[zx]-* /vmlinu[zx]-* ; do
 -        if grub_file_is_not_garbage "$i" ; then echo -n "$i " ; fi
 -      done`
 -prepare_boot_cache=
@@ -54,38 +54,33 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
    echo "Found linux image: $linux" >&2
    basename=`basename $linux`
    dirname=`dirname $linux`
--  rel_dirname=`make_system_path_relative_to_its_root $dirname`
--  version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
--  alt_version=`echo $version | sed -e "s,\.old$,,g"`
--  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
--
-   initrd=
--  for i in "initrd.img-${version}" "initrd-${version}.img" \
++  initrd=
 +  default=false
 +  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
-+  rel_dirname=`make_system_path_relative_to_its_root $dirname`
+   rel_dirname=`make_system_path_relative_to_its_root $dirname`
 +  if [ x$linux != x/boot/vmlinuz ]; then
-+   version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
-+   alt_version=`echo $version | sed -e "s,\.old$,,g"`
-+   for i in "initrd.img-${version}" "initrd-${version}.img" \
- 	   "initrd-${version}" "initrd.img-${alt_version}" \
- 	   "initrd-${alt_version}.img" "initrd-${alt_version}"; do
-     if test -e "${dirname}/${i}" ; then
-       initrd="$i"
+   version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
+   alt_version=`echo $version | sed -e "s,\.old$,,g"`
+-  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
+-
+-  initrd=
+   for i in "initrd.img-${version}" "initrd-${version}.img" \
+ 	   "initrd-${version}" "initramfs-${version}.img" \
+ 	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
+@@ -127,6 +128,12 @@
        break
      fi
--  done
-+   done
+   done
 +  else
-+   if [ -e /boot/initrd.img ]; then 
-+    initrd="initrd.img"
-+   fi
-+   default=true
++    if [ -e /boot/initrd.img ]; then 
++      initrd="initrd.img"
++    fi
++    default=true
 +  fi
    if test -n "${initrd}" ; then
      echo "Found initrd image: ${dirname}/${initrd}" >&2
    else
-@@ -129,11 +136,10 @@
+@@ -135,11 +142,10 @@
    fi
  
    linux_entry "${OS}" "${version}" false \
