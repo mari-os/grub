@@ -1,41 +1,18 @@
-diff -urN grub2/conf/common.mk grub2.new/conf/common.mk
---- grub2/conf/common.mk	2010-03-06 20:52:26 +0000
-+++ grub2.new/conf/common.mk	2010-03-06 22:49:27 +0000
-@@ -1040,7 +1040,7 @@
- %: util/grub.d/%.in config.status
- 	./config.status --file=$@:$<
- 	chmod +x $@
--grub-mkconfig_SCRIPTS = 00_header 30_os-prober 40_custom
-+grub-mkconfig_SCRIPTS = 00_header 05_altlinux_theme 30_os-prober 40_custom
- ifneq (, $(host_kernel))
- grub-mkconfig_SCRIPTS += 10_$(host_kernel)
- endif
 diff -urN grub2/conf/common.rmk grub2.new/conf/common.rmk
---- grub2/conf/common.rmk	2010-03-06 20:51:37 +0000
-+++ grub2.new/conf/common.rmk	2010-03-06 22:57:24 +0000
-@@ -201,7 +201,7 @@
+--- grub2/conf/common.rmk	2010-07-12 10:43:40 +0000
++++ grub2.new/conf/common.rmk	2010-07-19 18:55:19 +0000
+@@ -204,7 +204,7 @@
  %: util/grub.d/%.in config.status
  	./config.status --file=$@:$<
  	chmod +x $@
--grub-mkconfig_SCRIPTS = 00_header 30_os-prober 40_custom
-+grub-mkconfig_SCRIPTS = 00_header 05_altlinux_theme 30_os-prober 40_custom
+-grub-mkconfig_SCRIPTS = 00_header 30_os-prober 40_custom 41_custom
++grub-mkconfig_SCRIPTS = 00_header 05_altlinux_theme 30_os-prober 40_custom 41_custom
  ifneq (, $(host_kernel))
  grub-mkconfig_SCRIPTS += 10_$(host_kernel)
  endif
-diff -urN grub2/DISTLIST grub2.new/DISTLIST
---- grub2/DISTLIST	2010-03-06 20:52:27 +0000
-+++ grub2.new/DISTLIST	2010-03-06 22:56:57 +0000
-@@ -747,6 +747,7 @@
- util/usb.c
- util/elf/grub-mkimage.c
- util/grub.d/00_header.in
-+util/grub.d/05_altlinux_theme.in
- util/grub.d/10_hurd.in
- util/grub.d/10_kfreebsd.in
- util/grub.d/10_linux.in
 diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlinux_theme.in
 --- grub2/util/grub.d/05_altlinux_theme.in	1970-01-01 00:00:00 +0000
-+++ grub2.new/util/grub.d/05_altlinux_theme.in	2010-03-06 22:53:28 +0000
++++ grub2.new/util/grub.d/05_altlinux_theme.in	2010-07-19 18:54:11 +0000
 @@ -0,0 +1,59 @@
 +#! /bin/sh -e
 +
