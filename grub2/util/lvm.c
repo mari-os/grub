@@ -40,8 +40,6 @@ grub_util_lvm_isvolume (char *name)
   strcpy (devname, LVM_DEV_MAPPER_STRING);
   strcpy (devname + sizeof(LVM_DEV_MAPPER_STRING) - 1, name);
 
-  grub_util_info ("LVM: checking for %s presence", devname);
-
   err = stat (devname, &st);
   free (devname);
 

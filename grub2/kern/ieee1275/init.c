@@ -28,21 +28,20 @@
 #include <grub/env.h>
 #include <grub/misc.h>
 #include <grub/time.h>
-#include <grub/machine/console.h>
-#include <grub/machine/kernel.h>
-#include <grub/cpu/kernel.h>
+#include <grub/ieee1275/console.h>
 #include <grub/ieee1275/ofdisk.h>
 #include <grub/ieee1275/ieee1275.h>
+#include <grub/offsets.h>
 
 /* The minimal heap size we can live with. */
 #define HEAP_MIN_SIZE		(unsigned long) (2 * 1024 * 1024)
 
 /* The maximum heap size we're going to claim */
-#define HEAP_MAX_SIZE		(unsigned long) (4 * 1024 * 1024)
+#define HEAP_MAX_SIZE		(unsigned long) (32 * 1024 * 1024)
 
 /* If possible, we will avoid claiming heap above this address, because it
    seems to cause relocation problems with OSes that link at 4 MiB */
-#define HEAP_MAX_ADDR		(unsigned long) (4 * 1024 * 1024)
+#define HEAP_MAX_ADDR		(unsigned long) (32 * 1024 * 1024)
 
 extern char _start[];
 extern char _end[];
@@ -133,6 +132,17 @@ static void grub_claim_heap (void)
     if (type != 1)
       return 0;
 
+    if (grub_ieee1275_test_flag (GRUB_IEEE1275_FLAG_NO_PRE1_5M_CLAIM))
+      {
+	if (addr + len <= 0x180000)
+	  return 0;
+
+	if (addr < 0x180000)
+	  {
+	    len = addr + len - 0x180000;
+	    addr = 0x180000;
+	  }
+      }
     len -= 1; /* Required for some firmware.  */
 
     /* Never exceed HEAP_MAX_SIZE  */
@@ -214,11 +224,12 @@ grub_machine_init (void)
 
   grub_ieee1275_init ();
 
-  grub_console_init ();
+  grub_console_init_early ();
 #ifdef __i386__
   grub_get_extended_memory ();
 #endif
   grub_claim_heap ();
+  grub_console_init_lately ();
   grub_ofdisk_init ();
 
   /* Process commandline.  */
@@ -284,5 +295,5 @@ grub_get_rtc (void)
 grub_addr_t
 grub_arch_modules_addr (void)
 {
-  return ALIGN_UP((grub_addr_t) _end + GRUB_MOD_GAP, GRUB_MOD_ALIGN);
+  return ALIGN_UP((grub_addr_t) _end + GRUB_KERNEL_MACHINE_MOD_GAP, GRUB_KERNEL_MACHINE_MOD_ALIGN);
 }
