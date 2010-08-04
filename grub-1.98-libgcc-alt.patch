@@ -1,0 +1,26 @@
+diff --git a/grub2/Makefile.in b/grub2/Makefile.in
+index 39061be..666216f 100644
+--- a/grub2/Makefile.in
++++ b/grub2/Makefile.in
+@@ -108,7 +108,7 @@ TARGET_IMG_LDSCRIPT = @TARGET_IMG_LDSCRIPT@
+ TARGET_IMG_LDFLAGS = -nostdlib @TARGET_IMG_LDFLAGS@
+ TARGET_IMG_CFLAGS = @TARGET_IMG_CFLAGS@
+ TARGET_OBJ2ELF = @TARGET_OBJ2ELF@
+-kernel_img_LDFLAGS = -lgcc
++kernel_img_LDFLAGS = 
+ EXEEXT = @EXEEXT@
+ OBJCOPY = @OBJCOPY@
+ STRIP = @STRIP@
+diff --git a/grub2/configure.ac b/grub2/configure.ac
+index c1aa44e..7bcb3ad 100644
+--- a/grub2/configure.ac
++++ b/grub2/configure.ac
+@@ -492,7 +492,7 @@ CFLAGS="$TARGET_CFLAGS -nostdlib -Wl,--defsym,___main=0x8100 -Wno-error"
+ fi
+ CPPFLAGS="$TARGET_CPPFLAGS"
+ LDFLAGS="$TARGET_LDFLAGS"
+-LIBS=-lgcc
++LIBS=
+ 
+ grub_ASM_USCORE
+ if test x$grub_cv_asm_uscore = xyes; then
