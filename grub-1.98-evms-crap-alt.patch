@@ -1,7 +1,7 @@
 diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
---- grub2/kern/emu/getroot.c	2010-07-05 00:50:20 +0000
-+++ grub2.new/kern/emu/getroot.c	2010-07-19 19:02:58 +0000
-@@ -464,6 +464,16 @@
+--- grub2/kern/emu/getroot.c	2010-08-02 19:44:02 +0000
++++ grub2.new/kern/emu/getroot.c	2010-08-04 12:24:23 +0000
+@@ -535,6 +535,16 @@
  
    /* This might be truly slow, but is there any better way?  */
    os_dev = find_root_device ("/dev", st.st_dev);
@@ -18,15 +18,15 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
  #endif
  #endif /* !__GNU__ */
  
-@@ -520,6 +530,7 @@
+@@ -670,6 +680,7 @@
  grub_util_get_grub_dev (const char *os_dev)
  {
-   char *grub_dev;
-+  char *dest=NULL;
+   char *grub_dev = NULL;
++  char *dest = NULL;
  
    switch (grub_util_get_dev_abstraction (os_dev))
      {
-@@ -609,6 +620,14 @@
+@@ -786,6 +797,14 @@
        grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
      }
  
