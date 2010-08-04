@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt13
+Release: alt14.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -18,16 +18,18 @@ Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-1.98-altlinux-theme.patch
 Patch4: grub-1.98-evms-crap-alt.patch
 Patch5: grub-1.98-debian-904_disable_floppies.patch
+Patch6: grub-1.98-libgcc-alt.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
-# Automatically added by buildreq on Sun Mar 07 2010 (-bb)
-BuildRequires: fonts-bitmap-misc libfreetype-devel ruby
+BuildRequires: flex fonts-bitmap-misc libfreetype-devel python-modules ruby
 
 Exclusivearch: %ix86 x86_64
 
 Conflicts: grub
 Obsoletes: grub < %version-%release
+
+Requires: gettext
 
 %description
 GNU GRUB is a multiboot boot loader. It was derived from GRUB. It is an
@@ -48,6 +50,11 @@ Hurd).
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p2
+
+sed -i configure.ac -e "s/^AC_INIT.*/AC_INIT(\[GRUB\],\[%version-%release\],\[bug-grub@gnu.org\])/"
+
+./autogen.sh
 
 %build
 %configure --prefix=/
@@ -85,6 +92,10 @@ install -pD -m755 %SOURCE4 %buildroot/%_rpmlibdir/
 %_rpmlibdir/*.filetrigger
 
 %changelog
+* Wed Aug 04 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt14.20100804
+- 20100804 snapshot
+- add gettext to Requires (ALT #23845)
+
 * Fri Jun 04 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt13
 - update grub menu in filetrigger (ALT #23332)
 - fix memtest finding
