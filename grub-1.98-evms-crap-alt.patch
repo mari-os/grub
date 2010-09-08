@@ -1,7 +1,7 @@
 diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
 --- grub2/kern/emu/getroot.c	2010-08-02 19:44:02 +0000
-+++ grub2.new/kern/emu/getroot.c	2010-08-04 12:24:23 +0000
-@@ -535,6 +535,16 @@
++++ grub2.new/kern/emu/getroot.c	2010-09-08 10:48:05 +0000
+@@ -535,6 +535,24 @@
  
    /* This might be truly slow, but is there any better way?  */
    os_dev = find_root_device ("/dev", st.st_dev);
@@ -14,11 +14,19 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
 +        strcpy(dest,tail);
 +        free(tail);
 +    }
++  if ((os_dev)&&(dest=strstr(os_dev,"/mapper/sd")))
++    {
++        char *tail=(char *)malloc(strlen(strstr(os_dev,"/mapper/sd")+7)+1);
++        strncpy(tail,strstr(os_dev,"/mapper/sd")+7,strlen(strstr(os_dev,"/mapper/sd")+7)+1);
++        strcpy(dest,tail);
++        free(tail);
++    }
++
 +
  #endif
  #endif /* !__GNU__ */
  
-@@ -670,6 +680,7 @@
+@@ -670,6 +688,7 @@
  grub_util_get_grub_dev (const char *os_dev)
  {
    char *grub_dev = NULL;
@@ -26,7 +34,7 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
  
    switch (grub_util_get_dev_abstraction (os_dev))
      {
-@@ -786,6 +797,14 @@
+@@ -786,6 +805,22 @@
        grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
      }
  
@@ -38,6 +46,51 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
 +        free(tail);
 +    }
 +
++  if ((grub_dev)&&(dest=strstr(grub_dev,"/mapper/sd")))
++    {
++        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/mapper/sd")+7)+1);
++        strncpy(tail,strstr(grub_dev,"/mapper/sd")+7,strlen(strstr(grub_dev,"/mapper/sd")+7)+1);
++        strcpy(dest,tail);
++        free(tail);
++    }
++
    return grub_dev;
  }
  
+diff -ur grub2/util/grub-install.in grub2.new/util/grub-install.in
+--- grub2/util/grub-install.in	2010-08-04 03:40:54 +0000
++++ grub2.new/util/grub-install.in	2010-09-08 10:50:04 +0000
+@@ -319,13 +319,14 @@
+ 
+ # Write device to a variable so we don't have to traverse /dev every time.
+ grub_device=`$grub_probe --target=device ${grubdir}` || exit 1
++grub_device_fs=`echo $grub_device | sed 's|/dev/mapper/sd|/dev/sd|g' `
+ 
+ if ! test -f ${grubdir}/grubenv; then
+     $grub_editenv ${grubdir}/grubenv create
+ fi
+ 
+ # Create the core image. First, auto-detect the filesystem module.
+-fs_module=`$grub_probe --target=fs --device ${grub_device}`
++fs_module=`$grub_probe --target=fs --device ${grub_device_fs}`
+ if test "x$fs_module" = x -a "x$modules" = x; then
+     echo "Auto-detection of a filesystem module failed." 1>&2
+     echo "Please specify the module with the option \`--modules' explicitly." 1>&2
+@@ -377,7 +378,7 @@
+     grub_drive="`echo ${grub_drive} | sed -e s/,[a-z0-9,]*//g`"
+     if [ "$disk_module" = ata ] ; then
+         # generic method (used on coreboot and ata mod)
+-        uuid="`$grub_probe --target=fs_uuid --device ${grub_device}`"
++        uuid="`$grub_probe --target=fs_uuid --device ${grub_device_fs}`"
+         if [ "x${uuid}" = "x" ] ; then
+           echo "UUID needed with ata mod, but the filesystem containing ${grubdir} does not support UUIDs." 1>&2
+           exit 1
+@@ -387,7 +388,7 @@
+ 	config_opt="-c ${grubdir}/load.cfg "
+         modules="$modules search_fs_uuid"
+     elif [ "x${grub_drive}" != "x${install_drive}" ] ; then
+-        uuid="`$grub_probe --target=fs_uuid --device ${grub_device}`"
++        uuid="`$grub_probe --target=fs_uuid --device ${grub_device_fs}`"
+         if [ "x${uuid}" = "x" ] ; then
+           echo "You attempted a cross-disk install, but the filesystem containing ${grubdir} does not support UUIDs." 1>&2
+           exit 1
