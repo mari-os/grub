@@ -1,65 +1,50 @@
 diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
 --- grub2/kern/emu/getroot.c	2010-08-02 19:44:02 +0000
-+++ grub2.new/kern/emu/getroot.c	2010-09-08 10:48:05 +0000
-@@ -535,6 +535,24 @@
++++ grub2.new/kern/emu/getroot.c	2010-09-08 15:17:25 +0000
+@@ -449,6 +449,21 @@
+ 
+ #endif /* __CYGWIN__ */
+ 
++static char * workaround_evms (char * os_dev)
++{
++  char * dest;
++  if (!os_dev) return NULL;
++  if ((dest=strstr(os_dev,"/evms/"))&&(!strstr(os_dev,"/evms/lvm2/")))
++  {
++    memmove(dest,strstr(os_dev,"/evms/")+5,strlen(strstr(os_dev,"/evms/")+5)+1);
++  }
++  if (dest=strstr(os_dev,"/mapper/sd"))
++  {
++    memmove(dest,strstr(os_dev,"/mapper/")+7,strlen(strstr(os_dev,"/mapper/")+7)+1);
++  }
++  return os_dev;
++}
++
+ char *
+ grub_guess_root_device (const char *dir)
+ {
+@@ -535,6 +550,9 @@
  
    /* This might be truly slow, but is there any better way?  */
    os_dev = find_root_device ("/dev", st.st_dev);
 +
-+  char *dest;
-+  if ((os_dev)&&(dest=strstr(os_dev,"/evms/"))&&(!strstr(os_dev,"/evms/lvm2/")))
-+    {
-+        char *tail=(char *)malloc(strlen(strstr(os_dev,"/evms/")+5)+1);
-+        strncpy(tail,strstr(os_dev,"/evms/")+5,strlen(strstr(os_dev,"/evms/")+5)+1);
-+        strcpy(dest,tail);
-+        free(tail);
-+    }
-+  if ((os_dev)&&(dest=strstr(os_dev,"/mapper/sd")))
-+    {
-+        char *tail=(char *)malloc(strlen(strstr(os_dev,"/mapper/sd")+7)+1);
-+        strncpy(tail,strstr(os_dev,"/mapper/sd")+7,strlen(strstr(os_dev,"/mapper/sd")+7)+1);
-+        strcpy(dest,tail);
-+        free(tail);
-+    }
-+
++  workaround_evms(os_dev);
 +
  #endif
  #endif /* !__GNU__ */
  
-@@ -670,6 +688,7 @@
- grub_util_get_grub_dev (const char *os_dev)
- {
-   char *grub_dev = NULL;
-+  char *dest = NULL;
- 
-   switch (grub_util_get_dev_abstraction (os_dev))
-     {
-@@ -786,6 +805,22 @@
+@@ -786,6 +804,8 @@
        grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
      }
  
-+  if ((grub_dev)&&(dest=strstr(grub_dev,"/evms/"))&&(!strstr(grub_dev,"/evms/lvm2/")))
-+    {
-+        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/evms/")+5)+1);
-+        strncpy(tail,strstr(grub_dev,"/evms/")+5,strlen(strstr(grub_dev,"/evms/")+5)+1);
-+        strcpy(dest,tail);
-+        free(tail);
-+    }
-+
-+  if ((grub_dev)&&(dest=strstr(grub_dev,"/mapper/sd")))
-+    {
-+        char *tail=(char *)malloc(strlen(strstr(grub_dev,"/mapper/sd")+7)+1);
-+        strncpy(tail,strstr(grub_dev,"/mapper/sd")+7,strlen(strstr(grub_dev,"/mapper/sd")+7)+1);
-+        strcpy(dest,tail);
-+        free(tail);
-+    }
++  workaround_evms(grub_dev);
 +
    return grub_dev;
  }
  
 diff -ur grub2/util/grub-install.in grub2.new/util/grub-install.in
 --- grub2/util/grub-install.in	2010-08-04 03:40:54 +0000
-+++ grub2.new/util/grub-install.in	2010-09-08 10:50:04 +0000
++++ grub2.new/util/grub-install.in	2010-09-08 14:37:00 +0000
 @@ -319,13 +319,14 @@
  
  # Write device to a variable so we don't have to traverse /dev every time.
