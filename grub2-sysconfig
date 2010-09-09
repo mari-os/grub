@@ -1,5 +1,5 @@
 GRUB_CMDLINE_LINUX_DEFAULT='panic=30 splash=silent'
 GRUB_CMDLINE_LINUX='failsafe vga=normal'
-GRUB_TERMINAL='gfxterm'
+GRUB_TERMINAL_OUTPUT='gfxterm'
 GRUB_DEFAULT='saved'
 GRUB_SAVEDEFAULT=true
