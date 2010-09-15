@@ -1,6 +1,6 @@
 diff -urN grub2/conf/common.rmk grub2.new/conf/common.rmk
---- grub2/conf/common.rmk	2010-07-12 10:43:40 +0000
-+++ grub2.new/conf/common.rmk	2010-07-19 18:55:19 +0000
+--- grub2/conf/common.rmk	2010-08-04 03:40:54 +0000
++++ grub2.new/conf/common.rmk	2010-09-15 09:27:18 +0000
 @@ -204,7 +204,7 @@
  %: util/grub.d/%.in config.status
  	./config.status --file=$@:$<
@@ -12,8 +12,8 @@ diff -urN grub2/conf/common.rmk grub2.new/conf/common.rmk
  endif
 diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlinux_theme.in
 --- grub2/util/grub.d/05_altlinux_theme.in	1970-01-01 00:00:00 +0000
-+++ grub2.new/util/grub.d/05_altlinux_theme.in	2010-07-19 18:54:11 +0000
-@@ -0,0 +1,59 @@
++++ grub2.new/util/grub.d/05_altlinux_theme.in	2010-09-15 09:33:33 +0000
+@@ -0,0 +1,55 @@
 +#! /bin/sh -e
 +
 +prefix=@prefix@
@@ -21,10 +21,6 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 +bindir=@bindir@
 +libdir=@libdir@
 +. ${libdir}/grub/grub-mkconfig_lib
-+
-+WALLPAPER="/etc/bootsplash/themes/current/images/silent-800x600.jpg"
-+COLOR_NORMAL="black/black"
-+COLOR_HIGHLIGHT="magenta/black"
 +
 +set_mono_theme()
 +{
@@ -37,7 +33,7 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 +# check for usable backgrounds
 +use_bg=false
 +if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] ; then
-+  for i in /boot/grub/`basename ${WALLPAPER}` ${WALLPAPER} ; do
++  for i in /boot/grub/`basename $GRUB_WALLPAPER` $GRUB_WALLPAPER ; do
 +    if is_path_readable_by_grub $i ; then 
 +      bg=$i
 +      case ${bg} in
@@ -60,8 +56,8 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 +  cat << EOF
 +insmod ${reader}
 +if background_image `make_system_path_relative_to_its_root ${bg}` ; then
-+  set color_normal=${COLOR_NORMAL}
-+  set color_highlight=${COLOR_HIGHLIGHT}
++  set color_normal=$GRUB_COLOR_NORMAL
++  set color_highlight=$GRUB_COLOR_HIGHLIGHT
 +else
 +EOF
 +fi
@@ -73,3 +69,16 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 +else
 +  set_mono_theme
 +fi
+diff -urN grub2/util/grub-mkconfig.in grub2.new/util/grub-mkconfig.in
+--- grub2/util/grub-mkconfig.in	2010-08-04 03:40:55 +0000
++++ grub2.new/util/grub-mkconfig.in	2010-09-15 09:30:14 +0000
+@@ -276,6 +276,9 @@
+   GRUB_DISABLE_OS_PROBER \
+   GRUB_INIT_TUNE \
+   GRUB_SAVEDEFAULT \
++  GRUB_WALLPAPER \
++  GRUB_COLOR_NORMAL \
++  GRUB_COLOR_HIGHLIGHT \
+   GRUB_BADRAM
+ 
+ if test "x${grub_cfg}" != "x"; then
