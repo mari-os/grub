@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt15.20100804
+Release: alt16.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -92,6 +92,9 @@ install -pD -m755 %SOURCE4 %buildroot/%_rpmlibdir/
 %_rpmlibdir/*.filetrigger
 
 %changelog
+* Wed Sep 15 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt16.20100804
+- make grub menu look tuneable with /etc/sysconfig/grub2
+
 * Wed Sep 08 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt15.20100804
 - hackaround: update evms-crap-alt.patch (strip devmapper for el-smp kernel)
 
