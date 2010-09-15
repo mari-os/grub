@@ -13,6 +13,8 @@ Source2: 35_xen
 Source3: 39_memtest
 Source4: grub2.filetrigger
 
+Source5: grub-extras-%version.tar.bz2
+
 Patch1: grub-1.98-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-1.98-altlinux-theme.patch
@@ -45,22 +47,25 @@ Hurd).
 
 %prep
 %setup -q
+%setup -b 5
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
 %patch6 -p2
+mv ../grub-extras-%version ./grub-extras
 
 sed -i configure.ac -e "s/^AC_INIT.*/AC_INIT(\[GRUB\],\[%version-%release\],\[bug-grub@gnu.org\])/"
 
-./autogen.sh
-
 %build
+export GRUB_CONTRIB=`pwd`/grub-extras
+./autogen.sh
 %configure --prefix=/
 %make_build
 
 %install
+export GRUB_CONTRIB=`pwd`/grub-extras
 %makeinstall
 mkdir -p %buildroot/etc/sysconfig
 install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2

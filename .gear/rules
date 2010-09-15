@@ -1,4 +1,5 @@
 tar.bz2: grub2
+tar.bz2: grub-extras
 copy: grub2-sysconfig
 copy: *.patch
 copy: alt/*
