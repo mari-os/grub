@@ -1,7 +1,7 @@
-diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
+diff -urN grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
 --- grub2/kern/emu/getroot.c	2010-08-02 19:44:02 +0000
-+++ grub2.new/kern/emu/getroot.c	2010-09-08 15:17:25 +0000
-@@ -449,6 +449,21 @@
++++ grub2.new/kern/emu/getroot.c	2010-09-20 13:00:14 +0000
+@@ -449,6 +449,27 @@
  
  #endif /* __CYGWIN__ */
  
@@ -9,11 +9,17 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
 +{
 +  char * dest;
 +  if (!os_dev) return NULL;
-+  if ((dest=strstr(os_dev,"/evms/"))&&(!strstr(os_dev,"/evms/lvm2/")))
++  if (dest=strstr(os_dev,"/evms/lvm2/"))
++  {
++    strncpy(dest,"/mapper/",8);
++    memmove(dest+8,dest+11,strlen(dest+11)+1);
++    if (strchr(dest+8,'/')) *strchr(dest+8,'/')='-';
++  }
++  else if (dest=strstr(os_dev,"/evms/"))
 +  {
 +    memmove(dest,strstr(os_dev,"/evms/")+5,strlen(strstr(os_dev,"/evms/")+5)+1);
 +  }
-+  if (dest=strstr(os_dev,"/mapper/sd"))
++  else if (dest=strstr(os_dev,"/mapper/sd"))
 +  {
 +    memmove(dest,strstr(os_dev,"/mapper/")+7,strlen(strstr(os_dev,"/mapper/")+7)+1);
 +  }
@@ -23,7 +29,7 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
  char *
  grub_guess_root_device (const char *dir)
  {
-@@ -535,6 +550,9 @@
+@@ -535,6 +556,9 @@
  
    /* This might be truly slow, but is there any better way?  */
    os_dev = find_root_device ("/dev", st.st_dev);
@@ -33,7 +39,7 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
  #endif
  #endif /* !__GNU__ */
  
-@@ -786,6 +804,8 @@
+@@ -786,6 +810,8 @@
        grub_dev = grub_util_biosdisk_get_grub_dev (os_dev);
      }
  
@@ -42,9 +48,9 @@ diff -ur grub2/kern/emu/getroot.c grub2.new/kern/emu/getroot.c
    return grub_dev;
  }
  
-diff -ur grub2/util/grub-install.in grub2.new/util/grub-install.in
+diff -urN grub2/util/grub-install.in grub2.new/util/grub-install.in
 --- grub2/util/grub-install.in	2010-08-04 03:40:54 +0000
-+++ grub2.new/util/grub-install.in	2010-09-08 14:37:00 +0000
++++ grub2.new/util/grub-install.in	2010-09-20 11:43:02 +0000
 @@ -319,13 +319,14 @@
  
  # Write device to a variable so we don't have to traverse /dev every time.
