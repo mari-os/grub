@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt17.20100804
+Release: alt18.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -14,6 +14,8 @@ Source3: 39_memtest
 Source4: grub2.filetrigger
 
 Source5: grub-extras-%version.tar.bz2
+
+Source6: grub-autoupdate
 
 Patch1: grub-1.98-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
@@ -78,6 +80,7 @@ sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/39_memtest
 sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
 mkdir -p %buildroot/%_rpmlibdir
 install -pD -m755 %SOURCE4 %buildroot/%_rpmlibdir/
+install -pD -m755 %SOURCE6 %buildroot/%_sbindir/
 
 %files -f grub.lang
 %dir %_sysconfdir/grub.d
@@ -96,7 +99,14 @@ install -pD -m755 %SOURCE4 %buildroot/%_rpmlibdir/
 %_infodir/grub.info.*
 %_rpmlibdir/*.filetrigger
 
+%post
+%_sbindir/grub-autoupdate
+
 %changelog
+* Mon Oct 04 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt18.20100804
+- add GRUB_AUTOUPDATE_DEVICE and GRUB_AUTOUPDATE_FORCE options for
+  automatic grub update (ALT #24114)
+
 * Mon Sep 20 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt17.20100804
 - update grub-1.98-evms-crap-alt.patch (evms/lvm2)
 
