@@ -1,6 +1,7 @@
 GRUB_CMDLINE_LINUX_DEFAULT='panic=30 splash=silent'
 GRUB_CMDLINE_LINUX='failsafe vga=normal'
 GRUB_TERMINAL_OUTPUT='gfxterm'
+GRUB_GFXMODE='800x600'
 GRUB_DEFAULT='saved'
 GRUB_SAVEDEFAULT=true
 GRUB_WALLPAPER="/etc/bootsplash/themes/current/images/silent-800x600.jpg"
