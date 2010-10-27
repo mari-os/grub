@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt18.20100804
+Release: alt19.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -16,6 +16,7 @@ Source4: grub2.filetrigger
 Source5: grub-extras-%version.tar.bz2
 
 Source6: grub-autoupdate
+Source7: firsttime
 
 Patch1: grub-1.98-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
@@ -81,6 +82,8 @@ sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
 mkdir -p %buildroot/%_rpmlibdir
 install -pD -m755 %SOURCE4 %buildroot/%_rpmlibdir/
 install -pD -m755 %SOURCE6 %buildroot/%_sbindir/
+mkdir -p %buildroot/%_sysconfdir/firsttime.d
+install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 
 %files -f grub.lang
 %dir %_sysconfdir/grub.d
@@ -92,6 +95,7 @@ install -pD -m755 %SOURCE6 %buildroot/%_sbindir/
 %_sysconfdir/grub.d/39_memtest
 %config(noreplace) %_sysconfdir/grub.d/40_custom
 %config(noreplace) /etc/sysconfig/grub2
+%_sysconfdir/firsttime.d/*
 %_bindir/*
 %_libdir/grub
 %_datadir/grub
@@ -103,6 +107,9 @@ install -pD -m755 %SOURCE6 %buildroot/%_sbindir/
 %_sbindir/grub-autoupdate
 
 %changelog
+* Wed Oct 27 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 1.98-alt19.20100804
+- firsttime script added
+
 * Mon Oct 04 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt18.20100804
 - add GRUB_AUTOUPDATE_DEVICE and GRUB_AUTOUPDATE_FORCE options for
   automatic grub update (ALT #24114)
