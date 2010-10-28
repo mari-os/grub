@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt19.20100804
+Release: alt20.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -107,6 +107,9 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Thu Oct 28 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 1.98-alt20.20100804
+- fix this unhappy firsttime script
+
 * Wed Oct 27 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 1.98-alt19.20100804
 - firsttime script added
 
