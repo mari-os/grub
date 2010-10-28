@@ -1,7 +1,8 @@
-diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
---- grub2/util/grub.d/10_linux.in	2010-07-12 10:43:57 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2010-07-19 18:48:17 +0000
-@@ -28,11 +28,10 @@
+diff --git a/grub2/util/grub.d/10_linux.in b/grub2/util/grub.d/10_linux.in
+index 14b85c7..374353a 100644
+--- a/grub2/util/grub.d/10_linux.in
++++ b/grub2/util/grub.d/10_linux.in
+@@ -28,11 +28,10 @@ export TEXTDOMAINDIR=@localedir@
  
  CLASS="--class gnu-linux --class gnu --class os"
  
@@ -16,7 +17,7 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
  fi
  
  # loop-AES arranges things so that /dev/loop/X can be our root device, but
-@@ -57,12 +56,19 @@
+@@ -57,12 +56,19 @@ linux_entry ()
    version="$2"
    recovery="$3"
    args="$4"
@@ -39,7 +40,7 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
    save_default_entry | sed -e "s/^/\t/"
  
    # Use ELILO's generic "efifb" when it's known to be available.
-@@ -102,22 +108,17 @@
+@@ -102,24 +108,21 @@ EOF
  EOF
  }
  
@@ -60,14 +61,18 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
    rel_dirname=`make_system_path_relative_to_its_root $dirname`
 +  if [ x$linux != x/boot/vmlinuz ]; then
    version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
++  flavour=`echo $basename | sed -e "s,^vmlinuz-,,g"`
    alt_version=`echo $version | sed -e "s,\.old$,,g"`
 -  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
 -
 -  initrd=
    for i in "initrd.img-${version}" "initrd-${version}.img" \
  	   "initrd-${version}" "initramfs-${version}.img" \
++	   "initrd-${flavour}.img" \
  	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
-@@ -127,6 +128,12 @@
+ 	   "initrd-${alt_version}" "initramfs-${alt_version}.img"; do
+     if test -e "${dirname}/${i}" ; then
+@@ -127,6 +130,12 @@ while [ "x$list" != "x" ] ; do
        break
      fi
    done
@@ -80,7 +85,7 @@ diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
    if test -n "${initrd}" ; then
      echo "Found initrd image: ${dirname}/${initrd}" >&2
    else
-@@ -135,11 +142,10 @@
+@@ -135,11 +144,10 @@ while [ "x$list" != "x" ] ; do
    fi
  
    linux_entry "${OS}" "${version}" false \
