@@ -2,5 +2,6 @@
 WITHOUT_RC_COMPAT=1
 #Source functions library.
 . /etc/init.d/functions
-action "Updating grub configuration:" sh -c 'grub-mkconfig > /boot/grub/grub.cfg'
+chmod +w /boot/grub/grub.cfg
+action "Updating grub configuration:" grub-mkconfig -o /boot/grub/grub.cfg
 
