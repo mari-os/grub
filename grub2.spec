@@ -51,7 +51,7 @@ Hurd).
 %prep
 %setup -q
 %setup -b 5
-%patch1 -p1
+%patch1 -p2
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
@@ -109,6 +109,7 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %changelog
 * Thu Oct 28 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 1.98-alt20.20100804
 - fix this unhappy firsttime script
+- use UUIDs for flavoured entries
 
 * Wed Oct 27 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 1.98-alt19.20100804
 - firsttime script added
