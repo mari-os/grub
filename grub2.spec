@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt20.20100804
+Release: alt21.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -73,7 +73,8 @@ export GRUB_CONTRIB=`pwd`/grub-extras
 mkdir -p %buildroot/etc/sysconfig
 install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %find_lang grub
-%buildroot/%_bindir/grub-mkfont -o %buildroot/%_datadir/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
+mkdir -p %buildroot/boot/grub
+%buildroot/%_bindir/grub-mkfont -o %buildroot/boot/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
 install -pD -m755 %SOURCE2 %buildroot/etc/grub.d/
 install -pD -m755 %SOURCE3 %buildroot/etc/grub.d/
 sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/35_xen
@@ -87,6 +88,8 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 
 %files -f grub.lang
 %dir %_sysconfdir/grub.d
+%dir /boot/grub
+/boot/grub/*.pf2
 %_sysconfdir/grub.d/00_header
 %_sysconfdir/grub.d/05_altlinux_theme
 %_sysconfdir/grub.d/10_linux
@@ -107,6 +110,9 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Fri Oct 29 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt21.20100804
+- place default font in /boot/grub (ALT #24446)
+
 * Thu Oct 28 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 1.98-alt20.20100804
 - fix this unhappy firsttime script
 - use UUIDs for flavoured entries
