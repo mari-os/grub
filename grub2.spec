@@ -51,7 +51,7 @@ Hurd).
 %prep
 %setup -q
 %setup -b 5
-%patch1 -p2
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
@@ -112,6 +112,7 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %changelog
 * Fri Oct 29 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt21.20100804
 - place default font in /boot/grub (ALT #24446)
+- fix initrd finding (ALT #24442)
 
 * Thu Oct 28 2010 Anton V. Boyarshinov <boyarsh@altlinux.ru> 1.98-alt20.20100804
 - fix this unhappy firsttime script
