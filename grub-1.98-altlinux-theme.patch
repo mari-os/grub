@@ -72,13 +72,15 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 diff -urN grub2/util/grub-mkconfig.in grub2.new/util/grub-mkconfig.in
 --- grub2/util/grub-mkconfig.in	2010-08-04 03:40:55 +0000
 +++ grub2.new/util/grub-mkconfig.in	2010-09-15 09:30:14 +0000
-@@ -276,6 +276,9 @@
+@@ -276,6 +276,11 @@
    GRUB_DISABLE_OS_PROBER \
    GRUB_INIT_TUNE \
    GRUB_SAVEDEFAULT \
 +  GRUB_WALLPAPER \
 +  GRUB_COLOR_NORMAL \
 +  GRUB_COLOR_HIGHLIGHT \
++  GRUB_VMLINUZ_SYMLINKS \
++  GRUB_VMLINUZ_FAILSAFE \
    GRUB_BADRAM
  
  if test "x${grub_cfg}" != "x"; then
