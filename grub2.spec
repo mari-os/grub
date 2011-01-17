@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt21.20100804
+Release: alt22.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -110,6 +110,14 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Mon Jan 17 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt22.20100804
+- add options to /ets/sysconfig/grub2:
+  GRUB_AUTOUPDATE_CFG,GRUB_AUTOUPDATE_CFGNAME to control automatic config
+   update
+  GRUB_VMLINUZ_SYMLINKS to control symlinks handling in /boot/vmlinuz*
+  GRUB_VMLINUZ_FAILSAFE to control failsafe entries
+- temporary remove ntldr-img from grub-extras
+
 * Fri Oct 29 2010 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt21.20100804
 - place default font in /boot/grub (ALT #24446)
 - fix initrd finding (ALT #24442)
