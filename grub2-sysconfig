@@ -1,3 +1,30 @@
+# Automaticaly update grub on device
+#GRUB_AUTOUPDATE_DEVICE='/dev/sda '
+# Use '--force' option for grub-install
+#GRUB_AUTOUPDATE_FORCE='no'
+
+# Automaticaly update config file on kernel install/removal
+# default: true
+GRUB_AUTOUPDATE_CFG=true
+
+# Automaticaly updated config filename
+# default: /boot/grub/grub.cfg
+GRUB_AUTOUPDATE_CFGNAME=/boot/grub/grub.cfg
+
+# How to handle /boot/vmlinuz* symlinks:
+# 'yes','true' - include in config
+# 'no','false' - skip in config
+# 'default'    - include only /boot/vmlinuz in config
+# default: default
+GRUB_VMLINUZ_SYMLINKS=default
+
+# Whether to add failsafe entries:
+# 'yes','true' - add for all kernels
+# 'no','false' - skip for all kernels
+# 'default'    - add failsafe entry only for /boot/vmlinuz
+# default: default
+GRUB_VMLINUZ_FAILSAFE=default
+
 GRUB_CMDLINE_LINUX_DEFAULT='panic=30 splash=silent'
 GRUB_CMDLINE_LINUX='failsafe vga=normal'
 GRUB_TERMINAL_OUTPUT='gfxterm'
