@@ -25,6 +25,9 @@ GRUB_VMLINUZ_SYMLINKS=default
 # default: default
 GRUB_VMLINUZ_FAILSAFE=default
 
+# Preload specific grub modules
+#GRUB_PRELOAD_MODULES=''
+
 GRUB_CMDLINE_LINUX_DEFAULT='panic=30 splash=silent'
 GRUB_CMDLINE_LINUX='failsafe vga=normal'
 GRUB_TERMINAL_OUTPUT='gfxterm'
