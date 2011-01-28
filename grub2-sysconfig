@@ -28,6 +28,15 @@ GRUB_VMLINUZ_FAILSAFE=default
 # Preload specific grub modules
 #GRUB_PRELOAD_MODULES=''
 
+# Set normal timeout
+#GRUB_TIMEOUT=5
+
+# Set hidden timeout (do not show menu)
+#GRUB_HIDDEN_TIMEOUT=3
+
+# Show timeout counter when hidden
+#GRUB_HIDDEN_TIMEOUT_QUIET=TRUE
+
 GRUB_CMDLINE_LINUX_DEFAULT='panic=30 splash=silent'
 GRUB_CMDLINE_LINUX='failsafe vga=normal'
 GRUB_TERMINAL_OUTPUT='gfxterm'
