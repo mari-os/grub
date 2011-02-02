@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt22.20100804
+Release: alt23.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -110,6 +110,11 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Wed Feb 02 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt23.20100804
+- remove buggy brain which sets gfxpayload=keep in 10_linux
+- mention timeout features in sysconfig
+- mention GRUB_PRELOAD_MODULES in sysconfig
+
 * Mon Jan 17 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt22.20100804
 - add options to /ets/sysconfig/grub2:
   GRUB_AUTOUPDATE_CFG,GRUB_AUTOUPDATE_CFGNAME to control automatic config
