@@ -1,6 +1,6 @@
-diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
+diff -ur grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 --- grub2/util/grub.d/10_linux.in	2010-08-04 03:40:55 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2011-01-17 14:37:14 +0000
++++ grub2.new/util/grub.d/10_linux.in	2011-02-02 12:31:47 +0000
 @@ -28,11 +28,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
@@ -39,6 +39,25 @@ diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
    save_default_entry | sed -e "s/^/\t/"
  
    # Use ELILO's generic "efifb" when it's known to be available.
+@@ -71,12 +77,12 @@
+       cat << EOF
+ 	load_video
+ EOF
+-      if grep -qx "CONFIG_FB_EFI=y" /boot/config-${version} 2> /dev/null \
+-	  && grep -qx "CONFIG_VT_HW_CONSOLE_BINDING=y" /boot/config-${version} 2> /dev/null; then
+-	  cat << EOF
+-	set gfxpayload=keep
+-EOF
+-      fi
++#      if grep -qx "CONFIG_FB_EFI=y" /boot/config-${version} 2> /dev/null \
++#	  && grep -qx "CONFIG_VT_HW_CONSOLE_BINDING=y" /boot/config-${version} 2> /dev/null; then
++#	  cat << EOF
++#	set gfxpayload=keep
++#EOF
++#      fi
+   else
+ 	  cat << EOF
+ 	set gfxpayload=$GRUB_GFXPAYLOAD_LINUX
 @@ -102,31 +108,41 @@
  EOF
  }
