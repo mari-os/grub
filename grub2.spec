@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.98
-Release: alt23.20100804
+Release: alt24.20100804
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -110,6 +110,9 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Tue May 03 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt24.20100804
+- fix grub-1.98-evms-crap-alt.patch for /dev/vd* devices (ALT #25497)
+
 * Wed Feb 02 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt23.20100804
 - remove buggy brain which sets gfxpayload=keep in 10_linux
 - mention timeout features in sysconfig
