@@ -1,0 +1,132 @@
+--- grub2/util/grub.d/10_linux.in	2011-05-14 20:36:49 +0000
++++ grub2.new/util/grub.d/10_linux.in	2011-05-23 10:17:21 +0000
+@@ -28,11 +28,10 @@
+ 
+ CLASS="--class gnu-linux --class gnu --class os"
+ 
+-if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
+-  OS=GNU/Linux
++if [ -r /etc/altlinux-release ]; then
++  OS=`cat /etc/altlinux-release | sed 's/ (.*$//g'`
+ else
+-  OS="${GRUB_DISTRIBUTOR} GNU/Linux"
+-  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr 'A-Z' 'a-z' | cut -d' ' -f1) ${CLASS}"
++  OS=ALTLinux
+ fi
+ 
+ # loop-AES arranges things so that /dev/loop/X can be our root device, but
+@@ -65,15 +64,20 @@
+   version="$2"
+   recovery="$3"
+   args="$4"
++  default="$5"
++  title="$(gettext "%s, with Linux %s")"
++  if ${default} ; then
++    title="`echo $title | sed 's|, .*$||g'`"
++  fi
+   if ${recovery} ; then
+-    title="$(gettext_quoted "%s, with Linux %s (recovery mode)")"
+-  else
+-    title="$(gettext_quoted "%s, with Linux %s")"
++    title="$title (failsafe mode)"
+   fi
+-  printf "menuentry '${title}' ${CLASS} {\n" "${os}" "${version}"
+-  if ! ${recovery} ; then
+-      save_default_entry | sed -e "s/^/\t/"
++  if ${default} ; then
++    printf "menuentry \"${title}\" ${CLASS} {\n" "${os}"
++  else
++    printf "menuentry \"${title}\" ${CLASS} {\n" "${os}" "${version}"
+   fi
++  save_default_entry | sed -e "s/^/\t/
+ 
+   # Use ELILO's generic "efifb" when it's known to be available.
+   # FIXME: We need an interface to select vesafb in case efifb can't be used.
+@@ -82,12 +86,12 @@
+ 	load_video
+ EOF
+       if grep -qx "CONFIG_FB_EFI=y" "${config}" 2> /dev/null \
+-	  && grep -qx "CONFIG_VT_HW_CONSOLE_BINDING=y" "${config}" 2> /dev/null; then
+-	  cat << EOF
+-	set gfxpayload=keep
++          && grep -qx "CONFIG_VT_HW_CONSOLE_BINDING=y" "${config}" 2> /dev/null; then
++          cat << EOF
++        set gfxpayload=keep
+ EOF
+       fi
+-  else
++   else
+       if [ "x$GRUB_GFXPAYLOAD_LINUX" != xtext ]; then
+ 	  cat << EOF
+ 	load_video
+@@ -141,6 +145,9 @@
+ 	     done` ;;
+ esac
+ 
++[ ! -z $GRUB_VMLINUZ_SYMLINKS ] || GRUB_VMLINUZ_SYMLINKS="default"
++[ ! -z $GRUB_VMLINUZ_FAILSAFE ] || GRUB_VMLINUZ_FAILSAFE="default"
++
+ prepare_boot_cache=
+ prepare_root_cache=
+ 
+@@ -154,18 +161,35 @@
+   alt_version=`echo $version | sed -e "s,\.old$,,g"`
+   linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
+ 
++  if [ -L "$linux" ]; then
++    if [ "x$GRUB_VMLINUZ_SYMLINKS" = "xno" ] || [ "x$GRUB_VMLINUZ_SYMLINKS" = "xfalse" ]; then
++        echo "skipping symlink: $linux" >&2
++        continue
++    fi
++    if [ "$linux" != "/boot/vmlinuz" ] && [ "x$GRUB_VMLINUZ_SYMLINKS" = "xdefault" ]; then
++	echo "skipping symlink: $linux" >&2
++	continue
++    fi
++  fi
++
+   initrd=
+-  for i in "initrd.img-${version}" "initrd-${version}.img" \
+-	   "initrd-${version}" "initramfs-${version}.img" \
+-	   "initrd.img-${alt_version}" "initrd-${alt_version}.img" \
+-	   "initrd-${alt_version}" "initramfs-${alt_version}.img" \
+-	   "initramfs-genkernel-${version}" \
+-	   "initramfs-genkernel-${alt_version}"; do
+-    if test -e "${dirname}/${i}" ; then
++  default=false
++  linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
++  rel_dirname=`make_system_path_relative_to_its_root $dirname`
++  if [ x$linux != x/boot/vmlinuz ]; then
++  version=`echo $basename | sed -e "s,^vmlinuz-,,g"`
++  for i in "initrd-${version}.img" "initramfs-${version}.img"; do
++      if test -e "${dirname}/${i}" ; then
+       initrd="$i"
+       break
+-    fi
++  fi
+   done
++  else
++  if [ -e /boot/initrd.img ]; then 
++    initrd="initrd.img"
++  fi
++    default=true
++  fi
+ 
+   config=
+   for i in "${dirname}/config-${version}" "${dirname}/config-${alt_version}" "/etc/kernels/kernel-config-${version}" ; do
+@@ -189,10 +213,12 @@
+   fi
+ 
+   linux_entry "${OS}" "${version}" false \
+-      "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
+-  if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
+-    linux_entry "${OS}" "${version}" true \
+-	"single ${GRUB_CMDLINE_LINUX}"
++      "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}" $default
++  if [ "x${GRUB_DISABLE_LINUX_RECOVERY}" != "xtrue" ] && [ "x${GRUB_VMLINUZ_FAILSAFE}" != "xno" ] && [ "x${GRUB_VMLINUZ_FAILSAFE}" != "xfalse" ]; then
++    if [ $linux = "/boot/vmlinuz" ] || [ "x${GRUB_VMLINUZ_FAILSAFE}" != "xdefault" ]; then
++     linux_entry "${OS}" "${version}" true \
++		"single ${GRUB_CMDLINE_LINUX}" $default
++    fi
+   fi
+ 
+   list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`

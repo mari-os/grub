@@ -21,6 +21,7 @@
 
 #include <grub/efi/api.h>
 #include <grub/file.h>
+#include <grub/memory.h>
 
 #define GRUB_EFIEMU_PAGESIZE 4096
 
@@ -217,20 +218,20 @@ int grub_efiemu_get_memory_map (grub_efi_uintn_t *memory_map_size,
 				grub_efi_uintn_t *map_key,
 				grub_efi_uintn_t *descriptor_size,
 				grub_efi_uint32_t *descriptor_version);
+
+
 grub_err_t
-grub_efiemu_mmap_iterate (int NESTED_FUNC_ATTR (*hook) (grub_uint64_t,
-							grub_uint64_t,
-							grub_uint32_t));
+grub_efiemu_finish_boot_services (grub_efi_uintn_t *memory_map_size,
+				  grub_efi_memory_descriptor_t *memory_map,
+				  grub_efi_uintn_t *map_key,
+				  grub_efi_uintn_t *descriptor_size,
+				  grub_efi_uint32_t *descriptor_version);
+
+grub_err_t
+grub_efiemu_mmap_iterate (grub_memory_hook_t hook);
 int grub_efiemu_sizeof_uintn_t (void);
-int grub_efiemu_exit_boot_services (grub_efi_uintn_t map_key);
-int grub_efiemu_finish_boot_services (void);
 grub_err_t
 grub_efiemu_get_lower_upper_memory (grub_uint64_t *lower, grub_uint64_t *upper);
-#define GRUB_EFIEMU_MEMORY_AVAILABLE	1
-#define GRUB_EFIEMU_MEMORY_RESERVED	2
-#define GRUB_EFIEMU_MEMORY_ACPI	3
-#define GRUB_EFIEMU_MEMORY_NVS         4
-#define GRUB_EFIEMU_MEMORY_CODE         5
 
 /* efiemu main control definitions and functions*/
 typedef enum {GRUB_EFIEMU_NOTLOADED,
@@ -282,5 +283,7 @@ grub_efiemu_set_virtual_address_map (grub_efi_uintn_t memory_map_size,
 				     grub_efi_uint32_t descriptor_version
 				     __attribute__ ((unused)),
 				     grub_efi_memory_descriptor_t *virtual_map);
+
+grub_err_t grub_machine_efiemu_init_tables (void);
 
 #endif /* ! GRUB_EFI_EMU_HEADER */
