@@ -1,18 +1,22 @@
-diff -urN grub2/conf/common.rmk grub2.new/conf/common.rmk
---- grub2/conf/common.rmk	2010-08-04 03:40:54 +0000
-+++ grub2.new/conf/common.rmk	2010-09-15 09:27:18 +0000
-@@ -204,7 +204,7 @@
- %: util/grub.d/%.in config.status
- 	./config.status --file=$@:$<
- 	chmod +x $@
--grub-mkconfig_SCRIPTS = 00_header 30_os-prober 40_custom 41_custom
-+grub-mkconfig_SCRIPTS = 00_header 05_altlinux_theme 30_os-prober 40_custom 41_custom
- ifneq (, $(host_kernel))
- grub-mkconfig_SCRIPTS += 10_$(host_kernel)
- endif
+diff -urN grub2/Makefile.util.def grub2.new/Makefile.util.def
+--- grub2/Makefile.util.def	2011-04-11 21:14:59 +0000
++++ grub2.new/Makefile.util.def	2011-05-23 11:54:47 +0000
+@@ -318,6 +318,12 @@
+ };
+ 
+ script = {
++  name = '05_altlinux_theme';
++  common = util/grub.d/05_altlinux_theme.in;
++  installdir = grubconf;
++};
++
++script = {
+   name = '10_windows';
+   common = util/grub.d/10_windows.in;
+   installdir = grubconf;
 diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlinux_theme.in
 --- grub2/util/grub.d/05_altlinux_theme.in	1970-01-01 00:00:00 +0000
-+++ grub2.new/util/grub.d/05_altlinux_theme.in	2010-09-15 09:33:33 +0000
++++ grub2.new/util/grub.d/05_altlinux_theme.in	2011-05-23 11:59:41 +0000
 @@ -0,0 +1,55 @@
 +#! /bin/sh -e
 +
@@ -32,7 +36,7 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 +
 +# check for usable backgrounds
 +use_bg=false
-+if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] ; then
++if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] && [ "x$GRUB_WALLPAPER" != "x" ]; then
 +  for i in /boot/grub/`basename $GRUB_WALLPAPER` $GRUB_WALLPAPER ; do
 +    if is_path_readable_by_grub $i ; then 
 +      bg=$i
@@ -70,9 +74,9 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 +  set_mono_theme
 +fi
 diff -urN grub2/util/grub-mkconfig.in grub2.new/util/grub-mkconfig.in
---- grub2/util/grub-mkconfig.in	2010-08-04 03:40:55 +0000
-+++ grub2.new/util/grub-mkconfig.in	2010-09-15 09:30:14 +0000
-@@ -276,6 +276,11 @@
+--- grub2/util/grub-mkconfig.in	2011-04-06 15:45:53 +0000
++++ grub2.new/util/grub-mkconfig.in	2011-05-23 11:54:47 +0000
+@@ -254,6 +254,11 @@
    GRUB_DISABLE_OS_PROBER \
    GRUB_INIT_TUNE \
    GRUB_SAVEDEFAULT \
