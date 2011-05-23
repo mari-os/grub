@@ -1,6 +1,6 @@
 diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 --- grub2/util/grub.d/10_linux.in	2011-05-14 20:36:49 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2011-05-23 12:54:19 +0000
++++ grub2.new/util/grub.d/10_linux.in	2011-05-23 14:50:16 +0000
 @@ -28,11 +28,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
@@ -16,6 +16,15 @@ diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
  fi
  
  # loop-AES arranges things so that /dev/loop/X can be our root device, but
+@@ -44,7 +43,7 @@
+ esac
+ 
+ if [ "x${GRUB_DEVICE_UUID}" = "x" ] || [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] \
+-    || ! test -e "/dev/disk/by-uuid/${GRUB_DEVICE_UUID}" \
++    || ! blkid -U "${GRUB_DEVICE_UUID}" > /dev/null \
+     || uses_abstraction "${GRUB_DEVICE}" lvm; then
+   LINUX_ROOT_DEVICE=${GRUB_DEVICE}
+ else
 @@ -65,15 +64,20 @@
    version="$2"
    recovery="$3"

@@ -1,6 +1,6 @@
 diff -urN grub2/util/grub.d/20_linux_xen.in grub2.new/util/grub.d/20_linux_xen.in
 --- grub2/util/grub.d/20_linux_xen.in	2011-04-13 19:20:29 +0000
-+++ grub2.new/util/grub.d/20_linux_xen.in	2011-05-23 13:54:46 +0000
++++ grub2.new/util/grub.d/20_linux_xen.in	2011-05-23 14:54:54 +0000
 @@ -28,11 +28,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os --class xen"
@@ -16,6 +16,15 @@ diff -urN grub2/util/grub.d/20_linux_xen.in grub2.new/util/grub.d/20_linux_xen.i
  fi
  
  # loop-AES arranges things so that /dev/loop/X can be our root device, but
+@@ -44,7 +43,7 @@
+ esac
+ 
+ if [ "x${GRUB_DEVICE_UUID}" = "x" ] || [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] \
+-    || ! test -e "/dev/disk/by-uuid/${GRUB_DEVICE_UUID}" \
++    || ! blkid -U "${GRUB_DEVICE_UUID}" > /dev/null \
+     || uses_abstraction "${GRUB_DEVICE}" lvm; then
+   LINUX_ROOT_DEVICE=${GRUB_DEVICE}
+ else
 @@ -67,12 +66,21 @@
    recovery="$4"
    args="$5"
