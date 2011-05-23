@@ -1,6 +1,6 @@
 Name: grub2
-Version: 1.98
-Release: alt24.20100804
+Version: 1.99
+Release: alt1
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -9,7 +9,6 @@ Group: System/Kernel and hardware
 Source0: %name-%version.tar.bz2
 Source1: grub2-sysconfig
 
-Source2: 35_xen
 Source3: 39_memtest
 Source4: grub2.filetrigger
 
@@ -18,16 +17,15 @@ Source5: grub-extras-%version.tar.bz2
 Source6: grub-autoupdate
 Source7: firsttime
 
-Patch1: grub-1.98-os-alt.patch
+Patch1: grub-1.99-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
-Patch3: grub-1.98-altlinux-theme.patch
-Patch4: grub-1.98-evms-crap-alt.patch
-Patch5: grub-1.98-debian-904_disable_floppies.patch
-Patch6: grub-1.98-libgcc-alt.patch
+Patch3: grub-1.99-altlinux-theme.patch
+Patch4: grub-1.99-evms-crap-alt.patch
+Patch5: grub-1.99-os-alt-xen.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
-BuildRequires: flex fonts-bitmap-misc libfreetype-devel python-modules ruby
+BuildRequires: flex fonts-bitmap-misc libfreetype-devel python-modules ruby autogen
 
 Exclusivearch: %ix86 x86_64
 
@@ -56,7 +54,7 @@ Hurd).
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch6 -p2
+
 mv ../grub-extras-%version ./grub-extras
 
 sed -i configure.ac -e "s/^AC_INIT.*/AC_INIT(\[GRUB\],\[%version-%release\],\[bug-grub@gnu.org\])/"
@@ -64,7 +62,7 @@ sed -i configure.ac -e "s/^AC_INIT.*/AC_INIT(\[GRUB\],\[%version-%release\],\[bu
 %build
 export GRUB_CONTRIB=`pwd`/grub-extras
 ./autogen.sh
-%configure --prefix=/
+%configure --prefix=/ --disable-werror
 %make_build
 
 %install
@@ -75,9 +73,7 @@ install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %find_lang grub
 mkdir -p %buildroot/boot/grub
 %buildroot/%_bindir/grub-mkfont -o %buildroot/boot/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
-install -pD -m755 %SOURCE2 %buildroot/etc/grub.d/
 install -pD -m755 %SOURCE3 %buildroot/etc/grub.d/
-sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/35_xen
 sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/39_memtest
 sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
 mkdir -p %buildroot/%_rpmlibdir
@@ -93,8 +89,8 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sysconfdir/grub.d/00_header
 %_sysconfdir/grub.d/05_altlinux_theme
 %_sysconfdir/grub.d/10_linux
+%_sysconfdir/grub.d/20_linux_xen
 %_sysconfdir/grub.d/30_os-prober
-%_sysconfdir/grub.d/35_xen
 %_sysconfdir/grub.d/39_memtest
 %config(noreplace) %_sysconfdir/grub.d/40_custom
 %config(noreplace) /etc/sysconfig/grub2
@@ -104,12 +100,17 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_datadir/grub
 %_sbindir/*
 %_infodir/grub.info.*
+%_infodir/grub-dev.info.*
 %_rpmlibdir/*.filetrigger
 
 %post
 %_sbindir/grub-autoupdate
 
 %changelog
+* Fri May 20 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt1
+- 1.99
+- fix absolute pathnames during install (ALT #25444)
+
 * Tue May 03 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.98-alt24.20100804
 - fix grub-1.98-evms-crap-alt.patch for /dev/vd* devices (ALT #25497)
 
