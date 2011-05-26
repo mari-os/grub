@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.99
-Release: alt1
+Release: alt2
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -22,6 +22,7 @@ Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-1.99-altlinux-theme.patch
 Patch4: grub-1.99-evms-crap-alt.patch
 Patch5: grub-1.99-os-alt-xen.patch
+Patch6: grub-1.99-debian-disable_floppies.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -54,6 +55,7 @@ Hurd).
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 mv ../grub-extras-%version ./grub-extras
 
@@ -107,6 +109,9 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Thu May 26 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt2
+- disable floppies handling (ALT #24974)
+
 * Fri May 20 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt1
 - 1.99
 - fix absolute pathnames during install (ALT #25444)
