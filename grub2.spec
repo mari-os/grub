@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.99
-Release: alt2
+Release: alt3
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -109,6 +109,10 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Fri May 27 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt3
+- fix adding failsafe options to non-failsave cmdline (ALT #25676)
+- change 'splash=silent' to 'splash' in default sysconfig
+
 * Thu May 26 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt2
 - disable floppies handling (ALT #24974)
 

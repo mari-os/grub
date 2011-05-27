@@ -1,6 +1,6 @@
 diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
---- grub2/util/grub.d/10_linux.in	2011-05-14 20:36:49 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2011-05-23 14:50:16 +0000
+--- grub2/util/grub.d/10_linux.in	2011-05-27 12:57:24 +0000
++++ grub2.new/util/grub.d/10_linux.in	2011-05-27 13:00:09 +0000
 @@ -28,11 +28,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
@@ -167,11 +167,11 @@ diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 -  if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
 -    linux_entry "${OS}" "${version}" true \
 -	"single ${GRUB_CMDLINE_LINUX}"
-+      "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}" $default
++      "${GRUB_CMDLINE_LINUX_DEFAULT}" $default
 +  if [ "x${GRUB_DISABLE_LINUX_RECOVERY}" != "xtrue" ] && [ "x${GRUB_VMLINUZ_FAILSAFE}" != "xno" ] && [ "x${GRUB_VMLINUZ_FAILSAFE}" != "xfalse" ]; then
 +    if [ $linux = "/boot/vmlinuz" ] || [ "x${GRUB_VMLINUZ_FAILSAFE}" != "xdefault" ]; then
 +     linux_entry "${OS}" "${version}" true \
-+		"single ${GRUB_CMDLINE_LINUX}" $default
++		"${GRUB_CMDLINE_LINUX}" $default
 +    fi
    fi
  

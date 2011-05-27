@@ -37,7 +37,7 @@ GRUB_VMLINUZ_FAILSAFE=default
 # Show timeout counter when hidden
 #GRUB_HIDDEN_TIMEOUT_QUIET=TRUE
 
-GRUB_CMDLINE_LINUX_DEFAULT='panic=30 splash=silent'
+GRUB_CMDLINE_LINUX_DEFAULT='panic=30 splash'
 GRUB_CMDLINE_LINUX='failsafe vga=normal'
 GRUB_TERMINAL_OUTPUT='gfxterm'
 GRUB_GFXMODE='800x600'
