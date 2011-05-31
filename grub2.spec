@@ -1,3 +1,5 @@
+%define _optlevel s
+
 Name: grub2
 Version: 1.99
 Release: alt4
