@@ -1,6 +1,6 @@
 diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
 --- grub2/util/grub.d/10_linux.in	2011-05-27 12:57:24 +0000
-+++ grub2.new/util/grub.d/10_linux.in	2011-05-27 13:00:09 +0000
++++ grub2.new/util/grub.d/10_linux.in	2011-05-31 11:19:05 +0000
 @@ -28,11 +28,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
@@ -30,7 +30,7 @@ diff -urN grub2/util/grub.d/10_linux.in grub2.new/util/grub.d/10_linux.in
    recovery="$3"
    args="$4"
 +  default="$5"
-+  title="$(gettext "%s, with Linux %s")"
++  title="$(gettext "%s, %s")"
 +  if ${default} ; then
 +    title="`echo $title | sed 's|, .*$||g'`"
 +  fi

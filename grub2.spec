@@ -1,6 +1,6 @@
 Name: grub2
 Version: 1.99
-Release: alt3
+Release: alt4
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -109,6 +109,9 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Tue May 31 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt4
+- remove 'with Linux' within linux-only entries
+
 * Fri May 27 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt3
 - fix adding failsafe options to non-failsave cmdline (ALT #25676)
 - change 'splash=silent' to 'splash' in default sysconfig
