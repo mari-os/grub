@@ -107,6 +107,8 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_infodir/grub.info.*
 %_infodir/grub-dev.info.*
 %_rpmlibdir/*.filetrigger
+%_man1dir/*.gz
+%_man8dir/*.gz
 
 %post
 %_sbindir/grub-autoupdate
