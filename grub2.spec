@@ -29,6 +29,7 @@ Patch6: grub-1.99-debian-disable_floppies.patch
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
 BuildRequires: flex fonts-bitmap-misc libfreetype-devel python-modules ruby autogen
+BuildRequires: liblzma-devel
 
 Exclusivearch: %ix86 x86_64
 
