@@ -2,7 +2,7 @@
 
 Name: grub2
 Version: 1.99
-Release: alt4
+Release: alt5
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -29,7 +29,7 @@ Patch6: grub-1.99-debian-disable_floppies.patch
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
 BuildRequires: flex fonts-bitmap-misc libfreetype-devel python-modules ruby autogen
-BuildRequires: liblzma-devel
+BuildRequires: liblzma-devel help2man
 
 Exclusivearch: %ix86 x86_64
 
@@ -114,6 +114,12 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Wed Jun 01 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt5
+- shaba@ (ALT #25666):
+  build with -Os optimization
+  add LZMA support
+- shaba@: add man pages
+
 * Tue May 31 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt4
 - remove 'with Linux' within linux-only entries
 
