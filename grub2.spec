@@ -2,7 +2,7 @@
 
 Name: grub2
 Version: 1.99
-Release: alt5
+Release: alt6
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -25,6 +25,7 @@ Patch3: grub-1.99-altlinux-theme.patch
 Patch4: grub-1.99-evms-crap-alt.patch
 Patch5: grub-1.99-os-alt-xen.patch
 Patch6: grub-1.99-debian-disable_floppies.patch
+Patch7: grub-1.99-grubinstall-evms-sync-alt.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -59,6 +60,7 @@ Hurd).
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p2
 
 mv ../grub-extras-%version ./grub-extras
 
@@ -114,6 +116,10 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Tue Jun 28 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt6
+- increase probability of race winning during install on evms device
+  (ALT #25628) again
+
 * Wed Jun 01 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt5
 - shaba@ (ALT #25666):
   build with -Os optimization
