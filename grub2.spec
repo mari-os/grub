@@ -2,7 +2,7 @@
 
 Name: grub2
 Version: 1.99
-Release: alt6
+Release: alt7
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -116,6 +116,9 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Fri Jul 01 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt7
+- force grub config update on grub update
+
 * Tue Jun 28 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt6
 - increase probability of race winning during install on evms device
   (ALT #25628) again
