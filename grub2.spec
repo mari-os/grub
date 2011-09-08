@@ -1,14 +1,14 @@
 %define _optlevel s
 
-Name: grub2
+Name: grub2-pc
 Version: 1.99
-Release: alt7
+Release: alt8
 
 Summary: GRand Unified Bootloader
 License: GPL
 Url: http://www.gnu.org/software/grub/grub.en.html
 Group: System/Kernel and hardware
-Source0: %name-%version.tar.bz2
+Source0: grub2-%version.tar.bz2
 Source1: grub2-sysconfig
 
 Source3: 39_memtest
@@ -30,12 +30,17 @@ Patch7: grub-1.99-grubinstall-evms-sync-alt.patch
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
 BuildRequires: flex fonts-bitmap-misc libfreetype-devel python-modules ruby autogen
-BuildRequires: liblzma-devel help2man
+BuildRequires: liblzma-devel help2man zlib-devel
 
 Exclusivearch: %ix86 x86_64
 
 Conflicts: grub
 Obsoletes: grub < %version-%release
+
+Provides: grub2 = %version-%release
+Obsoletes: grub2 < %version-%release
+
+Conflicts: grub2-efi
 
 Requires: gettext
 
@@ -52,8 +57,8 @@ of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
 
 %prep
-%setup -q
-%setup -b 5
+%setup -q -n grub2-%version
+%setup -b 5 -n grub2-%version
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
@@ -116,6 +121,10 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Mon Aug 01 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt8
+- rename to grub2-pc
+- fix build
+
 * Fri Jul 01 2011 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt7
 - force grub config update on grub update
 
