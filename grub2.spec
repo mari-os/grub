@@ -26,6 +26,7 @@ Patch4: grub-1.99-evms-crap-alt.patch
 Patch5: grub-1.99-os-alt-xen.patch
 Patch6: grub-1.99-debian-disable_floppies.patch
 Patch7: grub-1.99-grubinstall-evms-sync-alt.patch
+Patch8: grub-1.99-efibootmgr-req.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -66,6 +67,7 @@ Hurd).
 %patch5 -p1
 %patch6 -p1
 %patch7 -p2
+%patch8 -p1
 
 mv ../grub-extras-%version ./grub-extras
 
