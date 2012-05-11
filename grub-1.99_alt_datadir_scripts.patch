@@ -1,0 +1,73 @@
+diff --git a/grub2/util/grub-mkconfig.in b/grub2/util/grub-mkconfig.in
+index afc66f8..0c81084 100644
+--- a/grub2/util/grub-mkconfig.in
++++ b/grub2/util/grub-mkconfig.in
+@@ -95,7 +95,7 @@ do
+     esac
+ done
+ 
+-. ${libdir}/grub/grub-mkconfig_lib
++. ${datadir}/grub/grub-mkconfig_lib
+ 
+ if [ "x$EUID" = "x" ] ; then
+   EUID=`id -u`
+diff --git a/grub2/util/grub.d/00_header.in b/grub2/util/grub.d/00_header.in
+index 9da1511..02e6972 100644
+--- a/grub2/util/grub.d/00_header.in
++++ b/grub2/util/grub.d/00_header.in
+@@ -22,10 +22,11 @@ transform="@program_transform_name@"
+ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+ libdir=@libdir@
++datadir=@datadir@
+ locale_dir=`echo ${GRUB_PREFIX}/locale | sed ${transform}`
+ grub_lang=`echo $LANG | cut -d . -f 1`
+ 
+-. ${libdir}/grub/grub-mkconfig_lib
++. ${datadir}/grub/grub-mkconfig_lib
+ 
+ # Do this as early as possible, since other commands might depend on it.
+ # (e.g. the `loadfont' command might need lvm or raid modules)
+diff --git a/grub2/util/grub.d/10_linux.in b/grub2/util/grub.d/10_linux.in
+index 1d1eb40..5949a64 100644
+--- a/grub2/util/grub.d/10_linux.in
++++ b/grub2/util/grub.d/10_linux.in
+@@ -21,7 +21,8 @@ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+ bindir=@bindir@
+ libdir=@libdir@
+-. ${libdir}/grub/grub-mkconfig_lib
++datadir=@datadir@
++. ${datadir}/grub/grub-mkconfig_lib
+ 
+ export TEXTDOMAIN=@PACKAGE@
+ export TEXTDOMAINDIR=@localedir@
+diff --git a/grub2/util/grub.d/20_linux_xen.in b/grub2/util/grub.d/20_linux_xen.in
+index a900760..ffdceca 100644
+--- a/grub2/util/grub.d/20_linux_xen.in
++++ b/grub2/util/grub.d/20_linux_xen.in
+@@ -21,7 +21,8 @@ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+ bindir=@bindir@
+ libdir=@libdir@
+-. ${libdir}/grub/grub-mkconfig_lib
++datadir=@datadir@
++. ${datadir}/grub/grub-mkconfig_lib
+ 
+ export TEXTDOMAIN=@PACKAGE@
+ export TEXTDOMAINDIR=@localedir@
+diff --git a/grub2/util/grub.d/30_os-prober.in b/grub2/util/grub.d/30_os-prober.in
+index d9d4b0a..f418c91 100644
+--- a/grub2/util/grub.d/30_os-prober.in
++++ b/grub2/util/grub.d/30_os-prober.in
+@@ -20,8 +20,9 @@ set -e
+ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+ libdir=@libdir@
++datadir=@datadir@
+ 
+-. ${libdir}/grub/grub-mkconfig_lib
++. ${datadir}/grub/grub-mkconfig_lib
+ 
+ if [ "x${GRUB_DISABLE_OS_PROBER}" = "xtrue" ]; then
+   exit 0
