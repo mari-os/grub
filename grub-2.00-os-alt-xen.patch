@@ -1,0 +1,103 @@
+diff -Naur grub-2.00-orig/util/grub.d/20_linux_xen.in grub-2.00/util/grub.d/20_linux_xen.in
+--- grub-2.00-orig/util/grub.d/20_linux_xen.in	2012-06-03 22:57:42.000000000 +0300
++++ grub-2.00/util/grub.d/20_linux_xen.in	2012-10-26 19:50:10.079913164 +0300
+@@ -28,11 +28,10 @@
+ 
+ CLASS="--class gnu-linux --class gnu --class os --class xen"
+ 
+-if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
+-  OS=GNU/Linux
++if [ -r /etc/altlinux-release ]; then
++  OS=`cat /etc/altlinux-release | sed 's/ (.*$//g' | sed "s, $,,"`
+ else
+-  OS="${GRUB_DISTRIBUTOR} GNU/Linux"
+-  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr 'A-Z' 'a-z' | cut -d' ' -f1) ${CLASS}"
++  OS="ALTLinux"
+ fi
+ 
+ # loop-AES arranges things so that /dev/loop/X can be our root device, but
+@@ -44,7 +43,7 @@
+ esac
+ 
+ if [ "x${GRUB_DEVICE_UUID}" = "x" ] || [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] \
+-    || ! test -e "/dev/disk/by-uuid/${GRUB_DEVICE_UUID}" \
++    || ! blkid -U "${GRUB_DEVICE_UUID}" > /dev/null \
+     || uses_abstraction "${GRUB_DEVICE}" lvm; then
+   LINUX_ROOT_DEVICE=${GRUB_DEVICE}
+ else
+@@ -138,7 +137,10 @@
+ EOF
+ }
+ 
+-linux_list=`for i in /boot/vmlinu[xz]-* /vmlinu[xz]-* /boot/kernel-*; do
++[ ! -z $GRUB_VMLINUZ_SYMLINKS ] || GRUB_VMLINUZ_SYMLINKS="default"
++[ ! -z $GRUB_VMLINUZ_FAILSAFE ] || GRUB_VMLINUZ_FAILSAFE="default"
++
++linux_list=`ls -c1 /boot/vmlinu[z]-* | while read i; do
+     if grub_file_is_not_garbage "$i"; then
+     	basename=$(basename $i)
+ 	version=$(echo $basename | sed -e "s,^[^0-9]*-,,g")
+@@ -150,7 +152,11 @@
+ 		break
+ 	    fi
+ 	done
+-        if (grep -qx "CONFIG_XEN_DOM0=y" "${config}" 2> /dev/null || grep -qx "CONFIG_XEN_PRIVILEGED_GUEST=y" "${config}" 2> /dev/null); then echo -n "$i " ; fi
++        if [ $i = "/boot/vmlinuz-xen" ]; then
++            echo -n "$i "
++        elif (grep -qx "CONFIG_XEN_DOM0=y" "${config}" 2> /dev/null || grep -qx "CONFIG_XEN_PRIVILEGED_GUEST=y" "${config}" 2> /dev/null); then 
++            echo -n "$i " ; 
++        fi
+     fi
+     done`
+ if [ "x${linux_list}" = "x" ] ; then
+@@ -166,7 +172,7 @@
+     esac
+ }
+ 
+-xen_list=`for i in /boot/xen*; do
++xen_list=`for i in /boot/xen-*.*.*.gz; do
+         if grub_file_is_not_garbage "$i" && file_is_not_sym "$i" ; then echo -n "$i " ; fi
+       done`
+ prepare_boot_cache=
+@@ -198,11 +204,8 @@
+     if [ -z "$boot_device_id" ]; then
+ 	boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
+     fi
+-    if [ "x$is_first_entry" != xtrue ]; then
+-	echo "	submenu '$(gettext_printf "Xen hypervisor, version %s" "${xen_version}" | grub_quote)' \$menuentry_id_option 'xen-hypervisor-$xen_version-$boot_device_id' {"
+-    fi
+     while [ "x$list" != "x" ] ; do
+-	linux=`version_find_latest $list`
++	linux=`echo $list | sed 's, .*,,g'`
+ 	gettext_printf "Found linux image: %s\n" "$linux" >&2
+ 	basename=`basename $linux`
+ 	dirname=`dirname $linux`
+@@ -210,6 +213,18 @@
+ 	version=`echo $basename | sed -e "s,^[^0-9]*-,,g"`
+ 	alt_version=`echo $version | sed -e "s,\.old$,,g"`
+ 	linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
++        if [ -L "$linux" ]; then
++            if [ "x$GRUB_VMLINUZ_SYMLINKS" = "xno" ] || [ "x$GRUB_VMLINUZ_SYMLINKS" = "xfalse" ]; then
++                echo "skipping symlink: $linux" >&2
++                list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
++                continue
++            fi
++            if [ "$linux" != "/boot/vmlinuz-xen" ] && [ "x$GRUB_VMLINUZ_SYMLINKS" = "xdefault" ]; then
++                echo "skipping symlink: $linux" >&2
++                list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
++                continue
++            fi
++        fi
+ 
+ 	initrd=
+ 	for i in "initrd.img-${version}" "initrd-${version}.img" "initrd-${version}.gz" \
+@@ -256,9 +271,6 @@
+ 
+ 	list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
+     done
+-    if [ x"$is_first_entry" != xtrue ]; then
+-	echo '	}'
+-    fi
+     xen_list=`echo $xen_list | tr ' ' '\n' | grep -vx $current_xen | tr '\n' ' '`
+ done
+ 
