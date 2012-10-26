@@ -21,7 +21,7 @@ Source7: firsttime
 
 Patch1: grub-2.00-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
-Patch3: grub-1.99-altlinux-theme.patch
+Patch3: grub-2.00-altlinux-theme.patch
 Patch4: grub-1.99-evms-crap-alt.patch
 Patch5: grub-1.99-os-alt-xen.patch
 Patch6: grub-1.99-debian-disable_floppies.patch

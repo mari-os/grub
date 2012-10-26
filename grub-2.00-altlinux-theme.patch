@@ -1,7 +1,7 @@
-diff -urN grub2/Makefile.util.def grub2.new/Makefile.util.def
---- grub2/Makefile.util.def	2011-04-11 21:14:59 +0000
-+++ grub2.new/Makefile.util.def	2011-05-23 11:54:47 +0000
-@@ -318,6 +318,12 @@
+diff -Naur grub-2.00-orig/Makefile.util.def grub-2.00/Makefile.util.def
+--- grub-2.00-orig/Makefile.util.def	2012-06-26 05:07:30.000000000 +0300
++++ grub-2.00/Makefile.util.def	2012-10-26 18:42:47.297913981 +0300
+@@ -378,6 +378,12 @@
  };
  
  script = {
@@ -14,9 +14,9 @@ diff -urN grub2/Makefile.util.def grub2.new/Makefile.util.def
    name = '10_windows';
    common = util/grub.d/10_windows.in;
    installdir = grubconf;
-diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlinux_theme.in
---- grub2/util/grub.d/05_altlinux_theme.in	1970-01-01 00:00:00 +0000
-+++ grub2.new/util/grub.d/05_altlinux_theme.in	2011-05-23 11:59:41 +0000
+diff -Naur grub-2.00-orig/util/grub.d/05_altlinux_theme.in grub-2.00/util/grub.d/05_altlinux_theme.in
+--- grub-2.00-orig/util/grub.d/05_altlinux_theme.in	1970-01-01 03:00:00.000000000 +0300
++++ grub-2.00/util/grub.d/05_altlinux_theme.in	2012-10-26 18:44:54.321794714 +0300
 @@ -0,0 +1,56 @@
 +#! /bin/sh -e
 +
@@ -74,13 +74,13 @@ diff -urN grub2/util/grub.d/05_altlinux_theme.in grub2.new/util/grub.d/05_altlin
 +else
 +  set_mono_theme
 +fi
-diff -urN grub2/util/grub-mkconfig.in grub2.new/util/grub-mkconfig.in
---- grub2/util/grub-mkconfig.in	2011-04-06 15:45:53 +0000
-+++ grub2.new/util/grub-mkconfig.in	2011-05-23 11:54:47 +0000
-@@ -254,6 +254,11 @@
-   GRUB_DISABLE_OS_PROBER \
+diff -Naur grub-2.00-orig/util/grub-mkconfig.in grub-2.00/util/grub-mkconfig.in
+--- grub-2.00-orig/util/grub-mkconfig.in	2012-04-05 20:41:07.000000000 +0300
++++ grub-2.00/util/grub-mkconfig.in	2012-10-26 18:45:45.763915722 +0300
+@@ -216,6 +216,11 @@
    GRUB_INIT_TUNE \
    GRUB_SAVEDEFAULT \
+   GRUB_ENABLE_CRYPTODISK \
 +  GRUB_WALLPAPER \
 +  GRUB_COLOR_NORMAL \
 +  GRUB_COLOR_HIGHLIGHT \
