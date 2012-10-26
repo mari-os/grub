@@ -1,8 +1,8 @@
 %define _optlevel s
 
 Name: grub2-pc
-Version: 1.99
-Release: alt9
+Version: 2.00
+Release: alt1
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -30,7 +30,7 @@ Patch7: grub-2.00-grubinstall-evms-sync-alt.patch
 Patch8: grub-1.99-efibootmgr-req.patch
 Patch9: grub2-fix-locale-en.mo.gz-not-found-error-message.patch
 
-Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
+Packager: Michael Shigorin <mike@altlinux.org>
 
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
@@ -61,7 +61,7 @@ of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
 
 %prep
-%setup -q -n grub2-%version
+%setup -n grub2-%version
 %setup -b 5 -n grub2-%version
 %patch0 -p1
 %patch1 -p1
@@ -131,6 +131,16 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %_sbindir/grub-autoupdate
 
 %changelog
+* Fri Oct 26 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt1
+- 2.00 (closes: #27803)
+- updated patches
+  + fixed 05_altlinux_theme (closes: #27642)
+- built with devmapper support
+  + alterator-grub needs one-line fix to work again on mdraid though
+- updated an Url: (closes: #26901)
+- added a redundant but compatible unicode.pf2 font file
+  (might be split off to a separate subpackage soonish)
+
 * Fri May 11 2012 Vitaly Kuznetsov <vitty@altlinux.ru> 1.99-alt9
 - fix build with automake >= 1.11.2
 
