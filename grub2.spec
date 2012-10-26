@@ -25,7 +25,7 @@ Patch3: grub-2.00-altlinux-theme.patch
 Patch4: grub-2.00-evms-crap-alt.patch
 Patch5: grub-2.00-os-alt-xen.patch
 Patch6: grub-1.99-debian-disable_floppies.patch
-Patch7: grub-1.99-grubinstall-evms-sync-alt.patch
+Patch7: grub-2.00-grubinstall-evms-sync-alt.patch
 Patch8: grub-1.99-efibootmgr-req.patch
 Patch9: grub-1.99_fix_for_automake_1.11.2.patch
 Patch10: grub-1.99_alt_datadir_scripts.patch
@@ -68,7 +68,7 @@ Hurd).
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p2
+%patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch10 -p2
