@@ -38,7 +38,7 @@ diff -Naur grub-2.00-orig/util/grub.d/05_altlinux_theme.in grub-2.00/util/grub.d
 +# check for usable backgrounds
 +use_bg=false
 +if [ "$GRUB_TERMINAL_OUTPUT" = "gfxterm" ] && [ "x$GRUB_WALLPAPER" != "x" ]; then
-+  for i in /boot/grub/`basename $GRUB_WALLPAPER` $GRUB_WALLPAPER ; do
++  for i in ${datadir}/grub/`basename $GRUB_WALLPAPER` $GRUB_WALLPAPER ; do
 +    if is_path_readable_by_grub $i ; then 
 +      bg=$i
 +      case ${bg} in
@@ -46,7 +46,7 @@ diff -Naur grub-2.00-orig/util/grub.d/05_altlinux_theme.in grub-2.00/util/grub.d
 +        *.tga)		reader=tga ;;
 +        *.jpg|*.jpeg)	reader=jpeg ;;
 +      esac
-+      if test -e /boot/grub/${reader}.mod ; then
++      if test -e ${datadir}/grub/${reader}.mod ; then
 +        echo "Found background image: `basename ${bg}`" >&2
 +        use_bg=true
 +        break
