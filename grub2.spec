@@ -6,7 +6,7 @@ Release: alt9
 
 Summary: GRand Unified Bootloader
 License: GPL
-Url: http://www.gnu.org/software/grub/grub.en.html
+Url: http://www.gnu.org/software/grub
 Group: System/Kernel and hardware
 Source0: grub2-%version.tar.bz2
 Source1: grub2-sysconfig
