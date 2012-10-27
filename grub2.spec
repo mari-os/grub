@@ -19,6 +19,7 @@ Source5: grub-extras-%version.tar.bz2
 Source6: grub-autoupdate
 Source7: firsttime
 
+Patch0: grub-2.00-gnulib-gets.patch
 Patch1: grub-2.00-os-alt.patch
 Patch2: grub-1.98-sysconfig-path-alt.patch
 Patch3: grub-2.00-altlinux-theme.patch
@@ -60,6 +61,7 @@ Hurd).
 %prep
 %setup -q -n grub2-%version
 %setup -b 5 -n grub2-%version
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
