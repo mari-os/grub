@@ -31,7 +31,7 @@ Patch8: grub-1.99-efibootmgr-req.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
-BuildRequires: flex fonts-bitmap-misc libfreetype-devel python-modules ruby autogen
+BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
 
 Exclusivearch: %ix86 x86_64
@@ -80,6 +80,7 @@ export GRUB_CONTRIB=`pwd`/grub-extras
 ./autogen.sh
 %configure --prefix=/ --disable-werror
 %make_build
+# NB: make unicode.pf2 results in a broken font file, argh
 
 %install
 export GRUB_CONTRIB=`pwd`/grub-extras
@@ -87,8 +88,9 @@ export GRUB_CONTRIB=`pwd`/grub-extras
 mkdir -p %buildroot/etc/sysconfig
 install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
 %find_lang grub
-mkdir -p %buildroot/boot/grub
+mkdir -p %buildroot/boot/grub/fonts
 %buildroot/%_bindir/grub-mkfont -o %buildroot/boot/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
+%buildroot/%_bindir/grub-mkfont -o %buildroot/boot/grub/fonts/unicode.pf2 %_datadir/fonts/ttf/dejavu/DejaVuSansMono.ttf
 install -pD -m755 %SOURCE3 %buildroot/etc/grub.d/
 sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot/etc/grub.d/39_memtest
 sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot/etc/grub.d/*
@@ -102,6 +104,7 @@ install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
 %dir %_sysconfdir/grub.d
 %dir /boot/grub
 /boot/grub/*.pf2
+/boot/grub/fonts/
 %_sysconfdir/grub.d/00_header
 %_sysconfdir/grub.d/05_altlinux_theme
 %_sysconfdir/grub.d/10_linux
