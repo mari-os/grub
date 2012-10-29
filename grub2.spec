@@ -28,6 +28,7 @@ Patch5: grub-2.00-os-alt-xen.patch
 Patch6: grub-1.99-debian-disable_floppies.patch
 Patch7: grub-2.00-grubinstall-evms-sync-alt.patch
 Patch8: grub-1.99-efibootmgr-req.patch
+Patch9: grub2-fix-locale-en.mo.gz-not-found-error-message.patch
 
 Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
@@ -70,6 +71,7 @@ Hurd).
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 mv ../grub-extras-%version ./grub-extras
 
