@@ -34,6 +34,7 @@ Packager: Vitaly Kuznetsov <vitty@altlinux.ru>
 
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
+BuildRequires: libdevmapper-devel
 
 Exclusivearch: %ix86 x86_64
 
