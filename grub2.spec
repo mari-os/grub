@@ -1,6 +1,6 @@
 %define _optlevel s
 
-Name: grub2-pc
+Name: grub2
 Version: 2.00
 Release: alt3
 
@@ -48,7 +48,7 @@ Obsoletes: grub < %version-%release
 Provides: grub2 = %version-%release
 Obsoletes: grub2 < %version-%release
 
-Conflicts: grub2-efi
+#Conflicts: grub2-efi
 
 Requires: gettext
 
@@ -65,8 +65,8 @@ of multiple boot images (needed for modular kernels such as the GNU
 Hurd).
 
 %prep
-%setup -n grub2-%version
-%setup -b 5 -n grub2-%version
+%setup
+%setup -b 5
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -94,7 +94,7 @@ export GRUB_CONTRIB=`pwd`/grub-extras
 export GRUB_CONTRIB=`pwd`/grub-extras
 %makeinstall
 mkdir -p %buildroot/etc/sysconfig
-install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/grub2
+install -pD -m644 %SOURCE1 %buildroot/etc/sysconfig/%name
 %find_lang grub
 mkdir -p %buildroot/boot/grub/fonts
 %buildroot/%_bindir/grub-mkfont -o %buildroot/boot/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
@@ -122,7 +122,7 @@ install -pD -m644 %SOURCE9 %buildroot%_man8dir/update-grub.8
 %_sysconfdir/grub.d/30_os-prober
 %_sysconfdir/grub.d/39_memtest
 %config(noreplace) %_sysconfdir/grub.d/40_custom
-%config(noreplace) /etc/sysconfig/grub2
+%config(noreplace) /etc/sysconfig/%name
 %_sysconfdir/firsttime.d/*
 %_bindir/*
 %_libdir/grub
