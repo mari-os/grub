@@ -1,5 +1,5 @@
-tar.bz2: grub2
-tar.bz2: grub-extras
+tar: grub2
+tar: grub-extras
 copy: grub2-sysconfig
 copy: grub-autoupdate
 copy: *.patch
