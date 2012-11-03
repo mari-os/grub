@@ -1,0 +1,28 @@
+	* grub-core/partmap/msdos.c (pc_partition_map_embed): Revert
+	incorrect off-by-one fix from 2011-02-12.  A 62-sector core image
+	should fit before end == 63.
+
+2012-09-19  Colin Watson  <cjwatson@ubuntu.com>
+
+
+=== modified file 'grub-core/partmap/msdos.c'
+--- grub-core/partmap/msdos.c	2012-05-22 07:09:00 +0000
++++ grub-core/partmap/msdos.c	2012-09-19 01:44:54 +0000
+@@ -316,14 +316,14 @@
+ 	break;
+     }
+ 
+-  if (end >= *nsectors + 2)
++  if (end >= *nsectors + 1)
+     {
+       unsigned i, j;
+       char *embed_signature_check;
+       unsigned int orig_nsectors, avail_nsectors;
+ 
+       orig_nsectors = *nsectors;
+-      *nsectors = end - 2;
++      *nsectors = end - 1;
+       avail_nsectors = *nsectors;
+       if (*nsectors > max_nsectors)
+ 	*nsectors = max_nsectors;
+
