@@ -21,7 +21,7 @@ Source7: firsttime
 
 Patch0: grub-2.00-gnulib-gets.patch
 Patch1: grub-2.00-os-alt.patch
-Patch2: grub-1.98-sysconfig-path-alt.patch
+Patch2: grub-2.00-sysconfig-path-alt.patch
 Patch3: grub-2.00-altlinux-theme.patch
 Patch4: grub-2.00-evms-crap-alt.patch
 Patch5: grub-2.00-os-alt-xen.patch
