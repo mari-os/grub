@@ -2,25 +2,26 @@
 
 GRUB_SYSCONF=/etc/sysconfig/grub2
 
-if [ ! -f $GRUB_SYSCONF ]; then
+if [ ! -f "$GRUB_SYSCONF" ]; then
     echo "There is no $GRUB_SYSCONF, nothing to do"
     exit 0
 fi
 
-. $GRUB_SYSCONF
+. "$GRUB_SYSCONF"
 
-if [ "x${GRUB_AUTOUPDATE_DEVICE}" = "x" ] ; then
-    echo "GRUB_AUTOUPDATE_DEVICE is not set, update grub manually if needed"
+if [ -z "$GRUB_AUTOUPDATE_DEVICE" ] ; then
+    echo "WARNING: GRUB_AUTOUPDATE_DEVICE not set in $GRUB_SYSCONF"
+    echo "WARNING: run grub-install /dev/sdX if needed"
     exit 0
 fi
 
 GRUB_FORCE=""
 
-if [ "x${GRUB_AUTOUPDATE_FORCE}" = "xtrue" ] || [ "x${GRUB_AUTOUPDATE_FORCE}" = "xyes" ]; then
- GRUB_FORCE=" --force "
-fi
+case "$GRUB_AUTOUPDATE_FORCE" in
+	true|yes) GRUB_FORCE="--force";;
+esac
 
-for dev in ${GRUB_AUTOUPDATE_DEVICE}; do
- echo "Updating grub on $dev..."
- /usr/sbin/grub-install "$dev" ${GRUB_FORCE}
+for dev in $GRUB_AUTOUPDATE_DEVICE; do
+	echo "Updating grub on $dev"
+	/usr/sbin/grub-install "$dev" $GRUB_FORCE
 done
