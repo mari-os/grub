@@ -1,4 +1,5 @@
-# Automaticaly update grub on device
+# Automaticaly update grub on device(s)
+# NB: don't put /dev/mdX there but rather '/dev/sda /dev/sdb '!
 #GRUB_AUTOUPDATE_DEVICE='/dev/sda '
 # Use '--force' option for grub-install
 #GRUB_AUTOUPDATE_FORCE='no'
