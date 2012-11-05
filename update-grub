@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+. /etc/sysconfig/grub2
+
+[ -n "$GRUB_AUTOUPDATE_CFGNAME" ] || GRUB_AUTOUPDATE_CFGNAME="/boot/grub/grub.cfg"
+
+exec grub-mkconfig -o "$GRUB_AUTOUPDATE_CFGNAME" "$@"

@@ -19,6 +19,9 @@ Source5: grub-extras-%version.tar.bz2
 Source6: grub-autoupdate
 Source7: firsttime
 
+Source8: update-grub
+Source9: update-grub.8
+
 Patch0: grub-2.00-gnulib-gets.patch
 Patch1: grub-2.00-os-alt.patch
 Patch2: grub-2.00-sysconfig-path-alt.patch
@@ -104,6 +107,8 @@ install -pD -m755 %SOURCE4 %buildroot/%_rpmlibdir/
 install -pD -m755 %SOURCE6 %buildroot/%_sbindir/
 mkdir -p %buildroot/%_sysconfdir/firsttime.d
 install -pD -m755 %SOURCE7 %buildroot/%_sysconfdir/firsttime.d/grub-mkconfig
+install -pD -m755 %SOURCE8 %buildroot%_sbindir/
+install -pD -m644 %SOURCE9 %buildroot%_man8dir/update-grub.8
 
 %files -f grub.lang
 %dir %_sysconfdir/grub.d
