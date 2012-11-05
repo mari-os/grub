@@ -2,7 +2,7 @@
 
 Name: grub2-pc
 Version: 2.00
-Release: alt2
+Release: alt3
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -143,6 +143,12 @@ install -pD -m644 %SOURCE9 %buildroot%_man8dir/update-grub.8
 } >&2
 
 %changelog
+* Mon Nov 05 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt3
+- try harder to warn that the configuration is not complete
+  for automated grub upgrades thus needs to be updated manually
+  (closes: #27916)
+- adapted update-grub(8) from debian
+
 * Sun Nov 04 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt2
 - applied upstream patch to revert broken fix resulting in wrong
   assessment of core.img size and a failure to install grub:
