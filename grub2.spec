@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt3
+Release: alt4
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -304,6 +304,11 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 # TODO: post efi
 
 %changelog
+* Tue Nov 13 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt4
+- initial EFI support merge
+- NB: grub2-pc package got split into -pc and -common,
+  please double-check that things went well
+
 * Mon Nov 05 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt3
 - try harder to warn that the configuration is not complete
   for automated grub upgrades thus needs to be updated manually
