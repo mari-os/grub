@@ -10,15 +10,13 @@
 
 [ ! -z "$GRUB_AUTOUPDATE_CFGNAME" ] || GRUB_AUTOUPDATE_CFGNAME=/boot/grub/grub.cfg
 
-if egrep -qs '^/boot/(vmlinuz|xen|memtest)|^/usr/lib(64|)/grub'; then
-	/usr/sbin/grub-mkconfig -o "$GRUB_AUTOUPDATE_CFGNAME" ||:
-fi
-
 warn() { echo "WARNING: $*"; }
 
-if egrep -qs '^/usr/lib(64|)/grub'; then
+if egrep '^/boot/(vmlinuz|xen|memtest)|^/usr/lib(64|)/grub'; then
+	grub-mkconfig -o "$GRUB_AUTOUPDATE_CFGNAME" ||:
+fi | if egrep -qs '^/usr/lib(64|)/grub'; then
 	if [ -z "$GRUB_AUTOUPDATE_DEVICE" ]; then
-		warn "GRUB_AUTOUPDATE_DEVICE not defined in /etc/sysconfig/grub2"
+		warn "GRUB_AUTOUPDATE_DEVICE not set in /etc/sysconfig/grub2"
 		warn "so next boot may fail unless you have another bootloader;"
 		warn "you might want to define it there and run grub-autoupdate"
 	fi
