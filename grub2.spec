@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt4
+Release: alt5
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -309,6 +309,11 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 # TODO: post efi
 
 %changelog
+* Thu Nov 22 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt5
+- maintenance release:
+  + fixed filetrigger lapse (thanks crux@, see also #27916)
+  + grub2-common is now aware of grub-0.9x symlink (closes: #27935)
+
 * Tue Nov 13 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt4
 - initial EFI support merge
 - NB: grub2-pc package got split into -pc and -common,
