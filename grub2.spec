@@ -232,6 +232,7 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 
 %files common -f grub.lang
 %dir %_sysconfdir/grub.d
+%dir %_libdir/grub
 %dir /boot/grub
 /boot/grub/*.pf2
 /boot/grub/fonts/
@@ -292,6 +293,10 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %config(noreplace) %_sysconfdir/grub-efi.cfg
 %ghost %config(noreplace) /boot/efi/EFI/altlinux/grub.cfg
 %endif
+
+# see #27935: grub1 would have /usr/lib/grub -> /boot/grub symlink
+%pre common
+[ -L %_libdir/grub ] && rm -f %_libdir/grub ||:
 
 %post pc
 %_sbindir/grub-autoupdate || {
