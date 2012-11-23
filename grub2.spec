@@ -221,11 +221,6 @@ cd ../%name-efi-%version
 
 install -pDm644 grub.efi %buildroot%_libdir/efi/grub.efi
 
-# Ghost config file
-mkdir -p %buildroot/boot/efi/EFI/altlinux
-touch %buildroot/boot/efi/EFI/altlinux/grub.cfg
-ln -s ../boot/efi/EFI/altlinux/grub.cfg %buildroot%_sysconfdir/grub-efi.cfg
-
 # Remove headers
 rm -f %buildroot%_libdir/grub-efi/*/*.h
 %endif
@@ -286,12 +281,8 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 
 %ifarch %efi
 %files efi
-%dir /boot/efi/EFI/altlinux
-%ghost /boot/efi/EFI/altlinux/grub.cfg
 %_libdir/efi/grub.efi
 %_libdir/grub/%grubefiarch
-%config(noreplace) %_sysconfdir/grub-efi.cfg
-%ghost %config(noreplace) /boot/efi/EFI/altlinux/grub.cfg
 %endif
 
 # see #27935: grub1 would have /usr/lib/grub -> /boot/grub symlink
