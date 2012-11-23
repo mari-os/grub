@@ -215,6 +215,10 @@ install -d %buildroot/boot/grub
 touch %buildroot/boot/grub/grub.cfg
 ln -s ../boot/grub/grub.cfg %buildroot%_sysconfdir/grub.cfg
 
+# Docs/habits compat symlink
+mkdir -p %buildroot%_sysconfdir/default
+ln -s ../sysconfig/%name %buildroot%_sysconfdir/default/grub
+
 %ifarch %efi
 cd ../%name-efi-%version
 %makeinstall_std
@@ -240,6 +244,7 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %_sysconfdir/grub.d/39_memtest
 %config(noreplace) %_sysconfdir/grub.d/40_custom
 %config(noreplace) %_sysconfdir/sysconfig/%name
+%_sysconfdir/default/grub
 %_sysconfdir/firsttime.d/*
 %_sysconfdir/bash_completion.d/grub
 %_sbindir/grub-bios-setup
