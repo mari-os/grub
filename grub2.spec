@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt5
+Release: alt6
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -305,6 +305,11 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 # TODO: post efi
 
 %changelog
+* Tue Dec 04 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt6
+- cas@ fixed wrong path in theme patch (closes: #28176)
+- introduced /etc/default/grub "compat" symlink
+- dropped /boot/efi/* due to complete lack of applicability
+
 * Thu Nov 22 2012 Michael Shigorin <mike@altlinux.org> 2.00-alt5
 - maintenance release:
   + fixed filetrigger lapse (thanks crux@, see also #27916)
