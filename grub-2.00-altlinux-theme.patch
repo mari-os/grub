@@ -46,7 +46,7 @@ diff -Naur grub-2.00-orig/util/grub.d/05_altlinux_theme.in grub-2.00/util/grub.d
 +        *.tga)		reader=tga ;;
 +        *.jpg|*.jpeg)	reader=jpeg ;;
 +      esac
-+      if test -e ${datadir}/grub/${reader}.mod ; then
++      if test -e ${libdir}/grub/i386-pc/${reader}.mod ; then
 +        echo "Found background image: `basename ${bg}`" >&2
 +        use_bg=true
 +        break
