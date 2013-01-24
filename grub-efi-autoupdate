@@ -1,0 +1,24 @@
+#! /bin/sh
+
+if [ ! -d /sys/firmware/efi ]; then
+	echo "Not booted in EFI mode, unable to update EFI GRUB"
+	exit 0
+fi
+
+DIST="ALT Linux"
+EFI_DIR="/boot/efi"
+GRUB_EFI="$EFI_DIR/EFI/$DIST/grubx64.efi"
+
+if [ ! -f "$GRUB_EFI" ]; then
+    echo "$GRUB_EFI missing, nothing to update"
+    exit 0
+fi
+
+case "$GRUB_AUTOUPDATE_FORCE" in
+	true|yes) GRUB_FORCE="--force";;
+esac
+
+echo "Updating grub in $EFI_DIR"
+grub-install \
+	--target=x86_64-efi --efi-directory="$EFI_DIR" \
+	--bootloader-id="$DIST" --recheck
