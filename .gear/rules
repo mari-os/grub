@@ -1,7 +1,7 @@
 tar: grub2
 tar: grub-extras
 copy: grub2-sysconfig
-copy: grub-autoupdate
+copy: grub*-autoupdate
 copy: *.patch
 copy: alt/*
 copy: *.filetrigger
