@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt9
+Release: alt10
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -21,6 +21,8 @@ Source7: firsttime
 
 Source8: update-grub
 Source9: update-grub.8
+
+Source10: grub-efi-autoupdate
 
 Patch0: grub-2.00-gnulib-gets.patch
 Patch1: grub-2.00-os-alt.patch
@@ -232,9 +234,10 @@ install -pDm755 %SOURCE3 %buildroot%_sysconfdir/grub.d/
 sed -i 's,^libdir=,libdir=%_libdir,g' %buildroot%_sysconfdir/grub.d/39_memtest
 sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot%_sysconfdir/grub.d/*
 
-install -pDm755 %SOURCE4 %buildroot%_rpmlibdir/grub2.filetrigger
-install -pDm755 %SOURCE6 %buildroot%_sbindir/grub-autoupdate
-install -pDm755 %SOURCE7 %buildroot%_sysconfdir/firsttime.d/grub-mkconfig
+install -pDm755 %SOURCE4  %buildroot%_rpmlibdir/grub2.filetrigger
+install -pDm755 %SOURCE6  %buildroot%_sbindir/grub-autoupdate
+install -pDm755 %SOURCE7  %buildroot%_sysconfdir/firsttime.d/grub-mkconfig
+install -pDm755 %SOURCE10 %buildroot%_sbindir/grub-efi-autoupdate
 
 # Ghost config file
 install -d %buildroot/boot/grub
@@ -328,6 +331,7 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %endif
 %_efi_bindir/grub.efi
 %_libdir/grub/%grubefiarch
+%_sbindir/grub-efi-autoupdate
 
 %ifarch x86_64
 %files efi-unsigned
@@ -355,6 +359,11 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu Jan 31 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt10
+- whoops, actually added grub-efi-autoupdate script (closes: #28485)
+- tweaked both grub-autoupdate and posttrans filetrigger
+  to be almost quiet in EFI case
+
 * Wed Jan 23 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt9
 - efi subpackage is signed by default on x86_64
 - introduced efi-unsigned subpackage with a clean copy
