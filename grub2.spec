@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt10
+Release: alt11
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -35,6 +35,7 @@ Patch8: grub-1.99-efibootmgr-req.patch
 Patch9: grub2-fix-locale-en.mo.gz-not-found-error-message.patch
 Patch10: grub-2.00-r4586-one-by-off.patch
 Patch11: grub-2.00-install-uefi-signed.patch
+Patch12: grub2-stfu.patch
 
 Packager: Michael Shigorin <mike@altlinux.org>
 
@@ -180,6 +181,7 @@ Please note that this binary is *not* signed, just in case.
 %patch9 -p1
 %patch10 -p0
 %patch11 -p1
+%patch12 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version/%version-%release/" configure.ac
 
@@ -376,6 +378,12 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu Jan 31 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt11
+- make grub less bold with its noisy opinions (closes: #25778)
+- cas@: updated 05_altlinux_theme (closes: #28218)
+- skip memtest in EFI mode
+- changed default font from dejavu sans mono to univga
+
 * Thu Jan 31 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt10
 - whoops, actually added grub-efi-autoupdate script (closes: #28485)
 - tweaked both grub-autoupdate and posttrans filetrigger
