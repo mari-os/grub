@@ -15,7 +15,7 @@ warn() { echo "WARNING: $*"; }
 if egrep '^/boot/(vmlinuz|xen|memtest)|^/usr/lib(64|)/grub'; then
 	grub-mkconfig -o "$GRUB_AUTOUPDATE_CFGNAME" ||:
 fi | if egrep -qs '^/usr/lib(64|)/grub'; then
-	if [ -z "$GRUB_AUTOUPDATE_DEVICE" ]; then
+	if [ -z "$GRUB_AUTOUPDATE_DEVICE" -a ! -d /sys/firmware/efi ]; then
 		warn "GRUB_AUTOUPDATE_DEVICE not set in /etc/sysconfig/grub2"
 		warn "so next boot may fail unless you have another bootloader;"
 		warn "you might want to define it there and run grub-autoupdate"
