@@ -43,6 +43,22 @@ BuildRequires: liblzma-devel help2man zlib-devel
 BuildRequires: libdevmapper-devel
 BuildRequires: rpm-macros-uefi
 
+# fonts: choose one
+
+## dejavu
+#BuildRequires: fonts-ttf-dejavu
+#define font /usr/share/fonts/ttf/dejavu/DejaVuSansMono.ttf
+
+## terminus
+#BuildRequires: fonts-bitmap-terminus
+#define font /usr/share/fonts/bitmap/terminus/ter-x16n.pcf.gz
+
+## univga
+BuildRequires: fonts-bitmap-univga
+%define font /usr/share/fonts/bitmap/univga/u_vga16_9.pcf.gz
+
+## see also fonts-bitmap-ucs-miscfixed; efont-unicode doesn't fit
+
 Exclusivearch: %ix86 x86_64
 
 Requires: gettext
@@ -225,8 +241,9 @@ mkdir -p %buildroot/boot/grub/fonts
 install -pD -m755 %SOURCE8 %buildroot%_sbindir/
 install -pD -m644 %SOURCE9 %buildroot%_man8dir/update-grub.8
 
+# TODO: drop the obsolete one (unifont.pf2)
 %buildroot%_bindir/grub-mkfont -o %buildroot/boot/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
-%buildroot%_bindir/grub-mkfont -o %buildroot/boot/grub/fonts/unicode.pf2 %_datadir/fonts/ttf/dejavu/DejaVuSansMono.ttf
+%buildroot%_bindir/grub-mkfont -o %buildroot/boot/grub/fonts/unicode.pf2 %font
 
 mkdir -p %buildroot/boot/grub/themes
 
