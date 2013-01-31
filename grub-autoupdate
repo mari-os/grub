@@ -10,8 +10,12 @@ fi
 . "$GRUB_SYSCONF"
 
 if [ -z "$GRUB_AUTOUPDATE_DEVICE" ] ; then
-    echo "WARNING: GRUB_AUTOUPDATE_DEVICE not set in $GRUB_SYSCONF"
-    echo "WARNING: run grub-install /dev/sdX if needed"
+    if [ ! -d /sys/firmware/efi ]; then
+	echo "WARNING: GRUB_AUTOUPDATE_DEVICE not set in $GRUB_SYSCONF"
+	echo "WARNING: run grub-install /dev/sdX if needed"
+    else
+	echo "EFI boot, skipping grub-pc autoupdate (no problem)"
+    fi
     exit 0
 fi
 
