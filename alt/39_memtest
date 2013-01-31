@@ -16,6 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
 
+if [ -d /sys/firmware/efi ]; then
+  echo "Skipping memtest image in EFI mode"
+  exit 0
+fi
+
 prefix=/
 exec_prefix=/usr
 bindir=/usr/bin
