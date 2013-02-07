@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt11
+Release: alt11.1
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -378,6 +378,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu Feb 07 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt11.1
+- firsttime: i18n support
+
 * Thu Jan 31 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt11
 - make grub less bold with its noisy opinions (closes: #25778)
 - cas@: updated 05_altlinux_theme (closes: #28218)
