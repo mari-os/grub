@@ -1,17 +1,41 @@
 #! /bin/sh
 
+DEFAULT_DIST="altlinux"
+LEGACY_DIST="ALT Linux"
+
 if [ ! -d /sys/firmware/efi ]; then
 	echo "Not booted in EFI mode, unable to update EFI GRUB"
 	exit 0
 fi
 
-DIST="ALT Linux"
+GRUB_SYSCONF=/etc/sysconfig/grub2
+
+if [ ! -f "$GRUB_SYSCONF" ]; then
+    echo "There is no $GRUB_SYSCONF, nothing to do"
+    exit 0
+fi
+
+. "$GRUB_SYSCONF"
+
+boot_order() {
+	efibootmgr | sed -n "s/^Boot\([0-9A-Fa-f]\{4\}\)\* $LEGACY_DIST/\1/p"
+}
+
+DIST="${GRUB_BOOTLOADER_DIST:-$DEFAULT_DIST}"
 EFI_DIR="/boot/efi"
 GRUB_EFI="$EFI_DIR/EFI/$DIST/grubx64.efi"
 
-if [ ! -f "$GRUB_EFI" ]; then
-    echo "$GRUB_EFI missing, nothing to update"
-    exit 0
+LEGACY_DIR="$EFI_DIR/EFI/$LEGACY_DIST"	# used to be this way in early builds
+if [ -d "$LEGACY_DIR" ]; then
+    echo "NOTE: found legacy \`$LEGACY_DIR', moving to use \`$DIST'"
+    echo "NOTE: if you want to remove that directory and boot manager entry:"
+    echo "      rm -rf \"$LEGACY_DIR\""
+    echo "      efibootmgr -B -b $(boot_order)"
+else
+    if [ ! -f "$GRUB_EFI" ]; then
+	echo "$GRUB_EFI missing, nothing to update"
+	exit 0
+    fi
 fi
 
 case "$GRUB_AUTOUPDATE_FORCE" in
@@ -19,6 +43,4 @@ case "$GRUB_AUTOUPDATE_FORCE" in
 esac
 
 echo "Updating grub in $EFI_DIR"
-grub-install \
-	--target=x86_64-efi --efi-directory="$EFI_DIR" \
-	--bootloader-id="$DIST" --recheck
+grub-install $GRUB_FORCE

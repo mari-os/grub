@@ -1,6 +1,8 @@
---- a/util/grub-install.in	2013-01-23 19:23:08.000000000 +0200
-+++ b/util/grub-install.in	2013-01-23 21:44:32.000000000 +0200
-@@ -63,6 +63,12 @@
+diff --git a/util/grub-install.in b/util/grub-install.in
+index e19f1cd..66e506e 100644
+--- a/util/grub-install.in
++++ b/util/grub-install.in
+@@ -63,15 +63,24 @@ update_nvram=yes
  
  removable=no
  efi_quiet=
@@ -12,8 +14,24 @@
 +fi
  
  # Get GRUB_DISTRIBUTOR.
- if test -f "${sysconfdir}/default/grub" ; then
-@@ -112,6 +118,8 @@
+-if test -f "${sysconfdir}/default/grub" ; then
+-    . "${sysconfdir}/default/grub"
++if test -f "${sysconfdir}/sysconfig/grub2" ; then
++    . "${sysconfdir}/sysconfig/grub2"
+ fi
+ 
+-bootloader_id="$(echo "$GRUB_DISTRIBUTOR" | tr 'A-Z' 'a-z' | cut -d' ' -f1)"
++bootloader_id="$GRUB_BOOTLOADER_ID"
+ if test -z "$bootloader_id"; then
+-    bootloader_id=grub
++    bootloader_id="$(echo "$GRUB_DISTRIBUTOR" | tr 'A-Z' 'a-z' | cut -d' ' -f1)"
++    if test -z "$bootloader_id"; then
++	bootloader_id=altlinux
++    fi
+ fi
+ 
+ disk_module=unspecified
+@@ -112,6 +121,8 @@ usage () {
      print_option_help  "--removable" "$(gettext "the installation device is removable. This option is only available on EFI.")"
      print_option_help  "--bootloader-id=$(gettext "ID")" "$(gettext "the ID of bootloader. This option is only available on EFI.")"
      print_option_help "--efi-directory=$(gettext "DIR")" "$(gettext "use DIR as the EFI System Partition root.")"
@@ -22,7 +40,7 @@
  echo
  gettext "INSTALL_DEVICE must be system device filename.";echo
  echo
-@@ -253,6 +261,11 @@
+@@ -253,6 +264,11 @@ do
      -f | --force)
          setup_force="--force" ;;
  
@@ -34,7 +52,7 @@
      -*)
  	gettext_printf "Unrecognized option \`%s'\n" "$option" 1>&2
  	usage
-@@ -453,39 +466,32 @@
+@@ -453,39 +469,32 @@ if [ x"$grub_modinfo_platform" = xefi ]; then
          # not collide with other vendors.  To minimise collisions, we use the
          # name of our distributor if possible.
  	efi_distributor="$bootloader_id"
@@ -91,7 +109,7 @@
  	   # TODO: We should also use efibootmgr, if available, to add a Boot
  	   # entry for ourselves.
  	fi
-@@ -646,7 +652,7 @@
+@@ -646,7 +655,7 @@ if [ "x${devabstraction_module}" = "x" ] ; then
  	install_drive="$grub_drive"
      fi
  
@@ -100,7 +118,7 @@
          # generic method (used on coreboot and ata mod)
  	uuid=
  	if [ x"$force_file_id" != xy ]; then
-@@ -823,10 +829,34 @@
+@@ -821,10 +830,34 @@ elif [ x"${grub_modinfo_target_cpu}-${grub_modinfo_platform}" = xmips-arc ]; the
      gettext "You will have to set \`SystemPartition' and \`OSLoader' manually." 1>&2
      echo 1>&2
  elif [ x"$grub_modinfo_platform" = xefi ]; then
@@ -139,3 +157,32 @@
      fi
  
      # Try to make this image bootable using the EFI Boot Manager, if available.
+@@ -839,7 +872,7 @@ elif [ x"$grub_modinfo_platform" = xefi ]; then
+ 
+         # Delete old entries from the same distributor.
+ 	for bootnum in `efibootmgr | grep '^Boot[0-9]' | \
+-	    fgrep -i " $efi_distributor" | cut -b5-8`; do
++	    egrep -i "\* ($GRUB_DISTRIBUTOR|$efi_distributor)$" | cut -b5-8`; do
+ 	    efibootmgr $efi_quiet -b "$bootnum" -B
+ 	done
+ 
+@@ -850,12 +883,18 @@ elif [ x"$grub_modinfo_platform" = xefi ]; then
+         # all we need here is a one-to-one mapping.
+ 	efidir_drive="$("$grub_probe" --target=drive --device-map= "$efidir")"
+ 	efidir_disk="$("$grub_probe" --target=disk --device-map= "$efidir")"
++	# Might contain pretty whitespace
++	if test -n "$GRUB_DISTRIBUTOR"; then
++	    efi_label="$GRUB_DISTRIBUTOR"
++	else
++	    efi_label="$bootloader_id"
++	fi
+ 	if test -z "$efidir_drive" || test -z "$efidir_disk"; then
+ 	    gettext_printf "Can't find GRUB drive for %s; unable to create EFI Boot Manager entry.\n" "$efidir" >&2
+ 	else
+ 	    efidir_part="$(echo "$efidir_drive" | sed 's/^([^,]*,[^0-9]*//; s/[^0-9].*//')"
+ 	    efibootmgr $efi_quiet -c -d "$efidir_disk" -p "$efidir_part" -w \
+-		-L "$bootloader_id" -l "\\EFI\\$efi_distributor\\$efi_file"
++		-L "$efi_label" -l "\\EFI\\$efi_distributor\\$efi_file"
+ 	fi
+     fi
+ else

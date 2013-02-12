@@ -47,3 +47,9 @@ GRUB_SAVEDEFAULT=true
 GRUB_WALLPAPER="/etc/bootsplash/themes/current/images/silent-800x600.jpg"
 GRUB_COLOR_NORMAL="black/black"
 GRUB_COLOR_HIGHLIGHT="white/black"
+
+# This is especially important as EFI Boot Manager label
+GRUB_DISTRIBUTOR="ALT Linux"
+
+# This defines /boot/efi/EFI subdir name
+GRUB_BOOTLOADER_ID="altlinux"
