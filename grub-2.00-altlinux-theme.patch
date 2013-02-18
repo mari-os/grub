@@ -16,8 +16,8 @@ diff -Naur grub-2.00-orig/Makefile.util.def grub-2.00/Makefile.util.def
    installdir = grubconf;
 diff -Naur grub-2.00-orig/util/grub.d/05_altlinux_theme.in grub-2.00/util/grub.d/05_altlinux_theme.in
 --- grub-2.00-orig/util/grub.d/05_altlinux_theme.in	1970-01-01 03:00:00.000000000 +0300
-+++ grub-2.00/util/grub.d/05_altlinux_theme.in	2013-01-31 12:24:54.321794714 +0300
-@@ -0,0 +1,44 @@
++++ grub-2.00/util/grub.d/05_altlinux_theme.in	2012-10-26 18:44:54.321794714 +0300
+@@ -0,0 +1,56 @@
 +#! /bin/sh -e
 +
 +prefix=@prefix@
@@ -26,6 +26,14 @@ diff -Naur grub-2.00-orig/util/grub.d/05_altlinux_theme.in grub-2.00/util/grub.d
 +libdir=@libdir@
 +datadir=@datadir@
 +. ${datadir}/grub/grub-mkconfig_lib
++
++set_mono_theme()
++{
++  cat << EOF
++set menu_color_normal=white/black
++set menu_color_highlight=black/light-gray
++EOF
++}
 +
 +# check for usable backgrounds
 +use_bg=false
@@ -52,16 +60,20 @@ diff -Naur grub-2.00-orig/util/grub.d/05_altlinux_theme.in grub-2.00/util/grub.d
 +  prepare_grub_to_access_device `${grub_probe} --target=device ${bg}`
 +  cat << EOF
 +insmod ${reader}
++if background_image `make_system_path_relative_to_its_root ${bg}` ; then
++  set color_normal=$GRUB_COLOR_NORMAL
++  set color_highlight=$GRUB_COLOR_HIGHLIGHT
++else
 +EOF
 +fi
 +
-+GRUB_COLOR_NORMAL=${GRUB_COLOR_NORMAL:=white/black}
-+GRUB_COLOR_HIGHLIGHT=${GRUB_COLOR_HIGHLIGHT:=black/light-gray}
-+
-+cat << EOF
-+set color_normal=$GRUB_COLOR_NORMAL
-+set color_highlight=$GRUB_COLOR_HIGHLIGHT
-+EOF
++# otherwise, set a monochromatic theme for Ubuntu
++if ${use_bg} ; then
++  set_mono_theme | sed -e "s/^/  /g"
++  echo "fi"
++else
++  set_mono_theme
++fi
 diff -Naur grub-2.00-orig/util/grub-mkconfig.in grub-2.00/util/grub-mkconfig.in
 --- grub-2.00-orig/util/grub-mkconfig.in	2012-04-05 20:41:07.000000000 +0300
 +++ grub-2.00/util/grub-mkconfig.in	2012-10-26 18:45:45.763915722 +0300
