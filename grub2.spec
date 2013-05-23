@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt12
+Release: alt13
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -381,6 +381,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu May 23 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt13
+- firsttime: dropped (closes: #28966)
+
 * Mon Mar 04 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt12
 - better UEFI boot label support (mind the sysconfig fixes)
 - dropped patch8 (irrelevant)
