@@ -17,7 +17,6 @@ Source4: grub2.filetrigger
 Source5: grub-extras-%version.tar
 
 Source6: grub-autoupdate
-Source7: firsttime
 
 Source8: update-grub
 Source9: update-grub.8
@@ -255,7 +254,6 @@ sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot%_sysconfdir/grub.d/*
 
 install -pDm755 %SOURCE4  %buildroot%_rpmlibdir/grub2.filetrigger
 install -pDm755 %SOURCE6  %buildroot%_sbindir/grub-autoupdate
-install -pDm755 %SOURCE7  %buildroot%_sysconfdir/firsttime.d/grub-mkconfig
 install -pDm755 %SOURCE10 %buildroot%_sbindir/grub-efi-autoupdate
 
 # Ghost config file
@@ -303,7 +301,6 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %config(noreplace) %_sysconfdir/grub.d/40_custom
 %config(noreplace) %_sysconfdir/sysconfig/%name
 %_sysconfdir/default/grub
-%_sysconfdir/firsttime.d/*
 %_sysconfdir/bash_completion.d/grub
 %_sbindir/grub-bios-setup
 %_sbindir/grub-install
