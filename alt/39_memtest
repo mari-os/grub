@@ -53,11 +53,17 @@ else
   LINUX_ROOT_DEVICE=UUID=${GRUB_DEVICE_UUID}
 fi
 
-find /boot/ -name "memtest-*.bin" | while read memtest ; do
+# prepare to strip off /boot in case it's a separate filesystem
+grep -qF " /boot " /proc/mounts && FMT="%P" || FMT="%p"
+
+find /boot -name "memtest-*.bin" -printf "$FMT\\n" | while read memtest ; do
   prepare_boot_cache=
   echo "Found memtest image: $memtest" >&2
+
   basename=`basename $memtest`
   dirname=`dirname $memtest`
+  if [ "$dirname" = "." ]; then dirname=""; fi
+
   version=`echo $basename | sed -e "s,^[^0-9]*-,,g" | sed -e "s,\.bin$,,g"`
 
   printf "menuentry \"Memtest86+-$version\" {\n"
