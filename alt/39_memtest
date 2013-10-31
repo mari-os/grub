@@ -17,7 +17,7 @@
 # along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
 
 if [ -d /sys/firmware/efi ]; then
-  echo "Skipping memtest image in EFI mode"
+  echo "Skipping memtest image in EFI mode" >&2
   exit 0
 fi
 
