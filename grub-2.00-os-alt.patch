@@ -1,6 +1,6 @@
 diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux.in
 --- grub-2.00-orig/util/grub.d/10_linux.in	2012-04-19 01:24:38.000000000 +0400
-+++ grub-2.00/util/grub.d/10_linux.in	2012-10-29 21:52:34.697944754 +0400
++++ grub-2.00/util/grub.d/10_linux.in	2013-11-16 03:26:55.980379835 +0400
 @@ -28,11 +28,10 @@
  
  CLASS="--class gnu-linux --class gnu --class os"
@@ -132,6 +132,15 @@ diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux
  
    initramfs=
    if test -n "${config}" ; then
+@@ -228,7 +249,7 @@
+ 
+   if [ "x$is_first_entry" = xtrue ]; then
+     linux_entry "${OS}" "${version}" simple \
+-    "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
++    "${GRUB_CMDLINE_LINUX_DEFAULT}"
+ 
+     submenu_indentation="\t"
+     
 @@ -240,10 +261,12 @@
    fi
  
