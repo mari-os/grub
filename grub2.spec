@@ -1,6 +1,6 @@
 Name: grub2
 Version: 2.00
-Release: alt18
+Release: alt19
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -42,7 +42,7 @@ Packager: Michael Shigorin <mike@altlinux.org>
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
 BuildRequires: libdevmapper-devel
-BuildRequires: rpm-macros-uefi
+BuildRequires: pesign rpm-macros-uefi
 
 # fonts: choose one
 
@@ -71,9 +71,6 @@ Requires: gettext
 %if ! 0%{?efi}
 %define efi %ix86 x86_64 ia64
 %endif
-
-# actually ifarch x86_64
-BuildRequires: sbsigntools alt-uefi-keys-private
 
 %ifarch %ix86
 %global grubefiarch i386-efi
@@ -277,10 +274,9 @@ cd -
 # NB: UEFI GRUB2 image is signed by default to avoid install hassle;
 # non-signed PE is put alongside for those who like it that way
 %ifarch x86_64
-cp -a %buildroot%_efi_bindir/grub{,-unsigned}.efi
-# autocreates signed.manifest
-%_efi_sign %buildroot%_efi_bindir/grub.efi
-cp -a %buildroot%_efi_bindir/grub{-signed,}.efi
+mv %buildroot%_efi_bindir/grub{,-unsigned}.efi
+%pesign -s -i %buildroot%_efi_bindir/grub-unsigned.efi -o %buildroot%_efi_bindir/grub.efi
+echo %_efi_bindir/grub.efi >> signed.manifest
 %endif
 
 # Remove headers
@@ -384,6 +380,10 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Wed Nov 27 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt19
+- rebuilt with current gnu-efi
+- pesign with ALT key
+
 * Tue Nov 26 2013 Michael Shigorin <mike@altlinux.org> 2.00-alt18
 - adapted debian patch to accept os-prober output for EFI binaries
   (see also RH#972355, RH#873207, deb#698914)
