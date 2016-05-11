@@ -25,6 +25,7 @@
 #include <grub/loader.h>
 #include <grub/autoefi.h>
 #include <grub/i386/tsc.h>
+#include <grub/i386/cpuid.h>
 #include <grub/efi/api.h>
 #include <grub/i386/pit.h>
 #include <grub/misc.h>
@@ -34,6 +35,7 @@
 #include <grub/i18n.h>
 #include <grub/bitmap_scale.h>
 #include <grub/cpu/io.h>
+#include <grub/random.h>
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
@@ -125,80 +127,25 @@ guessfsb (void)
 {
   const grub_uint64_t sane_value = 100000000;
   grub_uint32_t manufacturer[3], max_cpuid, capabilities, msrlow;
-  grub_uint64_t start_tsc;
-  grub_uint64_t end_tsc;
-  grub_uint64_t tsc_ticks_per_ms;
+  grub_uint32_t a, b, d, divisor;
 
   if (! grub_cpu_is_cpuid_supported ())
     return sane_value;
 
-#ifdef __APPLE__
-  asm volatile ("movl $0, %%eax\n"
-#ifdef __x86_64__
-		"push %%rbx\n"
-#else
-		"push %%ebx\n"
-#endif
-		"cpuid\n"
-#ifdef __x86_64__
-		"pop %%rbx\n"
-#else
-		"pop %%ebx\n"
-#endif
-		: "=a" (max_cpuid),
-		  "=d" (manufacturer[1]), "=c" (manufacturer[2]));
-
-  /* Only Intel for now is done. */
-  if (grub_memcmp (manufacturer + 1, "ineIntel", 12) != 0)
-    return sane_value;
-
-#else
-  asm volatile ("movl $0, %%eax\n"
-		"cpuid"
-		: "=a" (max_cpuid), "=b" (manufacturer[0]),
-		  "=d" (manufacturer[1]), "=c" (manufacturer[2]));
+  grub_cpuid (0, max_cpuid, manufacturer[0], manufacturer[2], manufacturer[1]);
 
   /* Only Intel for now is done. */
   if (grub_memcmp (manufacturer, "GenuineIntel", 12) != 0)
     return sane_value;
-#endif
 
   /* Check Speedstep. */
   if (max_cpuid < 1)
     return sane_value;
 
-#ifdef __APPLE__
-  asm volatile ("movl $1, %%eax\n"
-#ifdef __x86_64__
-		"push %%rbx\n"
-#else
-		"push %%ebx\n"
-#endif
-		"cpuid\n"
-#ifdef __x86_64__
-		"pop %%rbx\n"
-#else
-		"pop %%ebx\n"
-#endif
-		: "=c" (capabilities):
-		: "%rax", "%rdx");
-#else
-  asm volatile ("movl $1, %%eax\n"
-		"cpuid"
-		: "=c" (capabilities):
-		: "%rax", "%rbx", "%rdx");
-#endif
+  grub_cpuid (1, a, b, capabilities, d);
 
   if (! (capabilities & (1 << 7)))
     return sane_value;
-
-  /* Calibrate the TSC rate. */
-
-  start_tsc = grub_get_tsc ();
-  grub_pit_wait (0xffff);
-  end_tsc = grub_get_tsc ();
-
-  tsc_ticks_per_ms = grub_divmod64 (end_tsc - start_tsc, 55, 0);
 
   /* Read the multiplier. */
   asm volatile ("movl $0x198, %%ecx\n"
@@ -207,8 +154,23 @@ guessfsb (void)
 		:
 		: "%ecx", "%eax");
 
-  return grub_divmod64 (2000 * tsc_ticks_per_ms,
-			((msrlow >> 7) & 0x3e) + ((msrlow >> 14) & 1), 0);
+  grub_uint64_t v;
+  grub_uint32_t r;
+
+  /* (2000ULL << 32) / grub_tsc_rate  */
+  /* Assumption: TSC frequency is over 2 MHz.  */
+  v = 0xffffffff / grub_tsc_rate;
+  v *= 2000;
+  /* v is at most 2000 off from (2000ULL << 32) / grub_tsc_rate.
+     Since grub_tsc_rate < 2^32/2^11=2^21, so no overflow.
+   */
+  r = (2000ULL << 32) - v * grub_tsc_rate;
+  v += r / grub_tsc_rate;
+
+  divisor = ((msrlow >> 7) & 0x3e) | ((msrlow >> 14) & 1);
+  if (divisor == 0)
+    return sane_value;
+  return grub_divmod64 (v, divisor, 0);
 }
 
 struct property_descriptor
@@ -308,9 +270,9 @@ grub_xnu_devprop_add_property (struct grub_xnu_devprop_device_descriptor *dev,
   prop->data = grub_malloc (prop->length);
   if (!prop->data)
     {
-      grub_free (prop);
       grub_free (prop->name);
       grub_free (prop->name16);
+      grub_free (prop);
       return grub_errno;
     }
   grub_memcpy (prop->data, data, prop->length);
@@ -377,7 +339,7 @@ grub_xnu_devprop_add_property_utf16 (struct grub_xnu_devprop_device_descriptor *
   utf8 = grub_malloc (namelen * 4 + 1);
   if (!utf8)
     {
-      grub_free (utf8);
+      grub_free (utf16);
       return grub_errno;
     }
 
@@ -393,18 +355,6 @@ grub_xnu_devprop_add_property_utf16 (struct grub_xnu_devprop_device_descriptor *
     }
 
   return GRUB_ERR_NONE;
-}
-
-static inline int
-hextoval (char c)
-{
-  if (c >= '0' && c <= '9')
-    return c - '0';
-  if (c >= 'a' && c <= 'z')
-    return c - 'a' + 10;
-  if (c >= 'A' && c <= 'Z')
-    return c - 'A' + 10;
-  return 0;
 }
 
 void
@@ -628,11 +578,31 @@ static grub_err_t
 grub_cpu_xnu_fill_devicetree (grub_uint64_t *fsbfreq_out)
 {
   struct grub_xnu_devtree_key *efikey;
+  struct grub_xnu_devtree_key *chosenkey;
   struct grub_xnu_devtree_key *cfgtablekey;
   struct grub_xnu_devtree_key *curval;
   struct grub_xnu_devtree_key *runtimesrvkey;
   struct grub_xnu_devtree_key *platformkey;
   unsigned i, j;
+  grub_err_t err;
+
+  chosenkey = grub_xnu_create_key (&grub_xnu_devtree_root, "chosen");
+  if (! chosenkey)
+    return grub_errno;
+
+  /* Random seed. */
+  curval = grub_xnu_create_value (&(chosenkey->first_child), "random-seed");
+  if (! curval)
+    return grub_errno;
+  curval->datasize = 64;
+  curval->data = grub_malloc (curval->datasize);
+  if (! curval->data)
+    return grub_errno;
+  /* Our random is not peer-reviewed but xnu uses this seed only for
+     ASLR in kernel.  */
+  err = grub_crypto_get_random (curval->data, curval->datasize);
+  if (err)
+    return err;
 
   /* The value "model". */
   /* FIXME: may this value be sometimes different? */
@@ -724,7 +694,7 @@ grub_cpu_xnu_fill_devicetree (grub_uint64_t *fsbfreq_out)
     {
       void *ptr;
       struct grub_xnu_devtree_key *curkey;
-      grub_efi_guid_t guid;
+      grub_efi_packed_guid_t guid;
       char guidbuf[64];
 
       /* Retrieve current key. */
@@ -794,10 +764,10 @@ grub_cpu_xnu_fill_devicetree (grub_uint64_t *fsbfreq_out)
 	*((grub_uint64_t *) curval->data) = (grub_addr_t) ptr;
 
       /* Create alias. */
-      for (j = 0; j < sizeof (table_aliases) / sizeof (table_aliases[0]); j++)
+      for (j = 0; j < ARRAY_SIZE(table_aliases); j++)
 	if (grub_memcmp (&table_aliases[j].guid, &guid, sizeof (guid)) == 0)
 	  break;
-      if (j != sizeof (table_aliases) / sizeof (table_aliases[0]))
+      if (j != ARRAY_SIZE(table_aliases))
 	{
 	  curval = grub_xnu_create_value (&(curkey->first_child), "alias");
 	  if (!curval)
@@ -948,6 +918,28 @@ grub_xnu_set_video (struct grub_xnu_boot_params_common *params)
   return GRUB_ERR_NONE;
 }
 
+static int
+total_ram_hook (grub_uint64_t addr __attribute__ ((unused)), grub_uint64_t size,
+		grub_memory_type_t type,
+		void *data)
+{
+  grub_uint64_t *result = data;
+
+  if (type != GRUB_MEMORY_AVAILABLE)
+    return 0;
+  *result += size;
+  return 0;
+}
+
+static grub_uint64_t
+get_total_ram (void)
+{
+  grub_uint64_t result = 0;
+
+  grub_mmap_iterate (total_ram_hook, &result);
+  return result;
+}
+
 /* Boot xnu. */
 grub_err_t
 grub_xnu_boot (void)
@@ -1024,6 +1016,7 @@ grub_xnu_boot (void)
     {
       bootparams_common = &bootparams->v2.common;
       bootparams->v2.fsbfreq = fsbfreq;
+      bootparams->v2.ram_size = get_total_ram();
     }
   else
     bootparams_common = &bootparams->v1.common;
@@ -1131,7 +1124,7 @@ grub_xnu_boot (void)
   bootparams_common->efi_mmap = memory_map_target;
   bootparams_common->efi_mmap_size = memory_map_size;
   bootparams_common->heap_start = grub_xnu_heap_target_start;
-  bootparams_common->heap_size = grub_xnu_heap_size;
+  bootparams_common->heap_size = curruntimepage * GRUB_XNU_PAGESIZE - grub_xnu_heap_target_start;
 
   /* Parameters for asm helper. */
   grub_xnu_stack = bootparams_common->heap_start

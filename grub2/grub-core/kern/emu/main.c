@@ -16,15 +16,16 @@
  *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <config.h>
+#include <config-util.h>
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <setjmp.h>
-#include <sys/stat.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #include <grub/dl.h>
 #include <grub/mm.h>
@@ -40,6 +41,10 @@
 #include <grub/env.h>
 #include <grub/partition.h>
 #include <grub/i18n.h>
+#include <grub/loader.h>
+#include <grub/util/misc.h>
+
+#pragma GCC diagnostic ignored "-Wmissing-prototypes"
 
 #include "progname.h"
 #include <argp.h>
@@ -52,14 +57,18 @@ static jmp_buf main_env;
 /* Store the prefix specified by an argument.  */
 static char *root_dev = NULL, *dir = NULL;
 
-int grub_no_autoload;
-
 grub_addr_t grub_modbase = 0;
 
 void
 grub_reboot (void)
 {
   longjmp (main_env, 1);
+}
+
+void
+grub_exit (void)
+{
+  grub_reboot ();
 }
 
 void
@@ -75,24 +84,32 @@ grub_machine_get_bootlocation (char **device, char **path)
 }
 
 void
-grub_machine_fini (void)
+grub_machine_fini (int flags)
 {
-  grub_console_fini ();
+  if (flags & GRUB_LOADER_FLAG_NORETURN)
+    grub_console_fini ();
 }
 
 
+
+#define OPT_MEMDISK 257
 
 static struct argp_option options[] = {
   {"root",      'r', N_("DEVICE_NAME"), 0, N_("Set root device."), 2},
   {"device-map",  'm', N_("FILE"), 0,
    /* TRANSLATORS: There are many devices in device map.  */
    N_("use FILE as the device map [default=%s]"), 0},
+  {"memdisk",  OPT_MEMDISK, N_("FILE"), 0,
+   /* TRANSLATORS: There are many devices in device map.  */
+   N_("use FILE as memdisk"), 0},
   {"directory",  'd', N_("DIR"), 0,
    N_("use GRUB files in the directory DIR [default=%s]"), 0},
   {"verbose",     'v', 0,      0, N_("print verbose messages."), 0},
   {"hold",     'H', N_("SECS"),      OPTION_ARG_OPTIONAL, N_("wait until a debugger will attach"), 0},
   { 0, 0, 0, 0, 0, 0 }
 };
+
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 
 static char *
 help_filter (int key, const char *text, void *input __attribute__ ((unused)))
@@ -108,9 +125,12 @@ help_filter (int key, const char *text, void *input __attribute__ ((unused)))
     }
 }
 
+#pragma GCC diagnostic error "-Wformat-nonliteral"
+
 struct arguments
 {
   const char *dev_map;
+  const char *mem_disk;
   int hold;
 };
 
@@ -123,6 +143,9 @@ argp_parser (int key, char *arg, struct argp_state *state)
 
   switch (key)
     {
+    case OPT_MEMDISK:
+      arguments->mem_disk = arg;
+      break;
     case 'r':
       free (root_dev);
       root_dev = xstrdup (arg);
@@ -164,11 +187,7 @@ static struct argp argp = {
 
 
 
-void grub_hostfs_init (void);
-void grub_hostfs_fini (void);
-void grub_host_init (void);
-void grub_host_fini (void);
-void grub_emu_init (void);
+#pragma GCC diagnostic ignored "-Wmissing-prototypes"
 
 int
 main (int argc, char *argv[])
@@ -176,11 +195,15 @@ main (int argc, char *argv[])
   struct arguments arguments =
     { 
       .dev_map = DEFAULT_DEVICE_MAP,
-      .hold = 0
+      .hold = 0,
+      .mem_disk = 0,
     };
   volatile int hold = 0;
+  size_t total_module_size = sizeof (struct grub_module_info), memdisk_size = 0;
+  struct grub_module_info *modinfo;
+  void *mods;
 
-  set_program_name (argv[0]);
+  grub_util_host_init (&argc, &argv);
 
   dir = xstrdup (DEFAULT_DIRECTORY);
 
@@ -189,6 +212,33 @@ main (int argc, char *argv[])
       fprintf (stderr, "%s", _("Error in parsing command line arguments\n"));
       exit(1);
     }
+
+  if (arguments.mem_disk)
+    {
+      memdisk_size = ALIGN_UP(grub_util_get_image_size (arguments.mem_disk), 512);
+      total_module_size += memdisk_size + sizeof (struct grub_module_header);
+    }
+
+  mods = xmalloc (total_module_size);
+  modinfo = grub_memset (mods, 0, total_module_size);
+  mods = (char *) (modinfo + 1);
+
+  modinfo->magic = GRUB_MODULE_MAGIC;
+  modinfo->offset = sizeof (struct grub_module_info);
+  modinfo->size = total_module_size;
+
+  if (arguments.mem_disk)
+    {
+      struct grub_module_header *header = (struct grub_module_header *) mods;
+      header->type = OBJ_TYPE_MEMDISK;
+      header->size = memdisk_size + sizeof (*header);
+      mods = header + 1;
+
+      grub_util_load_image (arguments.mem_disk, mods);
+      mods = (char *) mods + memdisk_size;
+    }
+
+  grub_modbase = (grub_addr_t) modinfo;
 
   hold = arguments.hold;
   /* Wait until the ARGS.HOLD variable is cleared by an attached debugger. */
@@ -205,7 +255,6 @@ main (int argc, char *argv[])
     }
 
   signal (SIGINT, SIG_IGN);
-  grub_emu_init ();
   grub_console_init ();
   grub_host_init ();
 
@@ -215,8 +264,6 @@ main (int argc, char *argv[])
   grub_init_all ();
 
   grub_hostfs_init ();
-
-  grub_emu_post_init ();
 
   /* Make sure that there is a root device.  */
   if (! root_dev)
@@ -232,29 +279,7 @@ main (int argc, char *argv[])
   grub_hostfs_fini ();
   grub_host_fini ();
 
-  grub_machine_fini ();
+  grub_machine_fini (GRUB_LOADER_FLAG_NORETURN);
 
   return 0;
 }
-
-#ifdef __MINGW32__
-
-void
-grub_millisleep (grub_uint32_t ms)
-{
-  Sleep (ms);
-}
-
-#else
-
-void
-grub_millisleep (grub_uint32_t ms)
-{
-  struct timespec ts;
-
-  ts.tv_sec = ms / 1000;
-  ts.tv_nsec = (ms % 1000) * 1000000;
-  nanosleep (&ts, NULL);
-}
-
-#endif

@@ -21,13 +21,39 @@
 #include <grub/test.h>
 #include <grub/misc.h>
 
-#define MSG "printf test failed"
+#define MSG "printf test failed: %s, %s", real, expected
 
 static void
 printf_test (void)
 {
   char real[512];
   char expected[512];
+  char *null = NULL;
+
+  grub_snprintf (real, sizeof (real), "%s", null);
+  snprintf (expected, sizeof (expected), "%s", null);
+  grub_test_assert (strcmp (real, expected) == 0, MSG);
+
+  grub_snprintf (real, sizeof (real), "%10s", null);
+  snprintf (expected, sizeof (expected), "%10s", null);
+  grub_test_assert (strcmp (real, expected) == 0, MSG);
+
+  grub_snprintf (real, sizeof (real), "%-10s", null);
+  snprintf (expected, sizeof (expected), "%-10s", null);
+  grub_test_assert (strcmp (real, expected) == 0, MSG);
+
+  grub_snprintf (real, sizeof (real), "%d%%", 10);
+  snprintf (expected, sizeof (expected), "%d%%", 10);
+  grub_test_assert (strcmp (real, expected) == 0, MSG);
+
+  grub_snprintf (real, sizeof (real), "%d %%", 10);
+  snprintf (expected, sizeof (expected), "%d %%", 10);
+  grub_test_assert (strcmp (real, expected) == 0, MSG);
+
+  grub_snprintf (real, sizeof (real), "%%");
+  snprintf (expected, sizeof (expected), "%%");
+  grub_test_assert (strcmp (real, expected) == 0, MSG);
+
   grub_snprintf (real, sizeof (real), "%d %d %d", 1, 2, 3);
   snprintf (expected, sizeof (expected), "%d %d %d", 1, 2, 3);
   grub_test_assert (strcmp (real, expected) == 0, MSG);
@@ -39,6 +65,9 @@ printf_test (void)
   grub_test_assert (strcmp (real, expected) == 0, MSG);
   grub_snprintf (real, sizeof (real), "%3$d %2$lld %1$d", 1, 2LL, 3);
   snprintf (expected, sizeof (expected), "%3$d %2$lld %1$d", 1, 2LL, 3);
+  grub_test_assert (strcmp (real, expected) == 0, MSG);
+  grub_snprintf (real, sizeof (real), "%%0%dd ", 1);
+  snprintf (expected, sizeof (expected), "%%0%dd ", 1);
   grub_test_assert (strcmp (real, expected) == 0, MSG);
 }
 

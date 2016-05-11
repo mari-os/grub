@@ -139,6 +139,7 @@ struct grub_net_card
     {
       struct grub_efi_simple_network *efi_net;
       grub_efi_handle_t efi_handle;
+      grub_size_t last_pkt_size;
     };
 #endif
     void *data;
@@ -155,6 +156,14 @@ typedef enum grub_network_level_protocol_id
   GRUB_NET_NETWORK_LEVEL_PROTOCOL_IPV6
 } grub_network_level_protocol_id_t;
 
+typedef enum
+{
+  DNS_OPTION_IPV4,
+  DNS_OPTION_IPV6,
+  DNS_OPTION_PREFER_IPV4,
+  DNS_OPTION_PREFER_IPV6
+} grub_dns_option_t;
+
 typedef struct grub_net_network_level_address
 {
   grub_network_level_protocol_id_t type;
@@ -163,6 +172,7 @@ typedef struct grub_net_network_level_address
     grub_uint32_t ipv4;
     grub_uint64_t ipv6[2];
   };
+  grub_dns_option_t option;
 } grub_net_network_level_address_t;
 
 typedef struct grub_net_network_level_netaddress
@@ -180,6 +190,18 @@ typedef struct grub_net_network_level_netaddress
     } ipv6;
   };
 } grub_net_network_level_netaddress_t;
+
+struct grub_net_route
+{
+  struct grub_net_route *next;
+  struct grub_net_route **prev;
+  grub_net_network_level_netaddress_t target;
+  char *name;
+  struct grub_net_network_level_protocol *prot;
+  int is_gateway;
+  struct grub_net_network_level_interface *interface;
+  grub_net_network_level_address_t gw;
+};
 
 #define FOR_PACKETS(cont,var) for (var = (cont).first; var; var = var->next)
 
@@ -357,6 +379,16 @@ grub_net_card_unregister (struct grub_net_card *card);
 #define FOR_NET_CARDS_SAFE(var, next) for (var = grub_net_cards, next = (var ? var->next : 0); var; var = next, next = (var ? var->next : 0))
 
 
+extern struct grub_net_route *grub_net_routes;
+
+static inline void
+grub_net_route_register (struct grub_net_route *route)
+{
+  grub_list_push (GRUB_AS_LIST_P (&grub_net_routes),
+		  GRUB_AS_LIST (route));
+}
+
+#define FOR_NET_ROUTES(var) for (var = grub_net_routes; var; var = var->next)
 struct grub_net_session *
 grub_net_open_tcp (char *address, grub_uint16_t port);
 
@@ -382,7 +414,8 @@ grub_net_add_route (const char *name,
 grub_err_t
 grub_net_add_route_gw (const char *name,
 		       grub_net_network_level_netaddress_t target,
-		       grub_net_network_level_address_t gw);
+		       grub_net_network_level_address_t gw,
+		       struct grub_net_network_level_interface *inter);
 
 
 #define GRUB_NET_BOOTP_MAC_ADDR_LEN	16
@@ -406,7 +439,7 @@ struct grub_net_bootp_packet
   char server_name[64];
   char boot_file[128];
   grub_uint8_t vendor[0];
-} __attribute__ ((packed));
+} GRUB_PACKED;
 
 #define	GRUB_NET_BOOTP_RFC1048_MAGIC_0	0x63
 #define	GRUB_NET_BOOTP_RFC1048_MAGIC_1	0x82
@@ -470,6 +503,10 @@ grub_net_addr_to_str (const grub_net_network_level_address_t *target,
 void
 grub_net_hwaddr_to_str (const grub_net_link_level_address_t *addr, char *str);
 
+grub_err_t
+grub_env_set_net_property (const char *intername, const char *suffix,
+                           const char *value, grub_size_t len);
+
 void
 grub_net_poll_cards (unsigned time, int *stop_condition);
 
@@ -522,5 +559,6 @@ extern char *grub_net_default_server;
 
 #define GRUB_NET_TRIES 40
 #define GRUB_NET_INTERVAL 400
+#define GRUB_NET_INTERVAL_ADDITION 20
 
 #endif /* ! GRUB_NET_HEADER */

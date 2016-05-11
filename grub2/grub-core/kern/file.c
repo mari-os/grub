@@ -64,7 +64,7 @@ grub_file_open (const char *name)
   grub_device_t device = 0;
   grub_file_t file = 0, last_file = 0;
   char *device_name;
-  char *file_name;
+  const char *file_name;
   grub_file_filter_id_t filter;
 
   device_name = grub_file_get_device_name (name);
@@ -76,7 +76,7 @@ grub_file_open (const char *name)
   if (file_name)
     file_name++;
   else
-    file_name = (char *) name;
+    file_name = name;
 
   device = grub_device_open (device_name);
   grub_free (device_name);
@@ -89,7 +89,16 @@ grub_file_open (const char *name)
 
   file->device = device;
 
-  if (device->disk && file_name[0] != '/')
+  /* In case of relative pathnames and non-Unix systems (like Windows)
+   * name of host files may not start with `/'. Blocklists for host files
+   * are meaningless as well (for a start, host disk does not allow any direct
+   * access - it is just a marker). So skip host disk in this case.
+   */
+  if (device->disk && file_name[0] != '/'
+#if defined(GRUB_UTIL) || defined(GRUB_MACHINE_EMU)
+      && grub_strcmp (device->disk->name, "host")
+#endif
+     )
     /* This is a block list.  */
     file->fs = &grub_fs_blocklist;
   else
@@ -102,12 +111,15 @@ grub_file_open (const char *name)
   if ((file->fs->open) (file, file_name) != GRUB_ERR_NONE)
     goto fail;
 
+  file->name = grub_strdup (name);
+  grub_errno = GRUB_ERR_NONE;
+
   for (filter = 0; file && filter < ARRAY_SIZE (grub_file_filters_enabled);
        filter++)
     if (grub_file_filters_enabled[filter])
       {
 	last_file = file;
-	file = grub_file_filters_enabled[filter] (file);
+	file = grub_file_filters_enabled[filter] (file, name);
       }
   if (!file)
     grub_file_close (last_file);
@@ -131,10 +143,14 @@ grub_file_open (const char *name)
   return 0;
 }
 
+grub_disk_read_hook_t grub_file_progress_hook;
+
 grub_ssize_t
 grub_file_read (grub_file_t file, void *buf, grub_size_t len)
 {
   grub_ssize_t res;
+  grub_disk_read_hook_t read_hook;
+  void *read_hook_data;
 
   if (file->offset > file->size)
     {
@@ -155,7 +171,17 @@ grub_file_read (grub_file_t file, void *buf, grub_size_t len)
 
   if (len == 0)
     return 0;
+  read_hook = file->read_hook;
+  read_hook_data = file->read_hook_data;
+  if (!file->read_hook)
+    {
+      file->read_hook = grub_file_progress_hook;
+      file->read_hook_data = file;
+      file->progress_offset = file->offset;
+    }
   res = (file->fs->read) (file, buf, len);
+  file->read_hook = read_hook;
+  file->read_hook_data = read_hook_data;
   if (res > 0)
     file->offset += res;
 
@@ -170,6 +196,7 @@ grub_file_close (grub_file_t file)
 
   if (file->device)
     grub_device_close (file->device);
+  grub_free (file->name);
   grub_free (file);
   return grub_errno;
 }

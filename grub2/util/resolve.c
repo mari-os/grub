@@ -241,7 +241,7 @@ grub_util_resolve_dependencies (const char *prefix,
   struct grub_util_path_list *path_list = 0;
 
   path = grub_util_get_path (prefix, dep_list_file);
-  fp = fopen (path, "r");
+  fp = grub_util_fopen (path, "r");
   if (! fp)
     grub_util_error (_("cannot open `%s': %s"), path, strerror (errno));
 
@@ -270,4 +270,18 @@ grub_util_resolve_dependencies (const char *prefix,
 
     return prev;
   }
+}
+
+void
+grub_util_free_path_list (struct grub_util_path_list *path_list)
+{
+  struct grub_util_path_list *next;
+
+  while (path_list)
+    {
+      next = path_list->next;
+      free ((void *) path_list->name);
+      free (path_list);
+      path_list = next;
+    }
 }

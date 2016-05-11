@@ -22,6 +22,7 @@
 #include <grub/machine/memory.h>
 #include <grub/machine/kernel.h>
 #include <grub/offsets.h>
+#include <grub/mips/asm.h>
 
 #define BASE_ADDR 8	
 
@@ -36,7 +37,7 @@ start:
 	bal cont
 	 nop
 
-	. = _start + GRUB_KERNEL_MACHINE_TOTAL_MODULE_SIZE
+	.org GRUB_KERNEL_MACHINE_TOTAL_MODULE_SIZE
 VARIABLE(grub_total_modules_size)
 	.long 0
 
@@ -73,7 +74,6 @@ cont:
 #endif
 
 	/* Move the modules out of BSS.  */
-#ifndef GRUB_MACHINE_ARC
 	lui $t2, %hi(__bss_start)
 	addiu $t2, %lo(__bss_start)
 	
@@ -96,14 +96,13 @@ cont:
 modulesmovcont:
 	beq $t3, $0, modulesmovdone
          nop
-	lb $t4, 0($t2)
-	sb $t4, 0($t1)
+	lb GRUB_ASM_T4, 0($t2)
+	sb GRUB_ASM_T4, 0($t1)
 	addiu $t2, $t2, -1
 	addiu $t1, $t1, -1
 	b modulesmovcont
 	 addiu $t3, $t3, -1
 modulesmovdone:
-#endif
 
 	/* Clean BSS.  */
 	
@@ -118,10 +117,10 @@ bsscont:
 	bne $t3, $0, bsscont
          nop
 
-	lui $t1, %hi(grub_main)
-	addiu $t1, %lo(grub_main)
+	lui $t9, %hi(grub_main)
+	addiu $t9, %lo(grub_main)
 
 	lui $sp, %hi(GRUB_MACHINE_MEMORY_STACK_HIGH)
-	jr $t1
+	jr $t9
 	 addiu $sp, $sp, %lo(GRUB_MACHINE_MEMORY_STACK_HIGH)
 

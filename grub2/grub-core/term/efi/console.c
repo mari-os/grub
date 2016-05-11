@@ -69,7 +69,7 @@ static void
 grub_console_putchar (struct grub_term_output *term __attribute__ ((unused)),
 		      const struct grub_unicode_glyph *c)
 {
-  grub_efi_char16_t str[2 + c->ncomb];
+  grub_efi_char16_t str[2 + 30];
   grub_efi_simple_text_output_interface_t *o;
   unsigned i, j;
 
@@ -84,9 +84,9 @@ grub_console_putchar (struct grub_term_output *term __attribute__ ((unused)),
   else
     str[0] = (grub_efi_char16_t)  map_char (c->base & 0xffff);
   j = 1;
-  for (i = 0; i < c->ncomb; i++)
+  for (i = 0; i < c->ncomb && j + 1 < ARRAY_SIZE (str); i++)
     if (c->base < 0xffff)
-      str[j++] = c->combining[i].code;
+      str[j++] = grub_unicode_get_comb (c)[i].code;
   str[j] = 0;
 
   /* Should this test be cached?  */
@@ -104,19 +104,41 @@ const unsigned efi_codes[] =
     GRUB_TERM_KEY_DC, GRUB_TERM_KEY_PPAGE, GRUB_TERM_KEY_NPAGE, GRUB_TERM_KEY_F1,
     GRUB_TERM_KEY_F2, GRUB_TERM_KEY_F3, GRUB_TERM_KEY_F4, GRUB_TERM_KEY_F5,
     GRUB_TERM_KEY_F6, GRUB_TERM_KEY_F7, GRUB_TERM_KEY_F8, GRUB_TERM_KEY_F9,
-    GRUB_TERM_KEY_F10, 0, 0, '\e'
+    GRUB_TERM_KEY_F10, GRUB_TERM_KEY_F11, GRUB_TERM_KEY_F12, '\e'
   };
 
+static int
+grub_efi_translate_key (grub_efi_input_key_t key)
+{
+  if (key.scan_code == 0)
+    {
+      /* Some firmware implementations use VT100-style codes against the spec.
+	 This is especially likely if driven by serial.
+       */
+      if (key.unicode_char < 0x20 && key.unicode_char != 0
+	  && key.unicode_char != '\t' && key.unicode_char != '\b'
+	  && key.unicode_char != '\n' && key.unicode_char != '\r')
+	return GRUB_TERM_CTRL | (key.unicode_char - 1 + 'a');
+      else
+	return key.unicode_char;
+    }
+  else if (key.scan_code < ARRAY_SIZE (efi_codes))
+    return efi_codes[key.scan_code];
+
+  if ((key.unicode_char >= 0x20 && key.unicode_char <= 0x7f)
+      || key.unicode_char == '\t' || key.unicode_char == '\b'
+      || key.unicode_char == '\n' || key.unicode_char == '\r')
+    return key.unicode_char;
+
+  return GRUB_TERM_NO_KEY;
+}
 
 static int
-grub_console_getkey (struct grub_term_input *term __attribute__ ((unused)))
+grub_console_getkey_con (struct grub_term_input *term __attribute__ ((unused)))
 {
   grub_efi_simple_input_interface_t *i;
   grub_efi_input_key_t key;
   grub_efi_status_t status;
-
-  if (grub_efi_is_finished)
-    return 0;
 
   i = grub_efi_system_table->con_in;
   status = efi_call_2 (i->read_key_stroke, i, &key);
@@ -124,15 +146,80 @@ grub_console_getkey (struct grub_term_input *term __attribute__ ((unused)))
   if (status != GRUB_EFI_SUCCESS)
     return GRUB_TERM_NO_KEY;
 
-  if (key.scan_code == 0)
-    return key.unicode_char;
-  else if (key.scan_code < ARRAY_SIZE (efi_codes))
-    return efi_codes[key.scan_code];
-
-  return GRUB_TERM_NO_KEY;
+  return grub_efi_translate_key(key);
 }
 
-static grub_uint16_t
+static int
+grub_console_getkey_ex(struct grub_term_input *term)
+{
+  grub_efi_key_data_t key_data;
+  grub_efi_status_t status;
+  grub_efi_uint32_t kss;
+  int key = -1;
+
+  grub_efi_simple_text_input_ex_interface_t *text_input = term->data;
+
+  status = efi_call_2 (text_input->read_key_stroke, text_input, &key_data);
+
+  if (status != GRUB_EFI_SUCCESS)
+    return GRUB_TERM_NO_KEY;
+
+  kss = key_data.key_state.key_shift_state;
+  key = grub_efi_translate_key(key_data.key);
+
+  if (key == GRUB_TERM_NO_KEY)
+    return GRUB_TERM_NO_KEY;
+
+  if (kss & GRUB_EFI_SHIFT_STATE_VALID)
+    {
+      if ((kss & GRUB_EFI_LEFT_SHIFT_PRESSED
+	   || kss & GRUB_EFI_RIGHT_SHIFT_PRESSED)
+	  && (key & GRUB_TERM_EXTENDED))
+	key |= GRUB_TERM_SHIFT;
+      if (kss & GRUB_EFI_LEFT_ALT_PRESSED || kss & GRUB_EFI_RIGHT_ALT_PRESSED)
+	key |= GRUB_TERM_ALT;
+      if (kss & GRUB_EFI_LEFT_CONTROL_PRESSED
+	  || kss & GRUB_EFI_RIGHT_CONTROL_PRESSED)
+	key |= GRUB_TERM_CTRL;
+    }
+
+  return key;
+}
+
+static grub_err_t
+grub_efi_console_input_init (struct grub_term_input *term)
+{
+  grub_efi_guid_t text_input_ex_guid =
+    GRUB_EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID;
+
+  if (grub_efi_is_finished)
+    return 0;
+
+  grub_efi_simple_text_input_ex_interface_t *text_input = term->data;
+  if (text_input)
+    return 0;
+
+  text_input = grub_efi_open_protocol(grub_efi_system_table->console_in_handler,
+				      &text_input_ex_guid,
+				      GRUB_EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+  term->data = (void *)text_input;
+
+  return 0;
+}
+
+static int
+grub_console_getkey (struct grub_term_input *term)
+{
+  if (grub_efi_is_finished)
+    return 0;
+
+  if (term->data)
+    return grub_console_getkey_ex(term);
+  else
+    return grub_console_getkey_con(term);
+}
+
+static struct grub_term_coordinate
 grub_console_getwh (struct grub_term_output *term __attribute__ ((unused)))
 {
   grub_efi_simple_text_output_interface_t *o;
@@ -147,24 +234,24 @@ grub_console_getwh (struct grub_term_output *term __attribute__ ((unused)))
       rows = 25;
     }
 
-  return ((columns << 8) | rows);
+  return (struct grub_term_coordinate) { columns, rows };
 }
 
-static grub_uint16_t
+static struct grub_term_coordinate
 grub_console_getxy (struct grub_term_output *term __attribute__ ((unused)))
 {
   grub_efi_simple_text_output_interface_t *o;
 
   if (grub_efi_is_finished)
-    return 0;
+    return (struct grub_term_coordinate) { 0, 0 };
 
   o = grub_efi_system_table->con_out;
-  return ((o->mode->cursor_column << 8) | o->mode->cursor_row);
+  return (struct grub_term_coordinate) { o->mode->cursor_column, o->mode->cursor_row };
 }
 
 static void
 grub_console_gotoxy (struct grub_term_output *term __attribute__ ((unused)),
-		     grub_uint8_t x, grub_uint8_t y)
+		     struct grub_term_coordinate pos)
 {
   grub_efi_simple_text_output_interface_t *o;
 
@@ -172,7 +259,7 @@ grub_console_gotoxy (struct grub_term_output *term __attribute__ ((unused)),
     return;
 
   o = grub_efi_system_table->con_out;
-  efi_call_3 (o->set_cursor_position, o, x, y);
+  efi_call_3 (o->set_cursor_position, o, pos.x, pos.y);
 }
 
 static void
@@ -192,7 +279,8 @@ grub_console_cls (struct grub_term_output *term __attribute__ ((unused)))
 }
 
 static void
-grub_console_setcolorstate (struct grub_term_output *term,
+grub_console_setcolorstate (struct grub_term_output *term
+			    __attribute__ ((unused)),
 			    grub_term_color_state state)
 {
   grub_efi_simple_text_output_interface_t *o;
@@ -208,10 +296,10 @@ grub_console_setcolorstate (struct grub_term_output *term,
 		  & 0x7f);
       break;
     case GRUB_TERM_COLOR_NORMAL:
-      efi_call_2 (o->set_attributes, o, term->normal_color & 0x7f);
+      efi_call_2 (o->set_attributes, o, grub_term_normal_color & 0x7f);
       break;
     case GRUB_TERM_COLOR_HIGHLIGHT:
-      efi_call_2 (o->set_attributes, o, term->highlight_color & 0x7f);
+      efi_call_2 (o->set_attributes, o, grub_term_highlight_color & 0x7f);
       break;
     default:
       break;
@@ -232,7 +320,7 @@ grub_console_setcursor (struct grub_term_output *term __attribute__ ((unused)),
 }
 
 static grub_err_t
-grub_efi_console_init (struct grub_term_output *term)
+grub_efi_console_output_init (struct grub_term_output *term)
 {
   grub_efi_set_text_mode (1);
   grub_console_setcursor (term, 1);
@@ -240,7 +328,7 @@ grub_efi_console_init (struct grub_term_output *term)
 }
 
 static grub_err_t
-grub_efi_console_fini (struct grub_term_output *term)
+grub_efi_console_output_fini (struct grub_term_output *term)
 {
   grub_console_setcursor (term, 0);
   grub_efi_set_text_mode (0);
@@ -251,13 +339,14 @@ static struct grub_term_input grub_console_term_input =
   {
     .name = "console",
     .getkey = grub_console_getkey,
+    .init = grub_efi_console_input_init,
   };
 
 static struct grub_term_output grub_console_term_output =
   {
     .name = "console",
-    .init = grub_efi_console_init,
-    .fini = grub_efi_console_fini,
+    .init = grub_efi_console_output_init,
+    .fini = grub_efi_console_output_fini,
     .putchar = grub_console_putchar,
     .getwh = grub_console_getwh,
     .getxy = grub_console_getxy,
@@ -265,9 +354,8 @@ static struct grub_term_output grub_console_term_output =
     .cls = grub_console_cls,
     .setcolorstate = grub_console_setcolorstate,
     .setcursor = grub_console_setcursor,
-    .normal_color = GRUB_TERM_DEFAULT_NORMAL_COLOR,
-    .highlight_color = GRUB_TERM_DEFAULT_HIGHLIGHT_COLOR,
-    .flags = GRUB_TERM_CODE_TYPE_VISUAL_GLYPHS
+    .flags = GRUB_TERM_CODE_TYPE_VISUAL_GLYPHS,
+    .progress_update_divisor = GRUB_PROGRESS_FAST
   };
 
 void
@@ -281,8 +369,8 @@ grub_console_init (void)
       return;
     }
 
-  grub_term_register_input ("console", &grub_console_term_input);
   grub_term_register_output ("console", &grub_console_term_output);
+  grub_term_register_input ("console", &grub_console_term_input);
 }
 
 void

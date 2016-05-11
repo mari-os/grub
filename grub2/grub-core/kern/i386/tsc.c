@@ -1,7 +1,6 @@
 /* kern/i386/tsc.c - x86 TSC time source implementation
  * Requires Pentium or better x86 CPU that supports the RDTSC instruction.
- * This module uses the RTC (via grub_get_rtc()) to calibrate the TSC to
- * real time.
+ * This module calibrates the TSC to real time.
  *
  *  GRUB  --  GRand Unified Bootloader
  *  Copyright (C) 2008  Free Software Foundation, Inc.
@@ -24,55 +23,56 @@
 #include <grub/time.h>
 #include <grub/misc.h>
 #include <grub/i386/tsc.h>
-#include <grub/i386/pit.h>
+#include <grub/i386/cpuid.h>
 
 /* This defines the value TSC had at the epoch (that is, when we calibrated it). */
 static grub_uint64_t tsc_boot_time;
 
-/* Calibrated TSC rate.  (In TSC ticks per millisecond.) */
-static grub_uint64_t tsc_ticks_per_ms;
+/* Calibrated TSC rate.  (In ms per 2^32 ticks) */
+/* We assume that the tick is less than 1 ms and hence this value fits
+   in 32-bit.  */
+grub_uint32_t grub_tsc_rate;
 
-
-grub_uint64_t
+static grub_uint64_t
 grub_tsc_get_time_ms (void)
 {
-  return tsc_boot_time + grub_divmod64 (grub_get_tsc (), tsc_ticks_per_ms, 0);
+  grub_uint64_t a = grub_get_tsc () - tsc_boot_time;
+  grub_uint64_t ah = a >> 32;
+  grub_uint64_t al = a & 0xffffffff;
+
+  return ((al * grub_tsc_rate) >> 32) + ah * grub_tsc_rate;
 }
 
-
-/* How many RTC ticks to use for calibration loop. (>= 1) */
-#define CALIBRATION_TICKS 2
-
-/* Calibrate the TSC based on the RTC.  */
-static void
-calibrate_tsc (void)
+static int
+calibrate_tsc_hardcode (void)
 {
-  /* First calibrate the TSC rate (relative, not absolute time). */
-  grub_uint64_t start_tsc;
-  grub_uint64_t end_tsc;
-
-  start_tsc = grub_get_tsc ();
-  grub_pit_wait (0xffff);
-  end_tsc = grub_get_tsc ();
-
-  tsc_ticks_per_ms = grub_divmod64 (end_tsc - start_tsc, 55, 0);
+  grub_tsc_rate = 5368;/* 800 MHz */
+  return 1;
 }
 
 void
 grub_tsc_init (void)
 {
-  if (grub_cpu_is_tsc_supported ())
-    {
-      tsc_boot_time = grub_get_tsc ();
-      calibrate_tsc ();
-      grub_install_get_time_ms (grub_tsc_get_time_ms);
-    }
-  else
+  if (!grub_cpu_is_tsc_supported ())
     {
 #if defined (GRUB_MACHINE_PCBIOS) || defined (GRUB_MACHINE_IEEE1275)
       grub_install_get_time_ms (grub_rtc_get_time_ms);
 #else
       grub_fatal ("no TSC found");
 #endif
+      return;
     }
+
+  tsc_boot_time = grub_get_tsc ();
+
+#ifdef GRUB_MACHINE_XEN
+  (void) (grub_tsc_calibrate_from_xen () || calibrate_tsc_hardcode());
+#elif defined (GRUB_MACHINE_EFI)
+  (void) (grub_tsc_calibrate_from_pit () || grub_tsc_calibrate_from_pmtimer () || grub_tsc_calibrate_from_efi() || calibrate_tsc_hardcode());
+#elif defined (GRUB_MACHINE_COREBOOT)
+  (void) (grub_tsc_calibrate_from_pmtimer () || grub_tsc_calibrate_from_pit () || calibrate_tsc_hardcode());
+#else
+  (void) (grub_tsc_calibrate_from_pit () || calibrate_tsc_hardcode());
+#endif
+  grub_install_get_time_ms (grub_tsc_get_time_ms);
 }
