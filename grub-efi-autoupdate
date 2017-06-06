@@ -1,7 +1,6 @@
 #! /bin/sh
 
 DEFAULT_DIST="altlinux"
-LEGACY_DIST="ALT Linux"
 
 if [ ! -d /sys/firmware/efi ]; then
 	echo "Not booted in EFI mode, unable to update EFI GRUB"
@@ -17,25 +16,14 @@ fi
 
 . "$GRUB_SYSCONF"
 
-boot_order() {
-	efibootmgr | sed -n "s/^Boot\([0-9A-Fa-f]\{4\}\)\* $LEGACY_DIST/\1/p"
-}
-
 DIST="${GRUB_BOOTLOADER_DIST:-$DEFAULT_DIST}"
 EFI_DIR="/boot/efi"
-GRUB_EFI="$EFI_DIR/EFI/$DIST/grubx64.efi"
+GRUB_EFI="$EFI_DIR/EFI/$DIST/@GRUB_EFI_NAME@"
+GRUB_CFG="$EFI_DIR/EFI/$DIST/grub.cfg"
 
-LEGACY_DIR="$EFI_DIR/EFI/$LEGACY_DIST"	# used to be this way in early builds
-if [ -d "$LEGACY_DIR" ]; then
-    echo "NOTE: found legacy \`$LEGACY_DIR', moving to use \`$DIST'"
-    echo "NOTE: if you want to remove that directory and boot manager entry:"
-    echo "      rm -rf \"$LEGACY_DIR\""
-    echo "      efibootmgr -B -b $(boot_order)"
-else
-    if [ ! -f "$GRUB_EFI" ]; then
+if [ ! -f "$GRUB_EFI" ]; then
 	echo "$GRUB_EFI missing, nothing to update"
 	exit 0
-    fi
 fi
 
 case "$GRUB_AUTOUPDATE_FORCE" in
