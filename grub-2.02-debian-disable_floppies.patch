@@ -1,13 +1,22 @@
-
-Author: Robert Millan
+From 0224e3d9265171bb13ef4dd64d48f76dbd5c1078 Mon Sep 17 00:00:00 2001
+From: Colin Watson <cjwatson@debian.org>
+Date: Mon, 13 Jan 2014 12:12:54 +0000
+Subject: Disable use of floppy devices
 
 An ugly kludge.  Should this be merged upstream?
 
-Index: b/grub-core/kern/emu/hostdisk.c
-===================================================================
+Author: Robert Millan
+
+Patch-Name: disable_floppies.patch
+---
+ grub-core/kern/emu/hostdisk.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/grub-core/kern/emu/hostdisk.c b/grub-core/kern/emu/hostdisk.c
+index 87e3e2512..d66e12d85 100644
 --- a/grub-core/kern/emu/hostdisk.c
 +++ b/grub-core/kern/emu/hostdisk.c
-@@ -1077,6 +1077,18 @@
+@@ -532,6 +532,18 @@ read_device_map (const char *dev_map)
  	  continue;
  	}
  
@@ -23,6 +32,6 @@ Index: b/grub-core/kern/emu/hostdisk.c
 +	    }
 +	}
 +
- #ifdef __linux__
        /* On Linux, the devfs uses symbolic links horribly, and that
  	 confuses the interface very much, so use realpath to expand
+ 	 symbolic links.  */
