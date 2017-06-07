@@ -19,9 +19,9 @@ diff -Naur a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
 -	    grub_printf_ (N_("%s is deprecated. "
 +	    /*grub_printf_ (N_("%s is deprecated. "
  			     "Use set gfxpayload=%s before "
- 			     "linux command instead.\n"), "text",
--			  argv[i]);
-+			  argv[i]);*/
+ 			     "linux command instead.\n"),
+-			  argv[i], "text");
++			  argv[i], "text");*/
  	    break;
  
  	  case 1:
@@ -31,9 +31,9 @@ diff -Naur a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
 -	    grub_printf_ (N_("%s is deprecated. "
 +	    /*grub_printf_ (N_("%s is deprecated. "
  			     "Use set gfxpayload=%s before "
- 			     "linux command instead.\n"), "text",
--			  argv[i]);
-+			  argv[i]);*/
+ 			     "linux command instead.\n"),
+-			  argv[i], "text");
++			  argv[i], "text");*/
  	    break;
  	  default:
  	    /* Ignore invalid values.  */
