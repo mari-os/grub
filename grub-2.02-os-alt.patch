@@ -1,7 +1,8 @@
-diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux.in
---- grub-2.00-orig/util/grub.d/10_linux.in	2012-04-19 01:24:38.000000000 +0400
-+++ grub-2.00/util/grub.d/10_linux.in	2013-11-16 03:26:55.980379835 +0400
-@@ -28,11 +28,10 @@
+diff --git a/grub2/util/grub.d/10_linux.in b/grub2/util/grub.d/10_linux.in
+index 5a78513..a8b8684 100644
+--- a/grub2/util/grub.d/10_linux.in
++++ b/grub2/util/grub.d/10_linux.in
+@@ -28,11 +28,10 @@ export TEXTDOMAINDIR="@localedir@"
  
  CLASS="--class gnu-linux --class gnu --class os"
  
@@ -11,21 +12,21 @@ diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux
 +  OS=`cat /etc/altlinux-release | sed 's/ (.*$//g' | sed "s, $,,"`
  else
 -  OS="${GRUB_DISTRIBUTOR} GNU/Linux"
--  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr 'A-Z' 'a-z' | cut -d' ' -f1) ${CLASS}"
+-  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr 'A-Z' 'a-z' | cut -d' ' -f1|LC_ALL=C sed 's,[^[:alnum:]_],_,g') ${CLASS}"
 +  OS="ALTLinux"
  fi
  
  # loop-AES arranges things so that /dev/loop/X can be our root device, but
-@@ -44,7 +43,7 @@
- esac
- 
+@@ -46,7 +45,7 @@ esac
+ # btrfs may reside on multiple devices. We cannot pass them as value of root= parameter
+ # and mounting btrfs requires user space scanning, so force UUID in this case.
  if [ "x${GRUB_DEVICE_UUID}" = "x" ] || [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] \
 -    || ! test -e "/dev/disk/by-uuid/${GRUB_DEVICE_UUID}" \
 +    || ! blkid -U "${GRUB_DEVICE_UUID}" > /dev/null \
-     || uses_abstraction "${GRUB_DEVICE}" lvm; then
+     || ( test -e "${GRUB_DEVICE}" && uses_abstraction "${GRUB_DEVICE}" lvm ); then
    LINUX_ROOT_DEVICE=${GRUB_DEVICE}
  else
-@@ -86,9 +85,9 @@
+@@ -82,9 +81,9 @@ linux_entry ()
    if [ x$type != xsimple ] ; then
        case $type in
  	  recovery)
@@ -37,21 +38,22 @@ diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux
        esac
        if [ x"$title" = x"$GRUB_ACTUAL_DEFAULT" ] || [ x"Previous Linux versions>$title" = x"$GRUB_ACTUAL_DEFAULT" ]; then
  	  replacement_title="$(echo "Advanced options for ${OS}" | sed 's,>,>>,g')>$(echo "$title" | sed 's,>,>>,g')"
-@@ -153,11 +152,11 @@
- machine=`uname -m`
+@@ -150,12 +149,12 @@ machine=`uname -m`
  case "x$machine" in
      xi?86 | xx86_64)
--	list=`for i in /boot/vmlinuz-* /vmlinuz-* /boot/kernel-* ; do
-+	list=`ls -c1 /boot/vmlinuz /boot/vmlinu[z]-* | while read i ; do
-                   if grub_file_is_not_garbage "$i" ; then echo -n "$i " ; fi
-               done` ;;
+ 	list=
+-	for i in /boot/vmlinuz-* /vmlinuz-* /boot/kernel-* ; do
++	for i in `ls -c1 /boot/vmlinuz /boot/vmlinu[z]-*`; do
+ 	    if grub_file_is_not_garbage "$i" ; then list="$list $i" ; fi
+ 	done ;;
      *) 
--	list=`for i in /boot/vmlinuz-* /boot/vmlinux-* /vmlinuz-* /vmlinux-* /boot/kernel-* ; do
-+	list=`ls -c1 /boot/vmlinuz /boot/vmlinu[xz]-* | while read i ; do
-                   if grub_file_is_not_garbage "$i" ; then echo -n "$i " ; fi
- 	     done` ;;
+ 	list=
+-	for i in /boot/vmlinuz-* /boot/vmlinux-* /vmlinuz-* /vmlinux-* /boot/kernel-* ; do
++	for i in `ls -c1 /boot/vmlinuz /boot/vmlinu[xz]-*` ; do
+                   if grub_file_is_not_garbage "$i" ; then list="$list $i" ; fi
+ 	done ;;
  esac
-@@ -170,6 +169,9 @@
+@@ -168,6 +167,9 @@ case "$machine" in
      *) GENKERNEL_ARCH="$machine" ;;
  esac
  
@@ -61,16 +63,16 @@ diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux
  prepare_boot_cache=
  prepare_root_cache=
  boot_device_id=
-@@ -181,7 +183,7 @@
+@@ -179,7 +181,7 @@ submenu_indentation=""
  
- is_first_entry=true
+ is_top_level=true
  while [ "x$list" != "x" ] ; do
 -  linux=`version_find_latest $list`
 +  linux=`echo $list | sed 's, .*,,g'`
    gettext_printf "Found linux image: %s\n" "$linux" >&2
    basename=`basename $linux`
    dirname=`dirname $linux`
-@@ -190,28 +192,47 @@
+@@ -188,28 +190,47 @@ while [ "x$list" != "x" ] ; do
    alt_version=`echo $version | sed -e "s,\.old$,,g"`
    linux_root_device_thisversion="${LINUX_ROOT_DEVICE}"
  
@@ -132,16 +134,16 @@ diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux
  
    initramfs=
    if test -n "${config}" ; then
-@@ -228,7 +249,7 @@
+@@ -226,7 +247,7 @@ while [ "x$list" != "x" ] ; do
  
-   if [ "x$is_first_entry" = xtrue ]; then
+   if [ "x$is_top_level" = xtrue ] && [ "x${GRUB_DISABLE_SUBMENU}" != xy ]; then
      linux_entry "${OS}" "${version}" simple \
 -    "${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT}"
 +    "${GRUB_CMDLINE_LINUX_DEFAULT}"
  
-     submenu_indentation="\t"
+     submenu_indentation="$grub_tab"
      
-@@ -240,10 +261,12 @@
+@@ -239,10 +260,12 @@ while [ "x$list" != "x" ] ; do
    fi
  
    linux_entry "${OS}" "${version}" advanced \
@@ -157,4 +159,4 @@ diff -Naur grub-2.00-orig/util/grub.d/10_linux.in grub-2.00/util/grub.d/10_linux
 +    fi
    fi
  
-   list=`echo $list | tr ' ' '\n' | grep -vx $linux | tr '\n' ' '`
+   list=`echo $list | tr ' ' '\n' | fgrep -vx "$linux" | tr '\n' ' '`
