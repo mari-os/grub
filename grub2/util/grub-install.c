@@ -848,19 +848,10 @@ main (int argc, char *argv[])
 
   grub_util_load_config (&config);
 
-  if (!bootloader_id && config.grub_distributor)
-    {
-      char *ptr;
-      bootloader_id = xstrdup (config.grub_distributor);
-      for (ptr = bootloader_id; *ptr && *ptr != ' '; ptr++)
-	if (*ptr >= 'A' && *ptr <= 'Z')
-	  *ptr = *ptr - 'A' + 'a';
-      *ptr = '\0';
-    }
   if (!bootloader_id || bootloader_id[0] == '\0')
     {
       free (bootloader_id);
-      bootloader_id = xstrdup ("grub");
+      bootloader_id = xstrdup ("altlinux");
     }
 
   if (!grub_install_source_directory)
