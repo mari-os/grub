@@ -1,4 +1,4 @@
-tar: grub2
+tar: grub
 tar: grub-extras
 copy: grub2-sysconfig
 copy: grub*-autoupdate
