@@ -92,7 +92,7 @@ Provides: grub2 = %EVR
 Provides: grub = %EVR
 %endif
 Provides: grub2-pc = %EVR
-Obsoletes: grub2-pc = %EVR
+Obsoletes: grub2-pc < %EVR
 
 %package efi
 Summary: GRand Unified Bootloader (UEFI variant)
