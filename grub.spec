@@ -88,7 +88,8 @@ Summary: GRand Unified Bootloader (PC BIOS variant)
 Group: System/Kernel and hardware
 Requires: %name-common = %version-%release
 %ifarch %ix86 x86_64
-Provides: grub2 = %version-%release
+Provides: grub2 = %EVR
+Provides: grub = %EVR
 %endif
 Provides: grub2-pc = %EVR
 Obsoletes: grub2-pc = %EVR
