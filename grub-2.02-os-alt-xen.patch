@@ -91,13 +91,4 @@ index 46045db..8ada506 100644
  
  	initrd=
  	for i in "initrd.img-${version}" "initrd-${version}.img" "initrd-${version}.gz" \
-@@ -261,9 +274,6 @@ while [ "x${xen_list}" != "x" ] ; do
- 
- 	list=`echo $list | tr ' ' '\n' | fgrep -vx "$linux" | tr '\n' ' '`
-     done
--    if [ x"$is_top_level" != xtrue ]; then
--	echo '	}'
--    fi
-     xen_list=`echo $xen_list | tr ' ' '\n' | fgrep -vx "$current_xen" | tr '\n' ' '`
- done
  
