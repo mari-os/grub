@@ -1,6 +1,6 @@
 Name: grub
 Version: 2.02
-Release: alt6%ubt
+Release: alt7%ubt
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -340,6 +340,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Mon Apr 16 2018 Anton Farygin <rider@altlinux.ru> 2.02-alt7%ubt
+- revert back the LVM+LUKS fixes from alt6
+
 * Mon Apr 16 2018 Anton Farygin <rider@altlinux.ru> 2.02-alt6%ubt
 - add %%ubt for backporting
 
