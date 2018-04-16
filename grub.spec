@@ -36,7 +36,6 @@ Patch9: grub-2.00-fedora-unrestricted.patch
 Patch10: grub2-stfu.patch
 Patch11: grub-2.02-shift-interrupt-timeout.patch
 Patch12: grub-2.02-ubuntu-efi-setup.patch
-Patch13: grub-2.02-alt-fix-install-lvm-luks.patch
 
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
@@ -158,7 +157,6 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
-%patch13 -p2
 
 sed -i 's,@GRUB_EFI_NAME@,%grubefiname,' %SOURCE10
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
