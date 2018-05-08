@@ -1,6 +1,6 @@
 Name: grub
 Version: 2.02
-Release: alt7%ubt
+Release: alt8%ubt
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -189,7 +189,7 @@ popd
 %make_build
 
 ./grub-mkimage -O %grubefiarch -o grub.efi -d grub-core -p "" \
-	part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linux \
+	part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linux diskfilter \
 	minicmd reboot halt search search_fs_uuid search_fs_file search_label sleep test syslinuxcfg all_video video \
 	font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
 	png jpeg
@@ -340,6 +340,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Tue May 08 2018 Anton Farygin <rider@altlinux.ru> 2.02-alt8%ubt
+- added diskfilter module
+
 * Mon Apr 16 2018 Anton Farygin <rider@altlinux.ru> 2.02-alt7%ubt
 - revert back the LVM+LUKS fixes from alt6
 
