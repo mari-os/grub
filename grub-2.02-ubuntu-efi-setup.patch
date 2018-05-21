@@ -69,7 +69,7 @@ index 0000000..0f49bfc
 +OsIndications="$efi_vars_dir/OsIndicationsSupported-$EFI_GLOBAL_VARIABLE/data"
 +
 +if [ -e "$OsIndications" ] && \
-+   [ "$(( $(printf %x \'"$(cat $OsIndications | cut -b1)") & 1 ))" = 1 ]; then
++  [ $(( 0x$(cut -b1 "$OsIndications" | tr -d '\n' | xxd -ps) & 1 )) -eq 1 ]; then 
 +  LABEL="System setup"
 +
 +  gettext_printf "Adding boot menu entry for EFI firmware configuration\n" >&2
