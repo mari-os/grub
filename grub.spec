@@ -1,6 +1,6 @@
 Name: grub
 Version: 2.02
-Release: alt11%ubt
+Release: alt12%ubt
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -169,6 +169,10 @@ sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 cd ..
 rm -rf %name-pc-%version
 cp -a %name-%version %name-pc-%version
+%ifarch x86_64
+rm -rf %name-ia32-%version
+cp -a %name-%version %name-ia32-%version
+%endif
 %endif
 
 %build
@@ -182,6 +186,21 @@ pushd ../%name-pc-%version
 
 %make_build
 popd
+
+#add forced ia32 version build to be bundled with x86_64 efi
+%ifarch x86_64
+pushd ../%name-ia32-%version
+./autogen.sh
+%configure \
+        TARGET_LDFLAGS=-static \
+        --with-platform=efi \
+        --disable-werror \
+	--target=i386
+
+%make_build
+
+popd
+%endif
 %endif
 
 ./autogen.sh
@@ -198,9 +217,26 @@ popd
 	font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
 	png jpeg
 
+%ifarch x86_64
+pushd ../%name-ia32-%version
+
+../%name-%version/grub-mkimage -O i386-efi -o ./grub_ia32.efi -d ./grub-core -p "" \
+        part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linux diskfilter \
+        minicmd reboot halt search search_fs_uuid search_fs_file search_label sleep test syslinuxcfg all_video video \
+        font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
+        png jpeg
+popd
+%endif
+
 %install
 %ifarch %ix86 x86_64
 %makeinstall_std -C ../%name-pc-%version
+%ifarch x86_64
+pushd ../%name-ia32-%version
+#"cherry pick" only i386 executable
+install -pDm644 grub_ia32.efi %buildroot%_efi_bindir/grub_ia32.efi
+popd
+%endif
 %endif
 %makeinstall_std
 
@@ -316,6 +352,9 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 
 %files efi
 %_efi_bindir/grub.efi
+%ifarch x86_64
+%_efi_bindir/grub_ia32.efi
+%endif
 %_sbindir/grub-efi-autoupdate
 %_libdir/grub/%grubefiarch
 
@@ -344,6 +383,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Mon Jun 25 2018 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt12%ubt
+- add ia32 EFI binary to x86_64 package
+
 * Wed May 30 2018 Oleg Solovyov <mcpain@altlinux.org> 2.02-alt11%ubt
 - LVM+LUKS fixes:
   + write UUID to grub.cfg after installation
