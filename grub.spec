@@ -38,6 +38,7 @@ Patch11: grub-2.02-shift-interrupt-timeout.patch
 Patch12: grub-2.02-ubuntu-efi-setup.patch
 Patch13: grub-2.02-check_writes-alt.patch
 Patch14: grub-2.02-alt-luks-use-uuid.patch
+Patch15: grub-2.02-alt-fedora-linuxefi.patch
 
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
@@ -161,6 +162,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch12 -p1
 %patch13 -p2
 %patch14 -p2
+%patch15 -p2
 
 sed -i 's,@GRUB_EFI_NAME@,%grubefiname,' %SOURCE10
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
@@ -212,7 +214,7 @@ popd
 %make_build
 
 ./grub-mkimage -O %grubefiarch -o grub.efi -d grub-core -p "" \
-	part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linux diskfilter \
+	part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linuxefi diskfilter \
 	minicmd reboot halt search search_fs_uuid search_fs_file search_label sleep test syslinuxcfg all_video video \
 	font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
 	png jpeg
@@ -221,7 +223,7 @@ popd
 pushd ../%name-ia32-%version
 
 ../%name-%version/grub-mkimage -O i386-efi -o ./grub_ia32.efi -d ./grub-core -p "" \
-        part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linux diskfilter \
+        part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linuxefi diskfilter \
         minicmd reboot halt search search_fs_uuid search_fs_file search_label sleep test syslinuxcfg all_video video \
         font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
         png jpeg
@@ -385,6 +387,7 @@ grub-efi-autoupdate || {
 %changelog
 * Mon Jun 25 2018 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt12%ubt
 - add ia32 EFI binary to x86_64 package
+- add a patch adopted from fedora one introducing linuxefi/initrdefi commands
 
 * Wed May 30 2018 Oleg Solovyov <mcpain@altlinux.org> 2.02-alt11%ubt
 - LVM+LUKS fixes:
