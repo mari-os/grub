@@ -18,11 +18,11 @@ fi
 
 DIST="${GRUB_BOOTLOADER_DIST:-$DEFAULT_DIST}"
 EFI_DIR="/boot/efi"
-GRUB_EFI="$EFI_DIR/EFI/$DIST/@GRUB_EFI_NAME@"
 GRUB_CFG="$EFI_DIR/EFI/$DIST/grub.cfg"
 
-if [ ! -f "$GRUB_EFI" ]; then
-	echo "$GRUB_EFI missing, nothing to update"
+if ! stat $EFI_DIR/EFI/$DIST/grub*.efi > /dev/null 2>&1; then
+	echo "$EFI_DIR/EFI/$DIST/grub*.efi is missing, nothing to update."
+	echo "Please run grub-install"
 	exit 0
 fi
 

@@ -149,7 +149,7 @@
  	}
        t = grub_util_path_concat (3, efidir, "EFI", efi_distributor);
        free (efidir);
-@@ -1341,14 +1347,47 @@ main (int argc, char *argv[])
+@@ -1341,14 +1347,49 @@ main (int argc, char *argv[])
  	}
      }
  
@@ -166,13 +166,15 @@
 +      {
 +	char *dir = xasprintf ("%s-signed", grub_install_source_directory);
 +	char *signed_image;
++	char *unsigned_image;
 +	if (removable)
 +	  signed_image = xasprintf ("gcd%s.efi.signed", efi_suffix);
 +	else
 +	  signed_image = xasprintf ("grub%s.efi.signed", efi_suffix);
 +	efi_signed = grub_util_path_concat (2, dir, signed_image);
++	unsigned_image = xasprintf ("../../efi/grub%s.efi", efi_suffix);
 +	efi_unsigned = grub_util_path_concat (2, grub_install_source_directory,
-+				"../../efi/grub.efi");
++				unsigned_image);
 +	break;
 +      }
 +
