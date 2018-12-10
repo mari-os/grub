@@ -1,6 +1,6 @@
 Name: grub
 Version: 2.02
-Release: alt13
+Release: alt14
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -42,6 +42,7 @@ Patch14: grub-2.02-alt-luks-use-uuid.patch
 Patch15: grub-2.02-alt-fedora-linuxefi.patch
 Patch16: grub-2.02-suse-fix-build-with-gcc8.patch
 Patch17: grub-2.02-fix-binutils-break-grub-efi-build.patch
+Patch18: grub-2.02-upstream-default-ptimer.patch
 
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
@@ -164,6 +165,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch15 -p2
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 
@@ -396,6 +398,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Mon Dec 10 2018 Anton Farygin <rider@altlinux.ru> 2.02-alt14
+- added patch from upstream with changes for default pit time source to ptimer
+
 * Thu Nov 29 2018 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt13
 - fix FTBFS by adding suse-fix-build-with-gcc8 patch
 - fix FTBFS by adding fix-binutils-break-grub-efi-build patch
