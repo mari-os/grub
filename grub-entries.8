@@ -1,0 +1,44 @@
+.\" Copyright 2019 ALT Linux Team
+.\" Lincensed under GPLv2+
+.TH GRUB-ENTRIES 8 "Febrary 2019" "grub-entries (ALT Linux Team)"
+.SH NAME
+grub-entries \- simple script for show grub menu and check menu items
+.SH SYNOPSIS
+.B grub-entries
+[\fIoptions\fP]
+
+.SH DESCRIPTION
+.B grub-entries
+parse specified or default grub config file, list all grub menu items in the one of the three forms.
+Also can search specified item in menu and returns 0, if this item exists, otherwise returns non-zero
+value. By default, \fI/boot/grub/grub.cfg\fP config file used.
+
+.SH OPTIONS
+.TP 5
+.BI \-f "\fR, \fP" \-\-config " filename"
+Specify path to the grub config.
+.TP 5
+.BI \-n "\fR, \fP" \-\-numbers
+Show only menu item sequence numbers.
+.TP 5
+.BI \-t "\fR, \fP" \-\-titles
+Show only menu item names.
+.TP 5
+.BI \-c "\fR, \fP" \-\-check " menuitem"
+Specify menu item to validate.
+.TP 5
+.BI \-V "\fR, \fP" \-\-version
+Show script version and exit.
+.TP 5
+.BI \-h "\fR, \fP" \-\-help
+Show help message and exit.
+
+.SH FILES
+.PD 0
+.B /boot/grub/grub.cfg
+.PD
+.SH AUTHORS
+Leonid Krivoshein <klark@altlinux.org>
+.SH "SEE ALSO"
+.BR grub-reboot (8),
+.BR grub-set-default (8)

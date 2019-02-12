@@ -24,6 +24,9 @@ Source9: update-grub.8
 Source10: grub-efi-autoupdate
 Source11: embedded_grub.cfg
 
+Source12: grub-entries
+Source13: grub-entries.8
+
 Patch0: grub-2.02-os-alt.patch
 Patch1: grub-2.00-sysconfig-path-alt.patch
 Patch2: grub-2.02-altlinux-theme.patch
@@ -300,6 +303,7 @@ mkdir -p %buildroot/boot/grub/fonts
 
 install -pD -m755 %SOURCE8 %buildroot%_sbindir/
 install -pD -m644 %SOURCE9 %buildroot%_man8dir/update-grub.8
+install -pD -m644 %SOURCE13 %buildroot%_man8dir/grub-entries.8
 
 # TODO: drop the obsolete one (unifont.pf2)
 %buildroot%_bindir/grub-mkfont -o %buildroot/boot/grub/unifont.pf2 %_datadir/fonts/bitmap/misc/8x13.pcf.gz
@@ -314,6 +318,7 @@ sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot%_sysconfdir/grub.d/*
 install -pDm755 %SOURCE4  %buildroot%_rpmlibdir/grub.filetrigger
 install -pDm755 %SOURCE6  %buildroot%_sbindir/grub-autoupdate
 install -pDm755 %SOURCE10 %buildroot%_sbindir/grub-efi-autoupdate
+install -pDm755 %SOURCE12 %buildroot%_sbindir/grub-entries
 
 # Ghost config file
 install -d %buildroot/boot/grub
@@ -369,6 +374,7 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %_sbindir/grub-reboot
 %_sbindir/grub-set-default
 %_sbindir/grub-sparc64-setup
+%_sbindir/grub-entries
 %_sbindir/update-grub
 %_bindir/grub-editenv
 %_bindir/grub-file

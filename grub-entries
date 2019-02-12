@@ -1,0 +1,141 @@
+#!/bin/sh -efu
+### This file is covered by the GNU General Public License
+### version 2 or later.
+###
+### Copyright (C) 2019  ALT Linux Team
+### Author: Leonid Krivoshein <klark@altlinux.org>
+
+numbers_only=0
+titles_only=0
+search_item=
+progname="${0##*/}"
+grubmenu="/boot/grub/grub.cfg"
+
+
+show_help() {
+	cat <<-EOF
+$progname - Show default or specified grub menu.
+
+Usage: $progname [options]
+
+Options:
+  -f, --config=  Specify path to the grub config.
+  -n, --numbers  Show only menu item sequence numbers.
+  -t, --titles   Show only menu item names.
+  -c, --check=   Specify menu item to validate.
+  -V, --version  Show script version and exit.
+  -h, --help     Show this help message and exit.
+EOF
+	exit 0
+}
+
+show_version() {
+	cat <<-EOF
+$progname version 1.0
+Copyright (C) 2019, ALT Linux Team
+EOF
+	exit 0
+}
+
+show_usage() {
+	[ -z "$*" ] || echo "$*" >&2
+	echo "Try '$progname --help' for more information." >&2
+	exit 1
+}
+
+parse_args() {
+	local opts="+f:,n,t,c:,V,h"
+	local longopts="config:,numbers,titles,check:,version,help"
+
+	opts=$(getopt -n "$progname" -o "$opts" -l "$longopts" -- "$@") ||
+		show_usage "Invalid command-line arguments."
+	eval set -- "$opts"
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		-f|--config)	shift; grubmenu="$1";;
+		-n|--numbers)	numbers_only=1; titles_only=0;;
+		-t|--titles)	numbers_only=0; titles_only=1;;
+		-c|--check)	shift; search_item="$1";;
+		-V|--version)	show_version;;
+		-h|--help)	show_help;;
+		--)		shift; break;;
+		-*)		show_usage "Unrecognized option: '$1'";;
+		*)		break;;
+		esac
+		shift
+	done
+	[ $# -eq 0 ] || show_usage "Unrecognized arguments: '$*'"
+}
+
+show_menu() {
+	local mode title number prefix entry=0 itemno=0
+
+	cat "$grubmenu" | sed \
+		-re '/^\s*(menuentry\s+|submenu\s+|})/!d' \
+		-re "s/^\s*menuentry\s+'([^']+)'.*\$/M\t\1/g" \
+		-re 's/^\s*menuentry\s+"([^"]+)".*$/M\t\1/g' \
+		-re "s/^\s*submenu\s+'([^']+)'.*\$/S\t\1/g" \
+		-re 's/^\s*submenu\s+"([^"]+)".*$/S\t\1/g' \
+		-re "s/^\s*}\s*\$/E\t-/g" |
+	while read mode title; do
+		case "$mode" in
+		M)	if [ $numbers_only -ne 0 ]; then
+				echo -e "${number}${itemno}"
+			elif [ $titles_only -ne 0 ]; then
+				echo -e "${prefix}${title}"
+			else
+				echo -e "${number}${itemno}\t${prefix}${title}"
+			fi
+			itemno=$(($itemno + 1))
+			entry=1
+			;;
+		S)	number="${number}${itemno}>"
+			prefix="${prefix}${title}>"
+			itemno=0
+			;;
+		*)	if [ $entry -ne 0 ]; then
+				entry=0
+			elif [ -n "$number" ]; then
+				number="${number%>}"
+				prefix="${prefix%>}"
+				case "$number" in
+				*">"*)	itemno="${number##*>}"
+					number="${number%>*}>"
+					prefix="${prefix%>*}>"
+					itemno=$(($itemno + 1))
+					;;
+				*)	itemno=$number
+					itemno=$(($itemno + 1))
+					prefix=
+					number=
+					;;
+				esac
+			fi
+			;;
+		esac
+	done
+}
+
+check_item() {
+	local cnt
+
+	numbers_only=1; titles_only=0
+	cnt=$(show_menu | grep -swc "$search_item" ||:)
+	[ "$cnt" != "1" ] || exit 0
+
+	numbers_only=0; titles_only=1
+	cnt=$(show_menu | grep -swc "$search_item" ||:)
+	[ "$cnt" != "1" ] || exit 0
+
+	[ -z "$cnt" -o "$cnt" = "0" ] &&
+		echo "$search_item: menu item not found." >&2 ||
+		echo "$search_item: duplicate items found." >&2
+	exit 1
+}
+
+
+parse_args "$@"
+[ -r "$grubmenu" ] || show_usage "$grubmenu: config file not found."
+[ -z "$search_item" ] || check_item
+show_menu
+
