@@ -2,7 +2,7 @@
 
 Name: grub
 Version: 2.02
-Release: alt14
+Release: alt15
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -508,6 +508,12 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Tue Feb 12 2019 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt15
+- add rhboot/grub2 SB patch set to prevent unauthorized code execution at boot time when SB is enabled
+- add grub-entries script by klark@ for list grub menu (closes: #36048)
+- add patch preventing boot failure for unsigned kernel in SB environment
+  + add an optional patch application flag for convenience
+
 * Mon Dec 10 2018 Anton Farygin <rider@altlinux.ru> 2.02-alt14
 - added patch from upstream with changes for default pit time source to ptimer
 
