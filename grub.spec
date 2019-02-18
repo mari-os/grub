@@ -1,3 +1,5 @@
+%def_with sb_kern_signature_check_relaxed
+
 Name: grub
 Version: 2.02
 Release: alt14
@@ -66,6 +68,8 @@ Patch114: grub-2.02-sb-0014-Add-some-grub_dprintf-in-the-linuxefi-path.patch
 Patch115: grub-2.02-sb-0015-linuxefi-minor-cleanups.patch
 Patch116: grub-2.02-sb-0016-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.patch
 Patch117: grub-2.02-sb-0017-Clean-up-some-errors-in-the-linuxefi-loader.patch
+
+Patch201: grub-2.02-alt-relaxed-kernel-sign-check.patch
 
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
@@ -258,7 +262,14 @@ popd
 
 %make_build
 
-./grub-mkimage -O %grubefiarch -o grubx64.efi -d grub-core -p "" \
+%if_with sb_kern_signature_check_relaxed
+# grubx64sb.efi brings strict checking for kernel sign
+%define EFI_X64_BINARY_NAME grubx64sb.efi
+%else
+%define EFI_X64_BINARY_NAME grubx64.efi
+%endif
+
+./grub-mkimage -O %grubefiarch -o %EFI_X64_BINARY_NAME -d grub-core -p "" \
 	part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile diskfilter \
 %ifarch x86_64
 linuxefi \
@@ -269,14 +280,52 @@ linux \
 	font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
 	png jpeg
 
+%if_with sb_kern_signature_check_relaxed
+make clean
+patch -p0 < %PATCH201
+%make_build
+
+./grub-mkimage -O %grubefiarch -o grubx64.efi -d grub-core -p "" \
+        part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile diskfilter \
+%ifarch x86_64
+linuxefi \
+%else
+linux \
+%endif
+	minicmd reboot halt search search_fs_uuid search_fs_file search_label sleep test syslinuxcfg all_video video \
+	font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
+	png jpeg
+%endif
+
 %ifarch x86_64
 pushd ../%name-ia32-%version
+
+%if_with sb_kern_signature_check_relaxed
+# grubia32sb.efi brings strict checking for kernel sign
+%define EFI_IA32_BINARY_NAME grubia32sb.efi
+%else
+%define EFI_IA32_BINARY_NAME grubia32.efi
+%endif
+
+../%name-%version/grub-mkimage -O i386-efi -o %EFI_IA32_BINARY_NAME -d ./grub-core -p "" \
+        -c embedded_grub.cfg \
+        part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linuxefi diskfilter \
+        minicmd reboot halt search search_fs_uuid search_fs_file search_label sleep test syslinuxcfg all_video video \
+        font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
+        png jpeg
+
+%if_with sb_kern_signature_check_relaxed
+make clean
+patch -p0 < %PATCH201
+%make_build
+
 ../%name-%version/grub-mkimage -O i386-efi -o ./grubia32.efi -d ./grub-core -p "" \
         -c embedded_grub.cfg \
         part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs squash4 normal chain boot configfile linuxefi diskfilter \
         minicmd reboot halt search search_fs_uuid search_fs_file search_label sleep test syslinuxcfg all_video video \
         font gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat gzio iso9660 loadenv loopback mdraid09 mdraid1x \
         png jpeg
+%endif
 popd
 %endif
 
@@ -287,6 +336,9 @@ popd
 pushd ../%name-ia32-%version
 #"cherry pick" only i386 executable
 install -pDm644 grubia32.efi %buildroot%_efi_bindir/grubia32.efi
+%if_with sb_kern_signature_check_relaxed
+install -pDm644 grubia32sb.efi %buildroot%_efi_bindir/grubia32sb.efi
+%endif
 
 #install ia32 version in parallel with x64 for x86_64 platforms with ia32 EFI
 %makeinstall_std -C ../%name-ia32-%version
@@ -330,11 +382,18 @@ mkdir -p %buildroot%_sysconfdir/default
 ln -s ../sysconfig/grub2 %buildroot%_sysconfdir/default/grub
 
 install -pDm644 grubx64.efi %buildroot%_efi_bindir/grubx64.efi
+%if_with sb_kern_signature_check_relaxed
+install -pDm644 grubx64sb.efi %buildroot%_efi_bindir/grubx64sb.efi
+%endif
 
 # NB: UEFI GRUB2 image gets signed when build environment is set up that way
 %ifarch x86_64
 %pesign -s -i %buildroot%_efi_bindir/grubx64.efi
 %pesign -s -i %buildroot%_efi_bindir/grubia32.efi
+%if_with sb_kern_signature_check_relaxed
+%pesign -s -i %buildroot%_efi_bindir/grubx64sb.efi
+%pesign -s -i %buildroot%_efi_bindir/grubia32sb.efi
+%endif
 %endif
 
 # Remove headers
@@ -411,8 +470,14 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 
 %files efi
 %_efi_bindir/grubx64.efi
+%if_with sb_kern_signature_check_relaxed
+%_efi_bindir/grubx64sb.efi
+%endif
 %ifarch x86_64
 %_efi_bindir/grubia32.efi
+%if_with sb_kern_signature_check_relaxed
+%_efi_bindir/grubia32sb.efi
+%endif
 %_libdir/grub/i386-efi
 %endif
 %_sbindir/grub-efi-autoupdate

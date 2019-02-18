@@ -1,0 +1,16 @@
+--- grub-core/loader/efi/linux.c.orig	2019-02-12 14:22:10.273735569 +0000
++++ grub-core/loader/efi/linux.c	2019-02-12 14:26:41.939419278 +0000
+@@ -57,10 +57,11 @@
+       return 1;
+     }
+ 
+-  grub_dprintf ("secureboot", "Kernel signature verification failed (0x%lx)\n",
++  grub_dprintf ("secureboot", "Kernel signature verification failed (0x%lx)\n \
++		WARNING! Override failure, continue boot!\n",
+ 		(unsigned long) status);
+ 
+-  return -1;
++  return 1;
+ }
+ 
+ typedef void (*handover_func) (void *, grub_efi_system_table_t *, void *);
