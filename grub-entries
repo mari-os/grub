@@ -68,7 +68,7 @@ parse_args() {
 }
 
 show_menu() {
-	local mode title number prefix entry=0 itemno=0
+	local mode= title= number= prefix= entry=0 itemno=0
 
 	cat "$grubmenu" | sed \
 		-re '/^\s*(menuentry\s+|submenu\s+|})/!d' \
