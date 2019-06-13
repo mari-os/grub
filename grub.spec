@@ -3,13 +3,15 @@
 
 Name: grub
 Version: 2.02
-Release: alt16
+Release: alt17
 
 Summary: GRand Unified Bootloader
 License: GPL
 Group: System/Kernel and hardware
 
 Url: http://www.gnu.org/software/grub
+
+ExclusiveArch: %ix86 x86_64 aarch64 ppc64le
 
 Source0: %name-%version.tar
 Source1: grub2-sysconfig
@@ -398,6 +400,8 @@ install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grub%{efi_suff}.efi
 # Remove headers
 rm -f %buildroot%_libdir/grub-efi/*/*.h
 %endif
+rm %buildroot%_sysconfdir/grub.d/README
+rm %buildroot%_sysconfdir/grub.d/41_custom
 
 %files common -f grub.lang
 %dir %_sysconfdir/grub.d
@@ -521,6 +525,14 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Fri Jun 14 2019 Gleb F-Malinovskiy <glebfm@altlinux.org> 2.02-alt17
+- Refactored %%build and %%install sections;
+- Added grub-ieee1275 support for ppc64le architecture;
+- %%ix86: renamed efi image files to grubia32{,sb}.efi ;
+- spec:
+  + removed unpackaged files;
+  + added ExclusiveArch tag to skip build on unsupported architectures.
+
 * Tue Mar 19 2019 Leonid Krivoshein <klark@altlinux.org> 2.02-alt16
 - grub-entries script: variables initialization added
 
