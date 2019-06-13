@@ -1,4 +1,5 @@
 %def_with sb_kern_signature_check_relaxed
+%define efi_arches %ix86 x86_64 aarch64
 
 Name: grub
 Version: 2.02
@@ -129,6 +130,15 @@ Provides: grub = %EVR
 Provides: grub2-pc = %EVR
 Obsoletes: grub2-pc < %EVR
 
+%package ieee1275
+Summary: GRand Unified Bootloader (IEEE1275 variant)
+Group: System/Kernel and hardware
+Requires: %name-common = %version-%release
+%ifarch ppc64le
+Provides: grub2 = %EVR
+Provides: grub = %EVR
+%endif
+
 %package efi
 Summary: GRand Unified Bootloader (UEFI variant)
 Group: System/Kernel and hardware
@@ -164,6 +174,11 @@ This package carries the shared code and data.
 %desc_generic
 
 This package provides PC BIOS support.
+
+%description ieee1275
+%desc_generic
+
+This package provides Open Firmware (IEEE 1275) support.
 
 %description efi
 %desc_generic
@@ -254,6 +269,13 @@ build_grub build-pc \
 #
 %endif
 
+%ifarch ppc64le
+build_grub build-ieee1275 \
+	--with-platform=ieee1275 \
+#
+%endif
+
+%ifarch %efi_arches
 build_grub build-efi \
 	--with-platform=efi \
 #
@@ -272,11 +294,13 @@ build_efi_image build-efi/grub-mkimage build-efi-ia32 i386-efi linuxefi
 %if_with sb_kern_signature_check_relaxed
 # build grub efi binaries with relaxed kernel signature checks
 # (see patch#201).
+%ifarch %efi_arches
 CFLAGS='%optflags -DRELAX_KERNEL_SIGNATURE_CHECK=1' \
 	build_grub build-efi-relaxed \
 	--with-platform=efi \
 #
 build_efi_image build-efi-relaxed/grub-mkimage build-efi-relaxed %grubefiarch %linux_module_name
+%endif
 
 %ifarch x86_64
 CFLAGS='%optflags -DRELAX_KERNEL_SIGNATURE_CHECK=1' \
@@ -286,6 +310,7 @@ CFLAGS='%optflags -DRELAX_KERNEL_SIGNATURE_CHECK=1' \
 #
 # use 64bit mkimage to build i386-efi image
 build_efi_image build-efi-relaxed/grub-mkimage build-efi-ia32-relaxed i386-efi linuxefi
+%endif
 %endif
 %endif
 
@@ -306,7 +331,12 @@ install -pDm644 build-efi-ia32/grub.efi %buildroot%_efi_bindir/grubia32.efi
 %endif
 %endif
 
-%makeinstall_std -C build-efi
+%makeinstall_std -C \
+%ifarch ppc64le
+	build-ieee1275
+%else
+	build-efi
+%endif
 
 install -pDm644 %SOURCE1 %buildroot%_sysconfdir/sysconfig/grub2
 
@@ -330,7 +360,9 @@ sed -i 's,@LOCALEDIR@,%_datadir/locale,g' %buildroot%_sysconfdir/grub.d/*
 
 install -pDm755 %SOURCE4  %buildroot%_rpmlibdir/grub.filetrigger
 install -pDm755 %SOURCE6  %buildroot%_sbindir/grub-autoupdate
+%ifarch %efi_arches
 install -pDm755 %SOURCE10 %buildroot%_sbindir/grub-efi-autoupdate
+%endif
 install -pDm755 %SOURCE12 %buildroot%_sbindir/grub-entries
 
 # Ghost config file
@@ -342,6 +374,7 @@ ln -s ../boot/grub/grub.cfg %buildroot%_sysconfdir/grub.cfg
 mkdir -p %buildroot%_sysconfdir/default
 ln -s ../sysconfig/grub2 %buildroot%_sysconfdir/default/grub
 
+%ifarch %efi_arches
 %if_with sb_kern_signature_check_relaxed
 install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grubx64sb.efi
 install -pDm644 build-efi-relaxed/grub.efi %buildroot%_efi_bindir/grubx64.efi
@@ -361,6 +394,7 @@ install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grubx64.efi
 
 # Remove headers
 rm -f %buildroot%_libdir/grub-efi/*/*.h
+%endif
 
 %files common -f grub.lang
 %dir %_sysconfdir/grub.d
@@ -384,7 +418,7 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %_sysconfdir/bash_completion.d/grub
 %_rpmlibdir/%name.filetrigger
 # these tools are only for efi and x86_64
-%ifarch x86_64
+%ifarch x86_64 ppc64le
 %_bindir/grub-render-label
 %_sbindir/grub-bios-setup
 %_sbindir/grub-macbless
@@ -431,6 +465,13 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %_libdir/grub/*-pc/
 %endif
 
+%ifarch ppc64le
+%files ieee1275
+%_sbindir/grub-autoupdate
+%_libdir/grub/*-ieee1275/
+%endif
+
+%ifarch %efi_arches
 %files efi
 %_efi_bindir/grubx64.efi
 %if_with sb_kern_signature_check_relaxed
@@ -445,9 +486,15 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 %endif
 %_sbindir/grub-efi-autoupdate
 %_libdir/grub/%grubefiarch
+%endif
 
+%ifarch %ix86 x86_64 ppc64le
 %ifarch %ix86 x86_64
 %post pc
+%endif
+%ifarch ppc64le
+%post ieee1275
+%endif
 grub-autoupdate || {
 	echo "** WARNING: grub-autoupdate failed, NEXT BOOT WILL LIKELY FAIL NOW"
 	echo "** WARNING: please run it by hand, record the output offline,"
