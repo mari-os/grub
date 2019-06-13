@@ -103,14 +103,17 @@ Requires: gettext
 %ifarch %ix86
 %global grubefiarch i386-efi
 %global linux_module_name linux
+%global efi_suff ia32
 %endif
 %ifarch x86_64
 %global grubefiarch x86_64-efi
 %global linux_module_name linuxefi
+%global efi_suff x64
 %endif
 %ifarch aarch64
 %global grubefiarch arm64-efi
 %global linux_module_name linux
+%global efi_suff x64
 %endif
 
 %package common
@@ -376,10 +379,10 @@ ln -s ../sysconfig/grub2 %buildroot%_sysconfdir/default/grub
 
 %ifarch %efi_arches
 %if_with sb_kern_signature_check_relaxed
-install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grubx64sb.efi
-install -pDm644 build-efi-relaxed/grub.efi %buildroot%_efi_bindir/grubx64.efi
+install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grub%{efi_suff}sb.efi
+install -pDm644 build-efi-relaxed/grub.efi %buildroot%_efi_bindir/grub%{efi_suff}.efi
 %else
-install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grubx64.efi
+install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grub%{efi_suff}.efi
 %endif
 
 # NB: UEFI GRUB2 image gets signed when build environment is set up that way
@@ -473,9 +476,9 @@ rm -f %buildroot%_libdir/grub-efi/*/*.h
 
 %ifarch %efi_arches
 %files efi
-%_efi_bindir/grubx64.efi
+%_efi_bindir/grub%{efi_suff}.efi
 %if_with sb_kern_signature_check_relaxed
-%_efi_bindir/grubx64sb.efi
+%_efi_bindir/grub%{efi_suff}sb.efi
 %endif
 %ifarch x86_64
 %_efi_bindir/grubia32.efi
