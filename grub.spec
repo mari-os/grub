@@ -265,6 +265,7 @@ build_efi_image() {
 		search_label sleep test syslinuxcfg all_video video font \
 		gfxmenu gfxterm gfxterm_background lvm lsefi efifwsetup cat \
 		gzio iso9660 loadenv loopback mdraid09 mdraid1x png jpeg \
+		extcmd keystatus \
 		"$@"
 }
 
