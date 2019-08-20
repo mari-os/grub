@@ -140,6 +140,7 @@ Summary: GRand Unified Bootloader (IEEE1275 variant)
 Group: System/Kernel and hardware
 Requires: %name-common = %version-%release
 %ifarch ppc64le
+Requires: powerpc-utils
 Provides: grub2 = %EVR
 Provides: grub = %EVR
 %endif
