@@ -3,7 +3,7 @@
 
 Name: grub
 Version: 2.02
-Release: alt18
+Release: alt19
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -529,6 +529,10 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Tue Oct 29 2019 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt19
+- grub-ieee1275: added R: powerpc-utils. (glebfm@)
+- add xfs-sparse-inodes patch (closes: #37394)
+
 * Tue Aug 13 2019 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt18
 - add extcmd and keystatus modules to EFI images (closes: #36722)
 
