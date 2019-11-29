@@ -44,6 +44,10 @@ GRUB_TERMINAL_OUTPUT='gfxterm'
 GRUB_GFXMODE='800x600'
 GRUB_DEFAULT='saved'
 GRUB_SAVEDEFAULT=true
+GRUB_BACKGROUND="/etc/bootsplash/themes/current/images/silent-800x600.jpg"
+# GRUB_WALLPAPER is a deprecated parameter not supported by upstream
+# It's support in OS ALT is not guaranteed in future releases --
+# use GRUB_BACKGROUND instead for branding development
 GRUB_WALLPAPER="/etc/bootsplash/themes/current/images/silent-800x600.jpg"
 GRUB_COLOR_NORMAL="black/black"
 GRUB_COLOR_HIGHLIGHT="white/black"
