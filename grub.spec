@@ -241,6 +241,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch201 -p0
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
+sed -i "s/PYTHON:=python/PYTHON:=python3/" autogen.sh
 
 %build
 ./autogen.sh
