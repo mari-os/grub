@@ -3,7 +3,7 @@
 
 Name: grub
 Version: 2.02
-Release: alt19
+Release: alt20
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -530,6 +530,12 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Fri Nov 29 2019 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt20
+- improve third-party customizer programs compatibility
+  + grub2-sysconfig: add GRUB_BACKGROUND definition
+  + rework altlinux-theme patch for conditional default colors application
+- spec: sed autogen.sh to choose python3 interpreter explicitly
+
 * Tue Oct 29 2019 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt19
 - grub-ieee1275: added R: powerpc-utils. (glebfm@)
 - add xfs-sparse-inodes patch (closes: #37394)
