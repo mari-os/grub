@@ -35,7 +35,6 @@ Source13: grub-entries.8
 Patch0: grub-2.02-os-alt.patch
 Patch1: grub-2.00-sysconfig-path-alt.patch
 Patch2: grub-2.02-altlinux-theme.patch
-Patch3: grub-2.00-debian-uefi-os-prober.patch
 Patch4: grub-2.02-os-alt-xen.patch
 Patch5: grub-2.02-debian-disable_floppies.patch
 Patch6: grub-2.02-add-fw_path-variable.patch
@@ -201,7 +200,6 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch0 -p2
 %patch1 -p1
 %patch2 -p2
-%patch3 -p1
 %patch4 -p2
 %patch5 -p1
 %patch6 -p1
