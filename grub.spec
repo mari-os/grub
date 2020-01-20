@@ -3,7 +3,7 @@
 
 Name: grub
 Version: 2.02
-Release: alt20
+Release: alt21
 
 Summary: GRand Unified Bootloader
 License: GPL
@@ -531,6 +531,11 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Mon Jan 20 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt21
+- spec: add crypto modules into EFI binary images to support LUKS encrypted
+  partition booting without dedicated unenctypted /boot partition alongside
+  (closes: #37663)
+
 * Fri Nov 29 2019 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt20
 - improve third-party customizer programs compatibility
   + grub2-sysconfig: add GRUB_BACKGROUND definition
