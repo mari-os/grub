@@ -79,7 +79,6 @@ BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-
 BuildRequires: liblzma-devel help2man zlib-devel
 BuildRequires: libdevmapper-devel
 BuildRequires: texinfo
-BuildRequires: pesign >= 0.109-alt4
 BuildRequires: rpm-macros-uefi
 
 # fonts: choose one
@@ -391,16 +390,6 @@ install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grub%{efi_suff}sb.efi
 install -pDm644 build-efi-relaxed/grub.efi %buildroot%_efi_bindir/grub%{efi_suff}.efi
 %else
 install -pDm644 build-efi/grub.efi %buildroot%_efi_bindir/grub%{efi_suff}.efi
-%endif
-
-# NB: UEFI GRUB2 image gets signed when build environment is set up that way
-%ifarch x86_64
-%pesign -s -i %buildroot%_efi_bindir/grubx64.efi
-%pesign -s -i %buildroot%_efi_bindir/grubia32.efi
-%if_with sb_kern_signature_check_relaxed
-%pesign -s -i %buildroot%_efi_bindir/grubx64sb.efi
-%pesign -s -i %buildroot%_efi_bindir/grubia32sb.efi
-%endif
 %endif
 
 # Remove headers
