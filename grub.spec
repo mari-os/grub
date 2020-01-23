@@ -3,10 +3,10 @@
 
 Name: grub
 Version: 2.02
-Release: alt21
+Release: alt22
 
 Summary: GRand Unified Bootloader
-License: GPL
+License: GPL-3
 Group: System/Kernel and hardware
 
 Url: http://www.gnu.org/software/grub
@@ -75,11 +75,11 @@ Patch117: grub-2.02-sb-0017-Clean-up-some-errors-in-the-linuxefi-loader.patch
 
 Patch201: grub-2.02-alt-relaxed-kernel-sign-check.patch
 
+BuildRequires(pre): rpm-macros-uefi
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
 BuildRequires: libdevmapper-devel
 BuildRequires: texinfo
-BuildRequires: rpm-macros-uefi
 
 # fonts: choose one
 
@@ -520,6 +520,12 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu Jan 23 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt22
+- fix debian-install_signed patch (closes: #37664)
+- spec: remove useless pesigning from install section
+  + fix license
+  + move rpm-macros-uefi to BR(pre):
+
 * Mon Jan 20 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt21
 - spec: add crypto modules into EFI binary images to support LUKS encrypted
   partition booting without dedicated unenctypted /boot partition alongside
