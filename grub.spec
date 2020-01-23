@@ -207,7 +207,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
+%patch8 -p2
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
