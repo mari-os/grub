@@ -3,7 +3,7 @@
 
 Name: grub
 Version: 2.02
-Release: alt23
+Release: alt24
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -80,6 +80,7 @@ BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-
 BuildRequires: liblzma-devel help2man zlib-devel
 BuildRequires: libdevmapper-devel
 BuildRequires: texinfo
+BuildRequires: libfuse-devel
 
 # fonts: choose one
 
@@ -151,7 +152,7 @@ Group: System/Kernel and hardware
 Requires: %name-common = %EVR
 Provides: grub2-efi = %EVR
 Obsoletes: grub2-efi < %EVR
-PreReq: efibootmgr >= 15
+Requires(pre): efibootmgr >= 15
 %ifarch aarch64
 Provides: grub2 = %EVR
 Provides: grub = %EVR
@@ -449,6 +450,7 @@ rm %buildroot%_sysconfdir/grub.d/41_custom
 %_bindir/grub-mkpasswd-pbkdf2
 %_bindir/grub-mkrelpath
 %_bindir/grub-mkrescue
+%_bindir/grub-mount
 %_bindir/grub-script-check
 %_bindir/grub-syslinux2cfg
 %_datadir/grub/grub-mkconfig_lib
@@ -521,6 +523,13 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu Feb 20 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt24
+- introduce compatibility with os-prober 1.77 (closes: #36624)
+  + remove grub-2.00-debian-uefi-os-prober patch
+  + add alt-os-prober-compat patch
+  + spec: add libfuse-devel to BR to support grub-mount feature
+- spec: replace deprecated PreReq with Requires(pre) for efibootmgr
+
 * Thu Feb 06 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt23
 - spec: add even more crypto modules to enable boot time encrypted
   password feature operation in SB mode on some UEFI firmwares
