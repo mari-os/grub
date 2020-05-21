@@ -3,7 +3,7 @@
 
 Name: grub
 Version: 2.02
-Release: alt26
+Release: alt27
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -525,6 +525,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu May 21 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt27
+- add fedora-efi-chainloader-truncate-relocation patch (closes: #37112)
+
 * Wed Apr 08 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt26
 - spec: add echo and regexp modules into EFI image
   + echo fixes env vars passing to kernel cmdline in SB mode
