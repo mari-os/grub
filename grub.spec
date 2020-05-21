@@ -74,6 +74,7 @@ Patch116: grub-2.02-sb-0016-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.p
 Patch117: grub-2.02-sb-0017-Clean-up-some-errors-in-the-linuxefi-loader.patch
 
 Patch201: grub-2.02-alt-relaxed-kernel-sign-check.patch
+Patch202: grub-2.02-fedora-efi-chainloader-truncate-relocation.patch
 
 BuildRequires(pre): rpm-macros-uefi
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
@@ -239,6 +240,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch116 -p1
 %patch117 -p1
 %patch201 -p0
+%patch202 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 sed -i "s/PYTHON:=python/PYTHON:=python3/" autogen.sh
