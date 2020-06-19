@@ -34,7 +34,7 @@ Source13: grub-entries.8
 Patch0: grub-2.04-os-alt.patch
 Patch1: grub-2.00-sysconfig-path-alt.patch
 Patch2: grub-2.02-altlinux-theme.patch
-Patch4: grub-2.02-os-alt-xen.patch
+Patch4: grub-2.04-os-alt-xen.patch
 Patch5: grub-2.02-debian-disable_floppies.patch
 Patch6: grub-2.02-add-fw_path-variable.patch
 Patch7: grub-2.02-efibootmgr-check.patch
