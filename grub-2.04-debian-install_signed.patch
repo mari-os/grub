@@ -1,5 +1,5 @@
 diff --git a/grub/util/grub-install.c b/grub/util/grub-install.c
-index 2defc10ad..f19e10763 100644
+index 8a55ad4b8..724f7ec67 100644
 --- a/grub/util/grub-install.c
 +++ b/grub/util/grub-install.c
 @@ -79,6 +79,7 @@ static char *label_color;
@@ -50,7 +50,7 @@ index 2defc10ad..f19e10763 100644
    {0, 0, 0, 0, 0, 0}
  };
  
-@@ -815,12 +833,31 @@ fill_core_services (const char *core_services)
+@@ -819,12 +837,31 @@ fill_core_services (const char *core_services)
    free (sysv_plist);
  }
  
@@ -83,7 +83,7 @@ index 2defc10ad..f19e10763 100644
    char **grub_devices;
    grub_fs_t grub_fs;
    grub_device_t grub_dev = NULL;
-@@ -1071,6 +1108,31 @@ main (int argc, char *argv[])
+@@ -1094,6 +1131,39 @@ main (int argc, char *argv[])
        */
        char *t;
        efi_distributor = bootloader_id;
@@ -109,13 +109,21 @@ index 2defc10ad..f19e10763 100644
 +	  efi_suffix = "aa64";
 +	  efi_suffix_upper = "AA64";
 +	  break;
++	case GRUB_INSTALL_PLATFORM_RISCV32_EFI:
++	  efi_suffix = "riscv32";
++	  efi_suffix_upper = "RISCV32";
++	  break;
++	case GRUB_INSTALL_PLATFORM_RISCV64_EFI:
++	  efi_suffix = "riscv64";
++	  efi_suffix_upper = "RISCV64";
++	  break;
 +	default:
 +	  break;
 +	}
        if (removable)
  	{
  	  /* The specification makes stricter requirements of removable
-@@ -1079,54 +1141,16 @@ main (int argc, char *argv[])
+@@ -1102,66 +1172,16 @@ main (int argc, char *argv[])
  	     must have a specific file name depending on the architecture.
  	  */
  	  efi_distributor = "BOOT";
@@ -135,6 +143,12 @@ index 2defc10ad..f19e10763 100644
 -	      break;
 -	    case GRUB_INSTALL_PLATFORM_ARM64_EFI:
 -	      efi_file = "BOOTAA64.EFI";
+-	      break;
+-	    case GRUB_INSTALL_PLATFORM_RISCV32_EFI:
+-	      efi_file = "BOOTRISCV32.EFI";
+-	      break;
+-	    case GRUB_INSTALL_PLATFORM_RISCV64_EFI:
+-	      efi_file = "BOOTRISCV64.EFI";
 -	      break;
 -	    default:
 -	      grub_util_error ("%s", _("You've found a bug"));
@@ -166,6 +180,12 @@ index 2defc10ad..f19e10763 100644
 -	    case GRUB_INSTALL_PLATFORM_ARM64_EFI:
 -	      efi_file = "grubaa64.efi";
 -	      break;
+-	    case GRUB_INSTALL_PLATFORM_RISCV32_EFI:
+-	      efi_file = "grubriscv32.efi";
+-	      break;
+-	    case GRUB_INSTALL_PLATFORM_RISCV64_EFI:
+-	      efi_file = "grubriscv64.efi";
+-	      break;
 -	    default:
 -	      efi_file = "grub.efi";
 -	      break;
@@ -174,7 +194,7 @@ index 2defc10ad..f19e10763 100644
  	}
        t = grub_util_path_concat (3, efidir, "EFI", efi_distributor);
        free (efidir);
-@@ -1332,14 +1356,51 @@ main (int argc, char *argv[])
+@@ -1367,14 +1387,51 @@ main (int argc, char *argv[])
  	}
      }
  
@@ -228,7 +248,7 @@ index 2defc10ad..f19e10763 100644
  	{
  	  char *uuid = NULL;
  	  /*  generic method (used on coreboot and ata mod).  */
-@@ -1356,6 +1417,12 @@ main (int argc, char *argv[])
+@@ -1391,6 +1448,12 @@ main (int argc, char *argv[])
  	  have_load_cfg = 1;
  	  if (uuid)
  	    {
@@ -241,7 +261,7 @@ index 2defc10ad..f19e10763 100644
  	      fprintf (load_cfg_f, "search.fs_uuid %s root ",
  		      uuid);
  	      grub_install_push_module ("search_fs_uuid");
-@@ -1490,18 +1557,7 @@ main (int argc, char *argv[])
+@@ -1530,18 +1593,7 @@ main (int argc, char *argv[])
      {
        if (config.is_cryptodisk_enabled)
  	{
@@ -261,7 +281,7 @@ index 2defc10ad..f19e10763 100644
  	}
        prefix_drive = xasprintf ("(%s)", grub_drives[0]);
      }
-@@ -1848,7 +1904,71 @@ main (int argc, char *argv[])
+@@ -1902,7 +1954,71 @@ main (int argc, char *argv[])
      case GRUB_INSTALL_PLATFORM_IA64_EFI:
        {
  	char *dst = grub_util_path_concat (2, efidir, efi_file);
