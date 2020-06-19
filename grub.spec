@@ -31,7 +31,7 @@ Source11: embedded_grub.cfg
 Source12: grub-entries
 Source13: grub-entries.8
 
-Patch0: grub-2.02-os-alt.patch
+Patch0: grub-2.04-os-alt.patch
 Patch1: grub-2.00-sysconfig-path-alt.patch
 Patch2: grub-2.02-altlinux-theme.patch
 Patch4: grub-2.02-os-alt-xen.patch
