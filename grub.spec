@@ -37,7 +37,6 @@ Patch2: grub-2.02-altlinux-theme.patch
 Patch4: grub-2.04-os-alt-xen.patch
 Patch5: grub-2.02-debian-disable_floppies.patch
 Patch6: grub-2.02-add-fw_path-variable.patch
-Patch7: grub-2.02-efibootmgr-check.patch
 Patch8: grub-2.02-debian-install_signed.patch
 Patch9: grub-2.00-fedora-unrestricted.patch
 Patch10: grub2-stfu.patch
@@ -204,7 +203,6 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch4 -p2
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 %patch8 -p2
 %patch9 -p1
 %patch10 -p1
