@@ -44,7 +44,6 @@ Patch11: grub-2.02-shift-interrupt-timeout.patch
 Patch12: grub-2.02-ubuntu-efi-setup.patch
 Patch13: grub-2.02-check_writes-alt.patch
 Patch14: grub-2.04-alt-luks-use-uuid.patch
-Patch19: grub-2.02-upstream-xfs-sparse-inodes.patch
 Patch20: grub-2.02-alt-os-prober-compat.patch
 
 # add a rhboot/grub-2.02-sb set of patches to ensure SecureBoot safe operation
@@ -206,7 +205,6 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch12 -p1
 %patch13 -p2
 %patch14 -p2
-%patch19 -p2
 %patch20 -p2
 
 #SB patches
