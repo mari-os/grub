@@ -44,7 +44,6 @@ Patch11: grub-2.02-shift-interrupt-timeout.patch
 Patch12: grub-2.02-ubuntu-efi-setup.patch
 Patch13: grub-2.02-check_writes-alt.patch
 Patch14: grub-2.04-alt-luks-use-uuid.patch
-Patch16: grub-2.02-suse-fix-build-with-gcc8.patch
 Patch17: grub-2.02-fix-binutils-break-grub-efi-build.patch
 Patch18: grub-2.02-upstream-default-ptimer.patch
 Patch19: grub-2.02-upstream-xfs-sparse-inodes.patch
@@ -209,7 +208,6 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch12 -p1
 %patch13 -p2
 %patch14 -p2
-%patch16 -p1
 %patch17 -p1
 %patch18 -p1
 %patch19 -p2
