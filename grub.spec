@@ -36,7 +36,7 @@ Patch1: grub-2.00-sysconfig-path-alt.patch
 Patch2: grub-2.02-altlinux-theme.patch
 Patch4: grub-2.04-os-alt-xen.patch
 Patch5: grub-2.02-debian-disable_floppies.patch
-Patch6: grub-2.02-add-fw_path-variable.patch
+Patch6: grub-2.04-add-fw_path-variable.patch
 Patch8: grub-2.04-debian-install_signed.patch
 Patch9: grub-2.00-fedora-unrestricted.patch
 Patch10: grub2-stfu.patch
