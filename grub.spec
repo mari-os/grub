@@ -48,23 +48,6 @@ Patch20: grub-2.02-alt-os-prober-compat.patch
 
 # add a rhboot/grub-2.02-sb set of patches to ensure SecureBoot safe operation
 # refer to url:  https://github.com/rhboot/grub2/commits/grub-2.02-sb
-Patch101: grub-2.02-sb-0001-Use-linuxefi-and-initrdefi-where-appropriate.patch
-Patch102: grub-2.02-sb-0002-Don-t-allow-insmod-when-secure-boot-is-enabled.patch
-Patch103: grub-2.02-sb-0003-Load-arm-with-SB-enabled.patch
-Patch104: grub-2.02-sb-0004-Use-linux16-when-appropriate-880840.patch
-Patch105: grub-2.02-sb-0005-Make-10_linux-work-with-our-changes-for-linux16-and-.patch
-Patch106: grub-2.02-sb-0006-Fix-race-in-EFI-validation.patch
-Patch107: grub-2.02-sb-0007-Use-device-part-of-chainloader-target-if-present.patch
-Patch108: grub-2.02-sb-0008-Add-secureboot-support-on-efi-chainloader.patch
-Patch109: grub-2.02-sb-0009-Make-any-of-the-loaders-that-link-in-efi-mode-honor-.patch
-Patch110: grub-2.02-sb-0010-Rework-linux-command.patch
-Patch111: grub-2.02-sb-0011-Rework-linux16-command.patch
-Patch112: grub-2.02-sb-0012-Re-work-some-intricacies-of-PE-loading.patch
-Patch113: grub-2.02-sb-0013-Rework-even-more-of-efi-chainload-so-non-sb-cases-wo.patch
-Patch114: grub-2.02-sb-0014-Add-some-grub_dprintf-in-the-linuxefi-path.patch
-Patch115: grub-2.02-sb-0015-linuxefi-minor-cleanups.patch
-Patch116: grub-2.02-sb-0016-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.patch
-Patch117: grub-2.02-sb-0017-Clean-up-some-errors-in-the-linuxefi-loader.patch
 
 Patch202: grub-2.02-fedora-efi-chainloader-truncate-relocation.patch
 
@@ -208,23 +191,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch20 -p2
 
 #SB patches
-%patch101 -p1
-%patch102 -p1
-%patch103 -p1
-%patch104 -p1
-%patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
-%patch113 -p1
-%patch114 -p1
-%patch115 -p1
-%patch116 -p1
-%patch117 -p1
+
 %patch202 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
