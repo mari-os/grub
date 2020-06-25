@@ -48,6 +48,12 @@ Patch20: grub-2.02-alt-os-prober-compat.patch
 
 # add a rhboot/grub-2.02-sb set of patches to ensure SecureBoot safe operation
 # refer to url:  https://github.com/rhboot/grub2/commits/grub-2.02-sb
+Patch101: grub-2.04-sb-0001-Add-support-for-Linux-EFI-stub-loading.patch
+Patch102: grub-2.04-sb-0002-Rework-linux-command.patch
+Patch103: grub-2.04-sb-0003-Rework-linux16-command.patch
+Patch104: grub-2.04-sb-0004-Add-secureboot-support-on-efi-chainloader.patch
+Patch105: grub-2.04-sb-0005-Make-any-of-the-loaders-that-link-in-efi-mode-honor-.patch
+Patch106: grub-2.04-sb-0006-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.patch
 
 Patch202: grub-2.02-fedora-efi-chainloader-truncate-relocation.patch
 
@@ -191,6 +197,12 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch20 -p2
 
 #SB patches
+%patch101 -p1
+%patch102 -p1
+%patch103 -p1
+%patch104 -p1
+%patch105 -p1
+%patch106 -p1
 
 %patch202 -p1
 
