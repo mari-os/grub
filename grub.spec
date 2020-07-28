@@ -273,7 +273,7 @@ build_efi_image() {
 		gzio iso9660 loadenv loopback mdraid09 mdraid1x png jpeg \
 		extcmd keystatus procfs cryptodisk gcry_rijndael gcry_sha1 \
 		gcry_sha256 luks gcry_sha512 gcry_serpent gcry_twofish \
-		crypto pbkdf2 password_pbkdf2 echo regexp \
+		crypto pbkdf2 password_pbkdf2 echo regexp tftp \
 		"$@"
 }
 
