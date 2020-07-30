@@ -274,8 +274,8 @@ index e88c9f488..9a943d7bd 100644
    COMPILE_TIME_ASSERT (MULTIBOOT_TAG_ALIGN % sizeof (grub_properly_aligned_t) == 0);
  
    err = grub_relocator_alloc_chunk_align (grub_multiboot2_relocator, &ch,
--					  MBI_MIN_ADDR, 0xffffffff - bufsize,
-+					  MBI_MIN_ADDR, UP_TO_TOP32 (bufsize),
+-					  0, 0xffffffff - bufsize,
++					  0, UP_TO_TOP32 (bufsize),
  					  bufsize, MULTIBOOT_TAG_ALIGN,
  					  GRUB_RELOCATOR_PREFERENCE_NONE, 1);
    if (err)
