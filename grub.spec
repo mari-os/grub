@@ -66,7 +66,6 @@ Patch306: grub-2.04-bh-0006-iso9660-Don-t-leak-memory-on-realloc-failures.patch
 Patch307: grub-2.04-bh-0007-font-Do-not-load-more-than-one-NAME-section.patch
 Patch308: grub-2.04-bh-0008-gfxmenu-Fix-double-free-in-load_image.patch
 Patch309: grub-2.04-bh-0009-xnu-Fix-double-free-in-grub_xnu_devprop_add_property.patch
-Patch310: grub-2.04-bh-0010-json-Avoid-a-double-free-when-parsing-fails.patch
 Patch311: grub-2.04-bh-0011-lzma-Make-sure-we-don-t-dereference-past-array.patch
 Patch312: grub-2.04-bh-0012-term-Fix-overflow-on-user-inputs.patch
 Patch313: grub-2.04-bh-0013-udf-Fix-memory-leak.patch
@@ -243,7 +242,6 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch307 -p1
 %patch308 -p1
 %patch309 -p1
-%patch310 -p1
 %patch311 -p1
 %patch312 -p1
 %patch313 -p1
