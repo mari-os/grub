@@ -398,24 +398,6 @@ index e47be642a..48e36b4f3 100644
  		      stripe = seg->nodes;
  
  		      p = grub_strstr (p, "stripes = [");
-@@ -899,7 +899,7 @@ grub_lvm_detect (grub_disk_t disk,
- 		break;
- 	    if (lv)
- 	      {
--		cache->lv->segments = grub_malloc (lv->segment_count * sizeof (*lv->segments));
-+		cache->lv->segments = grub_calloc (lv->segment_count, sizeof (*lv->segments));
- 		if (!cache->lv->segments)
- 		  {
- 		    grub_lvm_free_cache_lvs (cache_lvs);
-@@ -912,7 +912,7 @@ grub_lvm_detect (grub_disk_t disk,
- 		    struct grub_diskfilter_node *nodes = lv->segments[i].nodes;
- 		    grub_size_t node_count = lv->segments[i].node_count;
- 
--		    cache->lv->segments[i].nodes = grub_malloc (node_count * sizeof (*nodes));
-+		    cache->lv->segments[i].nodes = grub_calloc (node_count, sizeof (*nodes));
- 		    if (!cache->lv->segments[i].nodes)
- 		      {
- 			for (j = 0; j < i; ++j)
 diff --git a/grub-core/disk/xen/xendisk.c b/grub-core/disk/xen/xendisk.c
 index 48476cbbf..d6612eebd 100644
 --- a/grub-core/disk/xen/xendisk.c
@@ -826,19 +808,6 @@ index be4816fe6..aac8f9ae1 100644
    if (!enum_devices)
      return 0;
  
-diff --git a/grub-core/lib/json/json.c b/grub-core/lib/json/json.c
-index 694af4f3a..913b8f404 100644
---- a/grub-core/lib/json/json.c
-+++ b/grub-core/lib/json/json.c
-@@ -53,7 +53,7 @@ grub_json_parse (grub_json_t **out, char *string, grub_size_t string_len)
-       goto err;
-     }
- 
--  json->tokens = grub_malloc (sizeof (jsmntok_t) * jsmn_ret);
-+  json->tokens = grub_calloc (jsmn_ret, sizeof (jsmntok_t));
-   if (!json->tokens)
-     {
-       ret = GRUB_ERR_OUT_OF_MEMORY;
 diff --git a/grub-core/lib/libgcrypt/cipher/ac.c b/grub-core/lib/libgcrypt/cipher/ac.c
 index f5e946a2d..63f6fcd11 100644
 --- a/grub-core/lib/libgcrypt/cipher/ac.c
