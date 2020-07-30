@@ -55,6 +55,37 @@ Patch104: grub-2.04-sb-0004-Add-secureboot-support-on-efi-chainloader.patch
 Patch105: grub-2.04-sb-0005-Make-any-of-the-loaders-that-link-in-efi-mode-honor-.patch
 Patch106: grub-2.04-sb-0006-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.patch
 
+# BootHole & Co. vulnerabilities fix patchset
+# refer to url: https://lists.gnu.org/archive/html/grub-devel/2020-07/msg00034.html
+Patch301: grub-2.04-bh-0001-yylex-Make-lexer-fatal-errors-actually-be-fatal.patch
+Patch302: grub-2.04-bh-0002-safemath-Add-some-arithmetic-primitives-that-check-f.patch
+Patch303: grub-2.04-bh-0003-calloc-Make-sure-we-always-have-an-overflow-checking.patch
+Patch304: grub-2.04-bh-0004-calloc-Use-calloc-at-most-places.patch
+Patch305: grub-2.04-bh-0005-malloc-Use-overflow-checking-primitives-where-we-do-.patch
+Patch306: grub-2.04-bh-0006-iso9660-Don-t-leak-memory-on-realloc-failures.patch
+Patch307: grub-2.04-bh-0007-font-Do-not-load-more-than-one-NAME-section.patch
+Patch308: grub-2.04-bh-0008-gfxmenu-Fix-double-free-in-load_image.patch
+Patch309: grub-2.04-bh-0009-xnu-Fix-double-free-in-grub_xnu_devprop_add_property.patch
+Patch310: grub-2.04-bh-0010-json-Avoid-a-double-free-when-parsing-fails.patch
+Patch311: grub-2.04-bh-0011-lzma-Make-sure-we-don-t-dereference-past-array.patch
+Patch312: grub-2.04-bh-0012-term-Fix-overflow-on-user-inputs.patch
+Patch313: grub-2.04-bh-0013-udf-Fix-memory-leak.patch
+Patch314: grub-2.04-bh-0014-multiboot2-Fix-memory-leak-if-grub_create_loader_cmd.patch
+Patch315: grub-2.04-bh-0015-tftp-Do-not-use-priority-queue.patch
+Patch316: grub-2.04-bh-0016-relocator-Protect-grub_relocator_alloc_chunk_addr-in.patch
+Patch317: grub-2.04-bh-0017-relocator-Protect-grub_relocator_alloc_chunk_align-m.patch
+Patch318: grub-2.04-bh-0018-script-Remove-unused-fields-from-grub_script_functio.patch
+Patch319: grub-2.04-bh-0019-script-Avoid-a-use-after-free-when-redefining-a-func.patch
+Patch320: grub-2.04-bh-0020-relocator-Fix-grub_relocator_alloc_chunk_align-top-m.patch
+Patch321: grub-2.04-bh-0021-hfsplus-Fix-two-more-overflows.patch
+Patch322: grub-2.04-bh-0022-lvm-Fix-two-more-potential-data-dependent-alloc-over.patch
+Patch323: grub-2.04-bh-0023-emu-Make-grub_free-NULL-safe.patch
+Patch324: grub-2.04-bh-0024-efi-Fix-some-malformed-device-path-arithmetic-errors.patch
+Patch325: grub-2.04-bh-0025-efi-chainloader-Propagate-errors-from-copy_file_path.patch
+Patch326: grub-2.04-bh-0026-efi-Fix-use-after-free-in-halt-reboot-path.patch
+Patch327: grub-2.04-bh-0027-loader-linux-Avoid-overflow-on-initrd-size-calculati.patch
+Patch328: grub-2.04-bh-0028-linux-Fix-integer-overflows-in-initrd-size-handling.patch
+
 BuildRequires(pre): rpm-macros-uefi
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
@@ -201,6 +232,36 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch104 -p1
 %patch105 -p1
 %patch106 -p1
+
+#BootHole patches
+%patch301 -p1
+%patch302 -p1
+%patch303 -p1
+%patch304 -p1
+%patch305 -p1
+%patch306 -p1
+%patch307 -p1
+%patch308 -p1
+%patch309 -p1
+%patch310 -p1
+%patch311 -p1
+%patch312 -p1
+%patch313 -p1
+%patch314 -p1
+%patch315 -p1
+%patch316 -p1
+%patch317 -p1
+%patch318 -p1
+%patch319 -p1
+%patch320 -p1
+%patch321 -p1
+%patch322 -p1
+%patch323 -p1
+%patch324 -p1
+%patch325 -p1
+%patch326 -p1
+%patch327 -p1
+%patch328 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 sed -i "s/PYTHON:=python/PYTHON:=python3/" autogen.sh
