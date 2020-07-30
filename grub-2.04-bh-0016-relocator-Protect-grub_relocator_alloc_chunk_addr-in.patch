@@ -22,10 +22,11 @@ diff --git a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
 index ac1fae72e..938ba536e 100644
 --- a/grub-core/loader/i386/linux.c
 +++ b/grub-core/loader/i386/linux.c
-@@ -36,6 +36,7 @@
+@@ -36,7 +36,8 @@
  #include <grub/lib/cmdline.h>
  #include <grub/linux.h>
  #include <grub/machine/kernel.h>
+ #include <grub/efi/sb.h>
 +#include <grub/safemath.h>
  
  GRUB_MOD_LICENSE ("GPLv3+");
@@ -50,10 +51,11 @@ diff --git a/grub-core/loader/i386/pc/linux.c b/grub-core/loader/i386/pc/linux.c
 index f56af7c50..8be763d19 100644
 --- a/grub-core/loader/i386/pc/linux.c
 +++ b/grub-core/loader/i386/pc/linux.c
-@@ -35,6 +35,7 @@
+@@ -35,7 +35,8 @@
  #include <grub/i386/floppy.h>
  #include <grub/lib/cmdline.h>
  #include <grub/linux.h>
+ #include <grub/efi/sb.h>
 +#include <grub/safemath.h>
  
  GRUB_MOD_LICENSE ("GPLv3+");
@@ -114,10 +116,11 @@ diff --git a/grub-core/loader/xnu.c b/grub-core/loader/xnu.c
 index 77d7060e1..9ae4ceb35 100644
 --- a/grub-core/loader/xnu.c
 +++ b/grub-core/loader/xnu.c
-@@ -34,6 +34,7 @@
+@@ -34,7 +34,8 @@
  #include <grub/env.h>
  #include <grub/i18n.h>
  #include <grub/verify.h>
+ #include <grub/efi/sb.h>
 +#include <grub/safemath.h>
  
  GRUB_MOD_LICENSE ("GPLv3+");
