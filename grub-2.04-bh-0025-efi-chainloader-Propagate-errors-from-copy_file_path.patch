@@ -45,10 +45,9 @@ index a8d7b9155..7b31c3fb9 100644
  }
  
  static grub_efi_device_path_t *
-@@ -189,13 +190,19 @@ make_file_path (grub_efi_device_path_t *dp, const char *filename)
+@@ -189,12 +190,18 @@ make_file_path (grub_efi_device_path_t *dp, const char *filename)
    d = (grub_efi_device_path_t *) ((char *) file_path
  				  + ((char *) d - (char *) dp));
-   grub_efi_print_device_path (d);
 -  copy_file_path ((grub_efi_file_path_device_path_t *) d,
 -		  dir_start, dir_end - dir_start);
 +  if (copy_file_path ((grub_efi_file_path_device_path_t *) d,
