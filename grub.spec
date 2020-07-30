@@ -122,7 +122,7 @@ Requires: gettext
 %endif
 %ifarch x86_64
 %global grubefiarch x86_64-efi
-%global linux_module_name linuxefi
+%global linux_module_name linux
 %global efi_suff x64
 %endif
 %ifarch aarch64
@@ -325,7 +325,7 @@ build_grub build-efi-ia32 \
 	--target=i386 \
 #
 # use 64bit mkimage to build i386-efi image
-build_efi_image build-efi/grub-mkimage build-efi-ia32 i386-efi linuxefi
+build_efi_image build-efi/grub-mkimage build-efi-ia32 i386-efi linux
 %endif
 %endif
 
