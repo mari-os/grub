@@ -28,7 +28,7 @@ index 48e36b4f3..753545146 100644
  
  #ifdef GRUB_UTIL
  #include <grub/emu/misc.h>
-@@ -138,10 +139,11 @@ grub_lvm_detect (grub_disk_t disk,
+@@ -102,10 +103,11 @@ grub_lvm_detect (grub_disk_t disk,
  {
    grub_err_t err;
    grub_uint64_t mda_offset, mda_size;
@@ -36,11 +36,11 @@ index 48e36b4f3..753545146 100644
    char buf[GRUB_LVM_LABEL_SIZE];
    char vg_id[GRUB_LVM_ID_STRLEN+1];
    char pv_id[GRUB_LVM_ID_STRLEN+1];
--  char *metadatabuf, *vgname;
-+  char *metadatabuf, *mda_end, *vgname;
-   const char *p, *q;
+-  char *metadatabuf, *p, *q, *vgname;
++  char *metadatabuf, *p, *q, *mda_end, *vgname;
    struct grub_lvm_label_header *lh = (struct grub_lvm_label_header *) buf;
    struct grub_lvm_pv_header *pvh;
+   struct grub_lvm_disk_locn *dlocn;
 @@ -242,19 +244,31 @@ grub_lvm_detect (grub_disk_t disk,
  		   grub_le_to_cpu64 (rlocn->size) -
  		   grub_le_to_cpu64 (mdah->size));
