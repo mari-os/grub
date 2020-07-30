@@ -221,9 +221,9 @@ index b26d2ed7a..644135caf 100644
 -  grub_priority_queue_destroy (data->pq);
 -}
 -
- /*
-  * Create a normalized copy of the filename. Compress any string of consecutive
-  * forward slashes to a single forward slash.
+ static grub_err_t
+ tftp_open (struct grub_file *file, const char *filename)
+ {
 @@ -397,17 +347,9 @@ tftp_open (struct grub_file *file, const char *filename)
    file->not_easily_seekable = 1;
    file->data = data;
