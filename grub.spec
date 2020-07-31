@@ -55,6 +55,8 @@ Patch104: grub-2.04-sb-0004-Add-secureboot-support-on-efi-chainloader.patch
 Patch105: grub-2.04-sb-0005-Make-any-of-the-loaders-that-link-in-efi-mode-honor-.patch
 Patch106: grub-2.04-sb-0006-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.patch
 
+Patch190: grub-2.04-fedora-Rework-how-the-fdt-command-builds.patch
+
 # BootHole & Co. vulnerabilities fix patchset
 # refer to url: https://lists.gnu.org/archive/html/grub-devel/2020-07/msg00034.html
 Patch301: grub-2.04-bh-0001-yylex-Make-lexer-fatal-errors-actually-be-fatal.patch
@@ -231,6 +233,8 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch104 -p1
 %patch105 -p1
 %patch106 -p1
+
+%patch190 -p2
 
 #BootHole patches
 %patch301 -p1
