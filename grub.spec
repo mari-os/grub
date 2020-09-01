@@ -45,6 +45,7 @@ Patch12: grub-2.02-ubuntu-efi-setup.patch
 Patch13: grub-2.02-check_writes-alt.patch
 Patch14: grub-2.04-alt-luks-use-uuid.patch
 Patch20: grub-2.02-alt-os-prober-compat.patch
+Patch21: grub-2.04-alt-set-default-bootloader_id.patch
 
 # add a rhboot/grub-2.02-sb set of patches to ensure SecureBoot safe operation
 # refer to url:  https://github.com/rhboot/grub2/commits/grub-2.02-sb
@@ -225,6 +226,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch13 -p2
 %patch14 -p2
 %patch20 -p2
+%patch21 -p2
 
 #SB patches
 %patch101 -p1
