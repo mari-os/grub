@@ -2,7 +2,7 @@
 
 Name: grub
 Version: 2.02
-Release: alt29
+Release: alt30
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -484,6 +484,10 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Fri Oct 02 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt30
+- disallow kernels with unsigned EFI stub to be run by grub in SB mode
+  + remove alt-relaxed-kernel-sign-check patch
+
 * Wed Aug 19 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt29
 - spec: add tftp module into EFI image (closes: #38681)
 - sort kernels by mtime instead of ctime (ptrnine@)
