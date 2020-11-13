@@ -1,8 +1,8 @@
 %define efi_arches %ix86 x86_64 aarch64
 
 Name: grub
-Version: 2.02
-Release: alt30
+Version: 2.04
+Release: alt1
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -94,6 +94,7 @@ BuildRequires: liblzma-devel help2man zlib-devel
 BuildRequires: libdevmapper-devel
 BuildRequires: texinfo
 BuildRequires: libfuse-devel
+BuildRequires: gnulib
 
 # fonts: choose one
 
@@ -271,6 +272,7 @@ sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 sed -i "s/PYTHON:=python/PYTHON:=python3/" autogen.sh
 
 %build
+./bootstrap --no-git --gnulib-srcdir=%_datadir/gnulib
 ./autogen.sh
 build_grub() {
 	local dir="$1"; shift
@@ -512,6 +514,16 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Fri Nov 13 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.04-alt1
+- new version
+  + update and thin out ALT patches
+  + replace fedora SB patch set
+  + spec: add gnulib to BR:
+  + spec: don't use linuxefi module name while assembling a EFI binary
+- add upstream patch set and adapt it to fix BootHole & Co. vulnerabilities
+  + (fixes: CVE-2020-10713, CVE-2020-14308, CVE-2020-14309, CVE-2020-14310)
+  + (fixes: CVE-2020-14311, CVE-2020-15705, CVE-2020-15706, CVE-2020-15707)
+
 * Fri Oct 02 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.02-alt30
 - disallow kernels with unsigned EFI stub to be run by grub in SB mode
   + remove alt-relaxed-kernel-sign-check patch
