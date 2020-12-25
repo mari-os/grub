@@ -31,4 +31,4 @@ case "$GRUB_AUTOUPDATE_FORCE" in
 esac
 
 echo "Updating grub in $EFI_DIR"
-grub-install $GRUB_FORCE
+grub-install $GRUB_FORCE --force-extra-removable
