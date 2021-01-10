@@ -2,7 +2,7 @@
 
 Name: grub
 Version: 2.04
-Release: alt1
+Release: alt2
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -520,6 +520,14 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Fri Dec 25 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.04-alt2
+- grub-install: add workaround for malformed EFI-firmware implementations
+  (closes: #39432)
+  + add debian-grub-install-removable-shim patch
+  + add debian-grub-install-extra-removable patch
+  + add alt-grub-install-no-fallback-for-removable patch
+- grub-efi-autoupdate: use grub-install --force-extra-removable by default
+
 * Fri Nov 13 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.04-alt1
 - new version
   + update and thin out ALT patches
