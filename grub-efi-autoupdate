@@ -18,6 +18,7 @@ fi
 
 DIST="${GRUB_BOOTLOADER_DIST:-$DEFAULT_DIST}"
 EFI_DIR="/boot/efi"
+BOOTCSV_DIR="/usr/lib/shim"
 GRUB_CFG="$EFI_DIR/EFI/$DIST/grub.cfg"
 
 if ! stat $EFI_DIR/EFI/$DIST/grub*.efi > /dev/null 2>&1; then
@@ -30,5 +31,9 @@ case "$GRUB_AUTOUPDATE_FORCE" in
 	true|yes) GRUB_FORCE="--force";;
 esac
 
+if stat $BOOTCSV_DIR/BOOT*.CSV > /dev/null 2>&1; then
+	GRUB_EXTRA_REMOVABLE="--force-extra-removable"
+fi
+
 echo "Updating grub in $EFI_DIR"
-grub-install $GRUB_FORCE --force-extra-removable
+grub-install $GRUB_FORCE $GRUB_EXTRA_REMOVABLE
