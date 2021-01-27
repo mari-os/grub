@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# RPM filetrigger for grub2 auto-reinstall
+# after update transaction involving shim-signed or grub-efi packages
+# to ensure that updated BOOT*.CSV file is applied
+#
+
+. /etc/sysconfig/grub2
+
+if [ -d /sys/firmware/efi ]; then
+	if egrep -qs '^/usr/lib/shim/BOOT.*\.CSV|^/usr/lib(64|)/grub'; then
+		grub-efi-autoupdate
+	fi
+fi

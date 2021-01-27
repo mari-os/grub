@@ -31,6 +31,8 @@ Source11: embedded_grub.cfg
 Source12: grub-entries
 Source13: grub-entries.8
 
+Source14: grub-efi.filetrigger
+
 Patch0: grub-2.04-os-alt.patch
 Patch1: grub-2.00-sysconfig-path-alt.patch
 Patch2: grub-2.02-altlinux-theme.patch
@@ -386,6 +388,7 @@ install -pDm755 %SOURCE4  %buildroot%_rpmlibdir/grub.filetrigger
 install -pDm755 %SOURCE6  %buildroot%_sbindir/grub-autoupdate
 %ifarch %efi_arches
 install -pDm755 %SOURCE10 %buildroot%_sbindir/grub-efi-autoupdate
+install -pDm755 %SOURCE14 %buildroot%_rpmlibdir/grub-efi.filetrigger
 %endif
 install -pDm755 %SOURCE12 %buildroot%_sbindir/grub-entries
 
@@ -492,6 +495,7 @@ rm %buildroot%_sysconfdir/grub.d/41_custom
 %endif
 %_sbindir/grub-efi-autoupdate
 %_libdir/grub/%grubefiarch
+%_rpmlibdir/%name-efi.filetrigger
 %endif
 
 %ifarch %ix86 x86_64 ppc64le
