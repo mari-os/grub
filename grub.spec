@@ -49,6 +49,7 @@ Patch21: grub-2.04-alt-set-default-bootloader_id.patch
 Patch22: grub-2.02-debian-grub-install-extra-removable.patch
 Patch23: grub-2.02-debian-grub-install-removable-shim.patch
 Patch24: grub-2.04-alt-grub-install-no-fallback-for-removable.patch
+Patch25: grub-2.04-alt-add-file-with-Russian-translation.patch
 
 # add a rhboot/grub-2.02-sb set of patches to ensure SecureBoot safe operation
 # refer to url:  https://github.com/rhboot/grub2/commits/grub-2.02-sb
@@ -234,6 +235,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch22 -p1
 %patch23 -p1
 %patch24 -p2
+%patch25 -p2
 
 #SB patches
 %patch101 -p1
