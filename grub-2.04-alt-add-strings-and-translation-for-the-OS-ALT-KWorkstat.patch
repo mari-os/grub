@@ -38,69 +38,75 @@ index 80fb33427..50b470f36 100644
 +msgstr "Установить "
 +
 +#: util/grub.d/42_custom.in:5
-+msgid "VNC install ALT (kworkstation-install) (edit to set server IP address)"
++msgid "VNC install "
 +msgstr ""
-+"VNC установка ALT (kworkstation-install) (установить IP адреса сервера)"
++"Установить через VNC "
 +
 +#: util/grub.d/42_custom.in:6
 +msgid ""
-+"VNC install ALT (kworkstation-install) (edit to set password and connect here)"
++" (edit to set server IP address)"
 +msgstr ""
-+"VNC установка ALT (kworkstation-install) (установить пароль и соединение)"
++" (установите IP адрес сервера)"
 +
 +#: util/grub.d/42_custom.in:7
-+msgid "LiveCD (no hard disk needed)"
-+msgstr "LiveCD (жесткий диск не нужен)"
++msgid ""
++" (edit to set password and connect here)"
++msgstr ""
++" (измените пароль и соединение здесь)"
 +
 +#: util/grub.d/42_custom.in:8
-+msgid "Loading Linux vmlinuz$KFLAVOUR ..."
-+msgstr "Загрузка Linux vmlinuz$KFLAVOUR ..."
++msgid "LiveCD (no hard disk needed)"
++msgstr "LiveCD (жёсткий диск не нужен)"
 +
 +#: util/grub.d/42_custom.in:9
 +msgid "LiveCD with sessions support"
-+msgstr "LiveCD с поддержкой сессий"
++msgstr "LiveCD с поддержкой сеансов"
 +
 +#: util/grub.d/42_custom.in:10
-+msgid "Change language (press F2)"
-+msgstr "Сменить язык (press F2)"
++msgid "Loading Linux vmlinuz$KFLAVOUR ..."
++msgstr "Загрузка Linux vmlinuz$KFLAVOUR ..."
 +
 +#: util/grub.d/42_custom.in:11
-+msgid "Return to the Main menu"
-+msgstr "Вернутся в главное меню"
++msgid "Change language (press F2)"
++msgstr "Изменить язык (нажмите F2)"
 +
 +#: util/grub.d/42_custom.in:12
-+msgid "Rescue LiveCD"
-+msgstr "LiveCD для восстановления"
++msgid "Return to the Main menu"
++msgstr "Вернуться в главное меню"
 +
 +#: util/grub.d/42_custom.in:13
-+msgid "Rescue with sessions support"
-+msgstr "Восстановление с поддержкой сессии"
++msgid "Rescue LiveCD"
++msgstr "Спасательный LiveCD"
 +
 +#: util/grub.d/42_custom.in:14
++msgid "Rescue with sessions support"
++msgstr "Спасательный LiveCD с поддержкой сессии"
++
++#: util/grub.d/42_custom.in:15
 +msgid "Forensic mode (leave disks alone)"
 +msgstr "Экспертный режим отладки (оставьте диски в покое)"
 +
-+#: util/grub.d/42_custom.in:15
-+msgid "Rescue with remote SSH access (DHCP)"
-+msgstr "Восстановление через удаленный доступ по SSH (DHCP)"
-+
 +#: util/grub.d/42_custom.in:16
-+msgid "Check this media for defects"
-+msgstr "Проверьте носитель на наличие дефектов"
++msgid "Rescue with remote SSH access (DHCP)"
++msgstr "Спасательный LiveCD с удалённым доступом по SSH (DHCP)"
 +
 +#: util/grub.d/42_custom.in:17
-+msgid "Change Kernel Flavour (press F5)"
-+msgstr "Изменить Kernel Flavour (нажмите F5)"
++msgid "Check this media for defects"
++msgstr "Проверить носитель на наличие дефектов"
 +
 +#: util/grub.d/42_custom.in:18
++msgid "Change Kernel Flavour (press F5)"
++msgstr "Выбрать ядро (нажмите F5)"
++
++#: util/grub.d/42_custom.in:19
 +msgid "Memory Test"
 +msgstr "Тест памяти"
 +
-+#: util/grub.d/42_custom.in:19
++#: util/grub.d/42_custom.in:20
 +msgid "System setup"
 +msgstr "Настройка системы"
 +
-+#: util/grub.d/42_custom.in:20
++#: util/grub.d/42_custom.in:21
 +msgid "Install"
 +msgstr "Установка"
 +
@@ -112,14 +118,16 @@ new file mode 100644
 index 000000000..a27e03611
 --- /dev/null
 +++ b/grub/util/grub.d/42_custom.in
-@@ -0,0 +1,21 @@
+@@ -0,0 +1,23 @@
 +#! /bin/sh
 +set -e
 +
 +gettext_printf "Install "
-+gettext_printf "VNC install ALT (kworkstation-install) (edit to set server IP address)"
-+gettext_printf "VNC install ALT (kworkstation-install) (edit to set password and connect here)"
++gettext_printf "VNC install "
++gettext_printf " (edit to set server IP address)"
++gettext_printf " (edit to set password and connect here)"
 +gettext_printf "LiveCD (no hard disk needed)"
++gettext_printf "LiveCD with sessions support"
 +gettext_printf "Loading Linux vmlinuz\$KFLAVOUR ..."
 +gettext_printf "Loading initial ramdisk ..."
 +gettext_printf "Change language (press F2)"
