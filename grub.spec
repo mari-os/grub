@@ -1,4 +1,4 @@
-%define efi_arches %ix86 x86_64 aarch64
+%define efi_arches %ix86 x86_64 aarch64 riscv64
 
 Name: grub
 Version: 2.04
@@ -10,7 +10,7 @@ Group: System/Kernel and hardware
 
 Url: http://www.gnu.org/software/grub
 
-ExclusiveArch: %ix86 x86_64 aarch64 ppc64le
+ExclusiveArch: %ix86 x86_64 aarch64 ppc64le riscv64
 
 Source0: %name-%version.tar
 Source1: grub2-sysconfig
@@ -138,6 +138,11 @@ Requires: gettext
 %global grubefiarch arm64-efi
 %global linux_module_name linux
 %global efi_suff aa64
+%endif
+%ifarch riscv64
+%global grubefiarch riscv64-efi
+%global linux_module_name linux
+%global efi_suff riscv64
 %endif
 
 %package common
