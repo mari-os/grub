@@ -52,7 +52,7 @@ Patch22: grub-2.02-debian-grub-install-extra-removable.patch
 Patch23: grub-2.02-debian-grub-install-removable-shim.patch
 Patch24: grub-2.04-alt-grub-install-no-fallback-for-removable.patch
 Patch25: grub-2.04-alt-add-file-with-Russian-translation.patch
-Patch26: grub-2.04-alt-add-strings-and-translation-for-the-OS-ALT-KWorkstat.patch
+Patch26: grub-2.04-alt-add-strings-and-translation-for-OS-ALT.patch
 
 # add a rhboot/grub-2.02-sb set of patches to ensure SecureBoot safe operation
 # refer to url:  https://github.com/rhboot/grub2/commits/grub-2.02-sb

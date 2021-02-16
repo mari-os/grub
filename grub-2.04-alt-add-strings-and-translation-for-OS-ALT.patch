@@ -1,7 +1,7 @@
 From 722fe3f0aacfe21b6cac308aa808576d96d0310d Mon Sep 17 00:00:00 2001
 From: Ivan Razzhivin <underwit@altlinux.org>
 Date: Fri, 5 Feb 2021 17:47:27 +0300
-Subject: [PATCH 2/2] add strings and translation for the OS ALT KWorkstation
+Subject: [PATCH 2/2] add strings and translation for OS ALT
  installer menu
 
 ---
