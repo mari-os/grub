@@ -137,7 +137,7 @@ Requires: gettext
 %ifarch aarch64
 %global grubefiarch arm64-efi
 %global linux_module_name linux
-%global efi_suff x64
+%global efi_suff aa64
 %endif
 
 %package common
