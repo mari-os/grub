@@ -2,7 +2,7 @@
 
 Name: grub
 Version: 2.04
-Release: alt2
+Release: alt3
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -533,6 +533,16 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Tue Feb 16 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.04-alt3
+- grub-efi-autoupdate: fix grub update rendering system unbootable
+- grub-efi.filetrigger: add to ensure grub reinstall during shim-signed update
+- provide OS ALT installer messages Russian translation
+  + add add-strings-and-translation-for-OS-ALT patch (underwit@, antohami@)
+- update grub messages Russian translation
+  + add alt-update-russian-translation patch (underwit@)
+- spec: prepare grub-efi to be buildable on RISCV64 (arei@)
+- spec: fix AARCH64 EFI binary suffix
+
 * Fri Dec 25 2020 Nikolai Kostrigin <nickel@altlinux.org> 2.04-alt2
 - grub-install: add workaround for malformed EFI-firmware implementations
   (closes: #39432)
