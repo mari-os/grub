@@ -43,7 +43,6 @@ Patch8: grub-2.04-debian-install_signed.patch
 Patch9: grub-2.00-fedora-unrestricted.patch
 Patch10: grub2-stfu.patch
 Patch11: grub-2.02-shift-interrupt-timeout.patch
-Patch12: grub-2.02-ubuntu-efi-setup.patch
 Patch13: grub-2.02-check_writes-alt.patch
 Patch14: grub-2.04-alt-luks-use-uuid.patch
 Patch20: grub-2.02-alt-os-prober-compat.patch
@@ -235,7 +234,6 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
-%patch12 -p1
 %patch13 -p2
 %patch14 -p2
 %patch20 -p2
