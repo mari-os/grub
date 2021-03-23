@@ -25,6 +25,7 @@
 #include <grub/dl.h>
 #include <grub/types.h>
 #include <grub/fshelp.h>
+#include <grub/safemath.h>
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
@@ -489,7 +490,7 @@ grub_xfs_read_inode (struct grub_xfs_data *data, grub_uint64_t ino,
   grub_uint64_t block = grub_xfs_inode_block (data, ino);
   int offset = grub_xfs_inode_offset (data, ino);
 
-  grub_dprintf("xfs", "Reading inode (%"PRIuGRUB_UINT64_T") - %"PRIuGRUB_UINT64_T", %d\n",
+  grub_dprintf("xfs", "Reading inode (%" PRIuGRUB_UINT64_T ") - %" PRIuGRUB_UINT64_T ", %d\n",
 	       ino, block, offset);
   /* Read the inode.  */
   if (grub_disk_read (data->disk, block, offset, grub_xfs_inode_size(data),
@@ -899,6 +900,7 @@ static struct grub_xfs_data *
 grub_xfs_mount (grub_disk_t disk)
 {
   struct grub_xfs_data *data = 0;
+  grub_size_t sz;
 
   data = grub_zalloc (sizeof (struct grub_xfs_data));
   if (!data)
@@ -913,10 +915,11 @@ grub_xfs_mount (grub_disk_t disk)
   if (!grub_xfs_sb_valid(data))
     goto fail;
 
-  data = grub_realloc (data,
-		       sizeof (struct grub_xfs_data)
-		       - sizeof (struct grub_xfs_inode)
-		       + grub_xfs_inode_size(data) + 1);
+  if (grub_add (grub_xfs_inode_size (data),
+      sizeof (struct grub_xfs_data) - sizeof (struct grub_xfs_inode) + 1, &sz))
+    goto fail;
+
+  data = grub_realloc (data, sz);
 
   if (! data)
     goto fail;
@@ -931,7 +934,7 @@ grub_xfs_mount (grub_disk_t disk)
 
   data->disk = disk;
   data->pos = 0;
-  grub_dprintf("xfs", "Reading root ino %"PRIuGRUB_UINT64_T"\n",
+  grub_dprintf("xfs", "Reading root ino %" PRIuGRUB_UINT64_T "\n",
 	       grub_cpu_to_be64(data->sblock.rootino));
 
   grub_xfs_read_inode (data, data->diropen.ino, &data->diropen.inode);

@@ -324,6 +324,14 @@ get_default_platform (void)
    return "arm64-efi";
 #elif defined (__amd64__) || defined (__x86_64__) || defined (__i386__)
    return grub_install_get_default_x86_platform ();
+#elif defined (__riscv)
+#if __riscv_xlen == 32
+   return "riscv32-efi";
+#elif __riscv_xlen == 64
+   return "riscv64-efi";
+#else
+   return NULL;
+#endif
 #else
    return NULL;
 #endif
@@ -626,7 +634,7 @@ device_map_check_duplicates (const char *dev_map)
   if (! fp)
     return;
 
-  d = xmalloc (alloced * sizeof (d[0]));
+  d = xcalloc (alloced, sizeof (d[0]));
 
   while (fgets (buf, sizeof (buf), fp))
     {
@@ -740,7 +748,7 @@ is_prep_empty (grub_device_t dev)
   grub_disk_addr_t dsize, addr;
   grub_uint32_t buffer[32768];
 
-  dsize = grub_disk_get_size (dev->disk);
+  dsize = grub_disk_native_sectors (dev->disk);
   for (addr = 0; addr < dsize;
        addr += sizeof (buffer) / GRUB_DISK_SECTOR_SIZE)
     {
@@ -1260,7 +1268,7 @@ main (int argc, char *argv[])
       ndev++;
     }
 
-  grub_drives = xmalloc (sizeof (grub_drives[0]) * (ndev + 1)); 
+  grub_drives = xcalloc (ndev + 1, sizeof (grub_drives[0]));
 
   for (curdev = grub_devices, curdrive = grub_drives; *curdev; curdev++,
        curdrive++)
@@ -1713,7 +1721,8 @@ main (int argc, char *argv[])
 	if (install_bootsector)
 	  grub_util_bios_setup (platdir, "boot.img", "core.img",
 				install_drive, force,
-				fs_probe, allow_floppy, add_rs_codes);
+				fs_probe, allow_floppy, add_rs_codes,
+				!grub_install_is_short_mbrgap_supported ());
 	break;
       }
     case GRUB_INSTALL_PLATFORM_SPARC64_IEEE1275:
@@ -1740,7 +1749,7 @@ main (int argc, char *argv[])
 	  grub_util_sparc_setup (platdir, "boot.img", "core.img",
 				 install_drive, force,
 				 fs_probe, allow_floppy,
-				 0 /* unused */ );
+				 0 /* unused */, 0 /* unused */ );
 	break;
       }
 
@@ -1775,6 +1784,8 @@ main (int argc, char *argv[])
 	  fill_core_services (core_services);
 
 	  ins_dev = grub_device_open (install_drive);
+	  if (ins_dev == NULL)
+	    grub_util_error ("%s", grub_errmsg);
 
 	  bless (ins_dev, core_services, 0);
 
@@ -1875,6 +1886,8 @@ main (int argc, char *argv[])
 	  fill_core_services(core_services);
 
 	  ins_dev = grub_device_open (install_drive);
+	  if (ins_dev == NULL)
+	    grub_util_error ("%s", grub_errmsg);
 
 	  bless (ins_dev, boot_efi, 1);
 	  if (!removable && update_nvram)

@@ -30,6 +30,7 @@
 #include <grub/hfs.h>
 #include <grub/i18n.h>
 #include <grub/fshelp.h>
+#include <grub/lockdown.h>
 
 GRUB_MOD_LICENSE ("GPLv3+");
 
@@ -1360,7 +1361,7 @@ grub_hfs_label (grub_device_t device, char **label)
       grub_size_t len = data->sblock.volname[0];
       if (len > sizeof (data->sblock.volname) - 1)
 	len = sizeof (data->sblock.volname) - 1;
-      *label = grub_malloc (len * MAX_UTF8_PER_MAC_ROMAN + 1);
+      *label = grub_calloc (MAX_UTF8_PER_MAC_ROMAN + 1, len);
       if (*label)
 	macroman_to_utf8 (*label, data->sblock.volname + 1,
 			  len + 1, 0);
@@ -1433,11 +1434,13 @@ static struct grub_fs grub_hfs_fs =
 
 GRUB_MOD_INIT(hfs)
 {
-  grub_fs_register (&grub_hfs_fs);
+  if (!grub_is_lockdown ())
+    grub_fs_register (&grub_hfs_fs);
   my_mod = mod;
 }
 
 GRUB_MOD_FINI(hfs)
 {
-  grub_fs_unregister (&grub_hfs_fs);
+  if (!grub_is_lockdown())
+    grub_fs_unregister (&grub_hfs_fs);
 }

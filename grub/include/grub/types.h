@@ -72,6 +72,16 @@
 # endif
 #endif
 
+#ifndef __CHAR_BIT__
+# error __CHAR_BIT__ is not defined
+#elif __CHAR_BIT__ != 8
+# error __CHAR_BIT__ is not equal 8
+#else
+# define GRUB_CHAR_BIT	__CHAR_BIT__
+#endif
+
+#define GRUB_TYPE_BITS(type) (sizeof(type) * GRUB_CHAR_BIT)
+
 /* Define various wide integers.  */
 typedef signed char		grub_int8_t;
 typedef short			grub_int16_t;
@@ -150,6 +160,13 @@ typedef grub_int32_t	grub_ssize_t;
 # define GRUB_LONG_MAX 2147483647L
 #endif
 # define GRUB_LONG_MIN (-GRUB_LONG_MAX - 1)
+
+/*
+ * Cast to unsigned long long so that the "return value" is always a consistent
+ * type and to ensure an unsigned value regardless of type parameter.
+ */
+#define GRUB_TYPE_U_MAX(type) ((unsigned long long)((typeof (type))(~0)))
+#define GRUB_TYPE_U_MIN(type) 0ULL
 
 typedef grub_uint64_t grub_properly_aligned_t;
 
@@ -316,7 +333,5 @@ static inline void grub_set_unaligned64 (void *ptr, grub_uint64_t val)
   struct grub_unaligned_uint64_t *dd = (struct grub_unaligned_uint64_t *) ptr;
   dd->d = val;
 }
-
-#define GRUB_CHAR_BIT 8
 
 #endif /* ! GRUB_TYPES_HEADER */
