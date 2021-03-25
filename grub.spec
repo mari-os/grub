@@ -1,5 +1,9 @@
 %define efi_arches %ix86 x86_64 aarch64 riscv64
 
+# SBAT generation number for ALT
+# Refer to https://github.com/rhboot/shim/blob/main/SBAT.md
+%global alt_gen_number 1
+
 Name: grub
 Version: 2.04
 Release: alt3
@@ -32,6 +36,8 @@ Source12: grub-entries
 Source13: grub-entries.8
 
 Source14: grub-efi.filetrigger
+
+Source15: sbat.csv.in
 
 Patch0: grub-2.04-os-alt.patch
 Patch1: grub-2.00-sysconfig-path-alt.patch
@@ -286,6 +292,11 @@ when one can't disable it easily, doesn't want to, or needs not to.
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 sed -i "s/PYTHON:=python/PYTHON:=python3/" autogen.sh
 
+# append ALT data to SBAT section
+# make sure upstream data is set appropriately in sbat.csv.in too
+cat %SOURCE15 > sbat.csv
+echo "grub.altlinux,%alt_gen_number,ALT Linux,grub,%version-%release,http://git.altlinux.org/gears/g/grub.git" >> sbat.csv
+
 %build
 ./bootstrap --no-git --gnulib-srcdir=%_datadir/gnulib
 ./autogen.sh
@@ -307,6 +318,7 @@ build_efi_image() {
 	local dir="$1"; shift
 	local format="$1"; shift
 	"$mkimage" -O "$format" -o "$dir"/grub.efi -d "$dir"/grub-core -p "" \
+		--sbat sbat.csv \
 		part_gpt part_apple part_msdos hfsplus fat ext2 btrfs xfs \
 		squash4 normal chain boot configfile diskfilter \
 		minicmd reboot halt search search_fs_uuid search_fs_file \

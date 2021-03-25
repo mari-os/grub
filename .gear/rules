@@ -8,3 +8,4 @@ copy: *.patch
 copy: alt/*
 copy: *.filetrigger
 copy: update-grub*
+copy: sbat.csv.in
