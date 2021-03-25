@@ -1,7 +1,7 @@
-From 7dfab62a815ced12fec58f363c3d052971473663 Mon Sep 17 00:00:00 2001
+From 17503c5d32808134a37d8d841cf5cbbf104bb3aa Mon Sep 17 00:00:00 2001
 From: Peter Jones <pjones@redhat.com>
 Date: Mon, 8 Jul 2019 12:32:37 +0200
-Subject: [PATCH 6/6] Handle multi-arch (64-on-32) boot in linuxefi loader.
+Subject: [PATCH 006/196] Handle multi-arch (64-on-32) boot in linuxefi loader.
 
 Allow booting 64-bit kernels on 32-bit EFI on x86.
 
@@ -247,10 +247,10 @@ index 6b24cbb94..3017d0f3e 100644
    if (kernel_mem && !loaded)
      grub_efi_free_pages ((grub_efi_physical_address_t)(grub_addr_t)kernel_mem,
 diff --git a/include/grub/i386/linux.h b/include/grub/i386/linux.h
-index ce30e7fb0..a093679cb 100644
+index eddf9251d..25ef52c04 100644
 --- a/include/grub/i386/linux.h
 +++ b/include/grub/i386/linux.h
-@@ -136,7 +136,12 @@ struct linux_i386_kernel_header
+@@ -138,7 +138,12 @@ struct linux_i386_kernel_header
    grub_uint32_t kernel_alignment;
    grub_uint8_t relocatable;
    grub_uint8_t min_alignment;
@@ -265,5 +265,5 @@ index ce30e7fb0..a093679cb 100644
    grub_uint32_t hardware_subarch;
    grub_uint64_t hardware_subarch_data;
 -- 
-2.25.4
+2.29.3
 
