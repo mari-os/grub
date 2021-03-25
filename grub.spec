@@ -68,7 +68,7 @@ Patch104: grub-2.06-sb-0004-Add-secureboot-support-on-efi-chainloader.patch
 Patch105: grub-2.06-sb-0005-Make-any-of-the-loaders-that-link-in-efi-mode-honor-.patch
 Patch106: grub-2.06-sb-0006-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.patch
 
-Patch190: grub-2.04-fedora-Rework-how-the-fdt-command-builds.patch
+Patch190: grub-2.06-fedora-Rework-how-the-fdt-command-builds.patch
 
 BuildRequires(pre): rpm-macros-uefi
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
@@ -228,7 +228,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch105 -p1
 %patch106 -p1
 
-%patch190 -p2
+%patch190 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 sed -i "s/PYTHON:=python/PYTHON:=python3/" autogen.sh

@@ -1,7 +1,7 @@
-From a3833d179584cc723d38c07ed715446f314ce348 Mon Sep 17 00:00:00 2001
+From 95a40d1c5f28851ca23fe04bbfb0b7642b4d0298 Mon Sep 17 00:00:00 2001
 From: Peter Jones <pjones@redhat.com>
 Date: Thu, 11 Jul 2019 13:01:41 +0200
-Subject: [PATCH] Rework how the fdt command builds.
+Subject: [PATCH 104/196] Rework how the fdt command builds.
 
 Trying to avoid all variants of:
 cat syminfo.lst | sort | gawk -f ../../grub-core/genmoddep.awk > moddep.lst || (rm -f moddep.lst; exit 1)
@@ -14,18 +14,18 @@ grub_fdt_unload in xen_boot is not defined
 
 Signed-off-by: Peter Jones <pjones@redhat.com>
 ---
- grub/grub-core/Makefile.am       | 1 +
- grub/grub-core/Makefile.core.def | 7 ++++---
- grub/grub-core/lib/fdt.c         | 2 --
- grub/grub-core/loader/efi/fdt.c  | 2 ++
- grub/include/grub/fdt.h          | 4 ++++
- 5 files changed, 11 insertions(+), 5 deletions(-)
+ grub-core/Makefile.am       | 1 +
+ grub-core/Makefile.core.def | 5 ++---
+ grub-core/lib/fdt.c         | 2 --
+ grub-core/loader/efi/fdt.c  | 2 ++
+ include/grub/fdt.h          | 4 ++++
+ 5 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/grub/grub-core/Makefile.am b/grub/grub-core/Makefile.am
-index 3ea8e7ff4..d61236924 100644
---- a/grub/grub-core/Makefile.am
-+++ b/grub/grub-core/Makefile.am
-@@ -74,6 +74,7 @@ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/dl.h
+diff --git a/grub-core/Makefile.am b/grub-core/Makefile.am
+index f512573c0..dd49939aa 100644
+--- a/grub-core/Makefile.am
++++ b/grub-core/Makefile.am
+@@ -76,6 +76,7 @@ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/sb.h
  KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/env.h
  KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/env_private.h
  KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/err.h
@@ -33,11 +33,11 @@ index 3ea8e7ff4..d61236924 100644
  KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/file.h
  KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/fs.h
  KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/i18n.h
-diff --git a/grub/grub-core/Makefile.core.def b/grub/grub-core/Makefile.core.def
-index 474a63e68..c0cc8a4ec 100644
---- a/grub/grub-core/Makefile.core.def
-+++ b/grub/grub-core/Makefile.core.def
-@@ -169,7 +169,6 @@ kernel = {
+diff --git a/grub-core/Makefile.core.def b/grub-core/Makefile.core.def
+index c40170f2d..84a3d89de 100644
+--- a/grub-core/Makefile.core.def
++++ b/grub-core/Makefile.core.def
+@@ -177,7 +177,6 @@ kernel = {
    arm_coreboot = kern/arm/coreboot/init.c;
    arm_coreboot = kern/arm/coreboot/timer.c;
    arm_coreboot = kern/arm/coreboot/coreboot.S;
@@ -45,7 +45,7 @@ index 474a63e68..c0cc8a4ec 100644
    arm_coreboot = bus/fdt.c;
    arm_coreboot = term/ps2.c;
    arm_coreboot = term/arm/pl050.c;
-@@ -340,6 +339,8 @@ kernel = {
+@@ -351,6 +350,8 @@ kernel = {
    riscv64 = kern/riscv/cache_flush.S;
    riscv64 = kern/riscv/dl.c;
  
@@ -54,7 +54,7 @@ index 474a63e68..c0cc8a4ec 100644
    emu = disk/host.c;
    emu = kern/emu/cache_s.S;
    emu = kern/emu/hostdisk.c;
-@@ -1784,7 +1784,6 @@ module = {
+@@ -1825,7 +1826,6 @@ module = {
    riscv32 = loader/riscv/linux.c;
    riscv64 = loader/riscv/linux.c;
    emu = loader/emu/linux.c;
@@ -62,7 +62,7 @@ index 474a63e68..c0cc8a4ec 100644
  
    common = loader/linux.c;
    common = lib/cmdline.c;
-@@ -1794,7 +1796,6 @@ module = {
+@@ -1836,7 +1836,6 @@ module = {
  module = {
    name = fdt;
    efi = loader/efi/fdt.c;
@@ -70,10 +70,10 @@ index 474a63e68..c0cc8a4ec 100644
    enable = fdt;
  };
  
-diff --git a/grub/grub-core/lib/fdt.c b/grub/grub-core/lib/fdt.c
+diff --git a/grub-core/lib/fdt.c b/grub-core/lib/fdt.c
 index 0d371c563..37e04bd69 100644
---- a/grub/grub-core/lib/fdt.c
-+++ b/grub/grub-core/lib/fdt.c
+--- a/grub-core/lib/fdt.c
++++ b/grub-core/lib/fdt.c
 @@ -21,8 +21,6 @@
  #include <grub/mm.h>
  #include <grub/dl.h>
@@ -83,23 +83,23 @@ index 0d371c563..37e04bd69 100644
  #define FDT_SUPPORTED_VERSION	17
  
  #define FDT_BEGIN_NODE	0x00000001
-diff --git a/grub/grub-core/loader/efi/fdt.c b/grub/grub-core/loader/efi/fdt.c
-index ee9c5592c..37ca407bb 100644
---- a/grub/grub-core/loader/efi/fdt.c
-+++ b/grub/grub-core/loader/efi/fdt.c
-@@ -26,6 +26,8 @@
- #include <grub/efi/fdtload.h>
+diff --git a/grub-core/loader/efi/fdt.c b/grub-core/loader/efi/fdt.c
+index c86f283d7..c572415d3 100644
+--- a/grub-core/loader/efi/fdt.c
++++ b/grub-core/loader/efi/fdt.c
+@@ -27,6 +27,8 @@
  #include <grub/efi/memory.h>
+ #include <grub/cpu/efi/memory.h>
  
 +GRUB_MOD_LICENSE ("GPLv3+");
 +
  static void *loaded_fdt;
  static void *fdt;
  
-diff --git a/grub/include/grub/fdt.h b/grub/include/grub/fdt.h
+diff --git a/include/grub/fdt.h b/include/grub/fdt.h
 index e609c7e41..22b7c5463 100644
---- a/grub/include/grub/fdt.h
-+++ b/grub/include/grub/fdt.h
+--- a/include/grub/fdt.h
++++ b/include/grub/fdt.h
 @@ -19,6 +19,8 @@
  #ifndef GRUB_FDT_HEADER
  #define GRUB_FDT_HEADER	1
@@ -117,5 +117,5 @@ index e609c7e41..22b7c5463 100644
 +
  #endif	/* ! GRUB_FDT_HEADER */
 -- 
-2.25.4
+2.29.3
 
