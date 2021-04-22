@@ -21,19 +21,38 @@ EFI_DIR="/boot/efi"
 BOOTCSV_DIR="/usr/lib/shim"
 GRUB_CFG="$EFI_DIR/EFI/$DIST/grub.cfg"
 
+GRUB_REMOVABLE=
+
 if ! stat $EFI_DIR/EFI/$DIST/grub*.efi > /dev/null 2>&1; then
-	echo "$EFI_DIR/EFI/$DIST/grub*.efi is missing, nothing to update."
-	echo "Please run grub-install"
-	exit 0
+	echo "$EFI_DIR/EFI/$DIST/grub*.efi is missing, not fatal yet."
+	if ! stat $EFI_DIR/EFI/BOOT/grub*.efi > /dev/null 2>&1; then
+		echo
+		echo "$EFI_DIR/EFI/BOOT/grub*.efi is missing too. Fatal."
+		echo "Nothing to update. Please run: grub-install && grub-efi-autoupdate"
+		echo
+		echo "If your system lacks NVRAM or you are getting persistent errors, please"
+		echo "run: grub-install --removable && grub-efi-autoupdate"
+		echo
+		exit 0
+	else
+		GRUB_REMOVABLE="--removable"
+	fi
 fi
 
 case "$GRUB_AUTOUPDATE_FORCE" in
 	true|yes) GRUB_FORCE="--force";;
 esac
 
-if stat $BOOTCSV_DIR/BOOT*.CSV > /dev/null 2>&1; then
-	GRUB_EXTRA_REMOVABLE="--force-extra-removable"
+# "--removable" and "--force-extra-removable" are mutually exclusive options,
+# so use "--removable" for systems which lack NVRAM only.
+# Try to use "--force-extra-removable" in all other cases to workaround
+# some buggy UEFI firmwares which lose vendor UEFI boot variable when no
+# EFI/BOOT directory is present (but only when BOOT<efiarch>.CSV exists).
+
+if [ "$(stat $BOOTCSV_DIR/BOOT*.CSV > /dev/null 2>&1; echo $?)" = "0" ] && \
+   [ "$GRUB_REMOVABLE" = "" ]; then
+	GRUB_REMOVABLE="--force-extra-removable"
 fi
 
 echo "Updating grub in $EFI_DIR"
-grub-install $GRUB_FORCE $GRUB_EXTRA_REMOVABLE
+grub-install $GRUB_FORCE $GRUB_REMOVABLE
