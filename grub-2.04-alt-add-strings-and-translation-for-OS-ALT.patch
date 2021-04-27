@@ -29,7 +29,7 @@ diff --git a/grub/po/ru.po b/grub/po/ru.po
 index 80fb33427..50b470f36 100644
 --- a/grub/po/ru.po
 +++ b/grub/po/ru.po
-@@ -6307,6 +6307,83 @@ msgstr "некорректный список блоков"
+@@ -6307,6 +6307,99 @@ msgstr "некорректный список блоков"
  msgid "blocklists are incomplete"
  msgstr "незавершённый список блоков"
  
@@ -110,6 +110,22 @@ index 80fb33427..50b470f36 100644
 +msgid "Install"
 +msgstr "Установка"
 +
++#: util/grub.d/42_custom.in:22
++msgid "Hardware Info"
++msgstr "Информация об оборудовании"
++
++#: util/grub.d/42_custom.in:23
++msgid "Boot from hard drive"
++msgstr "Загрузка с жёсткого диска"
++
++#: util/grub.d/42_custom.in:24
++msgid "Boot from 1st hard/flash drive"
++msgstr "Загрузка с 1-го жёсткого/флеш диска"
++
++#: util/grub.d/42_custom.in:25
++msgid "Boot from 2nd hard/flash drive"
++msgstr "Загрузка со 2-го жёсткого/флеш диска"
++
  #~ msgid "%.*s: ARGP_HELP_FMT parameter must be positive"
  #~ msgstr "%.*s: значение параметра ARGP_HELP_FMT должно быть положительным"
  
@@ -118,7 +134,7 @@ new file mode 100644
 index 000000000..a27e03611
 --- /dev/null
 +++ b/grub/util/grub.d/42_custom.in
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,27 @@
 +#! /bin/sh
 +set -e
 +
@@ -142,6 +158,10 @@ index 000000000..a27e03611
 +gettext_printf "System setup"
 +gettext_printf "Install"
 +gettext_printf "LiveCD with sessions support"
++gettext_printf "Hardware Info"
++gettext_printf "Boot from hard drive"
++gettext_printf "Boot from 1st hard/flash drive"
++gettext_printf "Boot from 2nd hard/flash drive"
 -- 
 2.24.1
 
