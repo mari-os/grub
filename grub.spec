@@ -5,8 +5,8 @@
 %global alt_gen_number 1
 
 Name: grub
-Version: 2.04
-Release: alt3
+Version: 2.06
+Release: alt1.rc1
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -237,6 +237,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch192 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
+sed -i "/^AC_PREREQ/ s/2\.63/2.64/" configure.ac
 sed -i "s/PYTHON:=python/PYTHON:=python3/" autogen.sh
 
 # append ALT data to SBAT section
@@ -490,6 +491,22 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Wed May 19 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt1.rc1
+- new version
+  + includes fixes for BootHole vulnerabilities so drop corresponding patches
+  + includes fixes for SB Bypass 2021 vulnerabilities
+    (fixes: CVE-2020-14372, CVE-2020-25632, CVE-2020-25647, CVE-2020-27749)
+    (fixes: CVE-2020-27779, CVE-2021-20225, CVE-2021-20233, CVE-2021-3418)
+- update os-alt-xen patch
+- remove upstreamed ubuntu-efi-setup patch
+- update fedora SB patch set
+- update fedora-Rework-how-the-fdt-command-builds patch
+- add fedora patches to revert os-prober disabling in SB
+- switch default graphics mode from "800x600" to "auto" (closes: #39948)
+- grub-efi-autoupdate: fix --removable installations were not updated
+- update alt-add-strings-and-translation-for-OS-ALT patch (antohami@)
+- add alt-fix-build-with-new-gnulib patch (egori@)
+
 * Tue Feb 16 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.04-alt3
 - grub-efi-autoupdate: fix grub update rendering system unbootable
 - grub-efi.filetrigger: add to ensure grub reinstall during shim-signed update
