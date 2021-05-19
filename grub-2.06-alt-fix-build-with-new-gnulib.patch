@@ -1,0 +1,65 @@
+From ec6d1aa8e02bfac6e37e2bff28418b7a7860dd24 Mon Sep 17 00:00:00 2001
+From: Egor Ignatov <egori@altlinux.org>
+Date: Tue, 18 May 2021 18:34:00 +0300
+Subject: [PATCH] Fix build with new gnulib
+
+---
+ grub/bootstrap.conf                                  |  3 ++-
+ .../lib/gnulib-patches/fix-regex-fallthrough.patch   | 11 +++++++++++
+ .../gnulib-patches/fix-regexec-dynarray-resize.patch | 12 ++++++++++++
+ 3 files changed, 25 insertions(+), 1 deletion(-)
+ create mode 100644 grub/grub-core/lib/gnulib-patches/fix-regex-fallthrough.patch
+ create mode 100644 grub/grub-core/lib/gnulib-patches/fix-regexec-dynarray-resize.patch
+
+diff --git a/grub/bootstrap.conf b/grub/bootstrap.conf
+index 6b043fc35..d8509163f 100644
+--- a/grub/bootstrap.conf
++++ b/grub/bootstrap.conf
+@@ -80,7 +80,8 @@ cp -a INSTALL INSTALL.grub
+ bootstrap_post_import_hook () {
+   set -e
+   for patchname in fix-base64 fix-null-deref fix-null-state-deref fix-regcomp-uninit-token \
+-      fix-regexec-null-deref fix-uninit-structure fix-unused-value fix-width no-abort; do
++      fix-regexec-null-deref fix-uninit-structure fix-unused-value fix-width no-abort \
++      fix-regexec-dynarray-resize fix-regex-fallthrough; do
+     patch -d grub-core/lib/gnulib -p2 \
+       < "grub-core/lib/gnulib-patches/$patchname.patch"
+   done
+diff --git a/grub/grub-core/lib/gnulib-patches/fix-regex-fallthrough.patch b/grub/grub-core/lib/gnulib-patches/fix-regex-fallthrough.patch
+new file mode 100644
+index 000000000..719f0bcfd
+--- /dev/null
++++ b/grub/grub-core/lib/gnulib-patches/fix-regex-fallthrough.patch
+@@ -0,0 +1,11 @@
++diff --git a/lib/regex_internal.h b/lib/regex_internal.h
++index 1245e782f..2b81b140f 100644
++--- a/lib/regex_internal.h
+++++ b/lib/regex_internal.h
++@@ -840,5 +840,6 @@ re_string_elem_size_at (const re_string_t *pstr, Idx idx)
++ #  define FALLTHROUGH ((void) 0)
++ # endif
++ #else
+++# define _GL_ATTRIBUTE_FALLTHROUGH __attribute__ ((__fallthrough__))
++ # include "attribute.h"
++ #endif
+diff --git a/grub/grub-core/lib/gnulib-patches/fix-regexec-dynarray-resize.patch b/grub/grub-core/lib/gnulib-patches/fix-regexec-dynarray-resize.patch
+new file mode 100644
+index 000000000..e90d93aa9
+--- /dev/null
++++ b/grub/grub-core/lib/gnulib-patches/fix-regexec-dynarray-resize.patch
+@@ -0,0 +1,12 @@
++diff --git a/lib/regexec.c b/lib/regexec.c
++index 6309deac8..5b4cd0240 100644
++--- a/lib/regexec.c
+++++ b/lib/regexec.c
++@@ -1365,6 +1365,7 @@ pop_fail_stack (struct re_fail_stack_t *fs, Idx *pidx, Idx nregs,
++ #define DYNARRAY_STRUCT  regmatch_list
++ #define DYNARRAY_ELEMENT regmatch_t
++ #define DYNARRAY_PREFIX  regmatch_list_
+++#include <malloc/dynarray_resize.c>
++ #include <malloc/dynarray-skeleton.c>
++ 
++ /* Set the positions where the subexpressions are starts/ends to registers
+-- 
+2.29.3
+
