@@ -72,6 +72,7 @@ Patch106: grub-2.06-sb-0006-Handle-multi-arch-64-on-32-boot-in-linuxefi-loader.p
 Patch190: grub-2.06-fedora-Rework-how-the-fdt-command-builds.patch
 Patch191: grub-2.06-fedora-Revert-templates-Properly-disable-the-os-prober-by-d.patch
 Patch192: grub-2.06-fedora-Revert-templates-Disable-the-os-prober-by-default.patch
+Patch193: grub-2.06-fedora-blscfg-add-blscfg-module-to-parse-Boot-Loader-Specif.patch
 
 BuildRequires(pre): rpm-macros-uefi
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
@@ -235,6 +236,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch190 -p1
 %patch191 -p1
 %patch192 -p1
+%patch193 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 sed -i "/^AC_PREREQ/ s/2\.63/2.64/" configure.ac
