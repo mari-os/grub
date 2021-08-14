@@ -6,7 +6,7 @@
 
 Name: grub
 Version: 2.06
-Release: alt1.rc1
+Release: alt2.rc1
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -495,6 +495,10 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Sat Aug 14 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt2.rc1
+- add fedora patch to add blscfg command (keremet@) (closes: #40512)
+- add alt-gfxterm-backspace-workaround patch (egori@)
+
 * Wed May 19 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt1.rc1
 - new version
   + includes fixes for BootHole vulnerabilities so drop corresponding patches
