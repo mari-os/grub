@@ -59,6 +59,7 @@ Patch24: grub-2.04-alt-grub-install-no-fallback-for-removable.patch
 Patch25: grub-2.04-alt-add-file-with-Russian-translation.patch
 Patch26: grub-2.04-alt-add-strings-and-translation-for-OS-ALT.patch
 Patch27: grub-2.06-alt-fix-build-with-new-gnulib.patch
+Patch28: grub-2.06-alt-gfxterm-backspace-workaround.patch
 
 # add a rhboot/grub-2.02-sb set of patches to ensure SecureBoot safe operation
 # refer to url:  https://github.com/rhboot/grub2/commits/grub-2.02-sb
@@ -224,6 +225,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch25 -p2
 %patch26 -p2
 %patch27 -p2
+%patch28 -p1
 
 #SB patches
 %patch101 -p1

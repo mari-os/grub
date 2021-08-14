@@ -1,0 +1,27 @@
+From 727d20935984b659aaeb67fee811177bac06676d Mon Sep 17 00:00:00 2001
+From: Egor Ignatov <egori@altlinux.org>
+Date: Sat, 14 Aug 2021 17:32:24 +0300
+Subject: [PATCH] Allow control characters in the bidi visual. Resolves: #60114
+
+Signed-off-by: Egor Ignatov <egori@altlinux.org>
+---
+ grub-core/normal/charset.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/grub-core/normal/charset.c b/grub-core/normal/charset.c
+index 4dfcc3107..84efaa3c7 100644
+--- a/grub-core/normal/charset.c
++++ b/grub-core/normal/charset.c
+@@ -931,6 +931,9 @@ grub_bidi_line_logical_to_visual (const grub_uint32_t *logical,
+ 	    pop_stack ();
+ 	    break;
+ 	  case GRUB_BIDI_TYPE_BN:
++	    /* Workaround to fix backspace in gfxterm */
++	    if (visual[visual_len].base == '\b')
++	      visual_len++;
+ 	    break;
+ 	  case GRUB_BIDI_TYPE_R:
+ 	  case GRUB_BIDI_TYPE_AL:
+-- 
+2.32.0
+
