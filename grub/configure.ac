@@ -34,7 +34,7 @@ dnl "TARGET_" (such as TARGET_CC, TARGET_CFLAGS, etc.) are used for
 dnl the target type. See INSTALL for full list of variables and
 dnl description of the relationships between them.
 
-AC_INIT([GRUB],[2.06~rc1],[bug-grub@gnu.org])
+AC_INIT([GRUB],[2.06],[bug-grub@gnu.org])
 
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -419,7 +419,7 @@ else
 fi
 
 # Check for functions and headers.
-AC_CHECK_FUNCS(posix_memalign memalign getextmntent)
+AC_CHECK_FUNCS(posix_memalign memalign getextmntent atexit)
 AC_CHECK_HEADERS(sys/param.h sys/mount.h sys/mnttab.h limits.h)
 
 # glibc 2.25 still includes sys/sysmacros.h in sys/types.h but emits deprecation
