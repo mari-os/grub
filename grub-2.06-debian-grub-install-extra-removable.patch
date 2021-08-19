@@ -197,6 +197,6 @@ index 7a24767c1..1fbb4c7da 100644
 +	    if (force_extra_removable)
 +	      also_install_removable(imgfile, base_efidir, efi_suffix_upper);
 +	  }
- 	free (dst);
-       }
-       if (!removable && update_nvram)
+
+	grub_set_install_backup_ponr ();
+
