@@ -59,7 +59,7 @@ index 21bbace46..7591edc58 100644
    exit 0
  fi
  
--grub_warn "$(gettext_printf "os-prober will be executed to detect other bootable partitions.\nIt's output will be used to detect bootable binaries on them and create new boot entries.")"
+-grub_warn "$(gettext_printf "os-prober will be executed to detect other bootable partitions.\nIts output will be used to detect bootable binaries on them and create new boot entries.")"
 -
  OSPROBED="`os-prober | tr ' ' '^' | paste -s -d ' '`"
  if [ -z "${OSPROBED}" ] ; then
