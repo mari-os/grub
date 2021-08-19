@@ -54,7 +54,7 @@ Patch14: grub-2.04-alt-luks-use-uuid.patch
 Patch20: grub-2.02-alt-os-prober-compat.patch
 Patch21: grub-2.04-alt-set-default-bootloader_id.patch
 Patch22: grub-2.06-debian-grub-install-extra-removable.patch
-Patch23: grub-2.02-debian-grub-install-removable-shim.patch
+Patch23: grub-2.06-debian-grub-install-removable-shim.patch
 Patch24: grub-2.04-alt-grub-install-no-fallback-for-removable.patch
 Patch25: grub-2.04-alt-add-file-with-Russian-translation.patch
 Patch26: grub-2.04-alt-add-strings-and-translation-for-OS-ALT.patch

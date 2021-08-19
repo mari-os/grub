@@ -188,6 +188,6 @@ index 04d8250c9..03b1283e0 100644
  	  }
 +
 +	free (removable_file);
- 	free (dst);
-       }
-       if (!removable && update_nvram)
+
+	grub_set_install_backup_ponr ();
+
