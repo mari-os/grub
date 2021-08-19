@@ -351,6 +351,6 @@ index 8a55ad4b8..724f7ec67 100644
 +	  }
 +	else
 +	  grub_install_copy_file (imgfile, dst, 1);
- 	free (dst);
-       }
-       if (!removable && update_nvram)
+
+	grub_set_install_backup_ponr ();
+
