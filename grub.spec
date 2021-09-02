@@ -10,7 +10,7 @@
 
 Name: grub
 Version: 2.06
-Release: alt2.rc1
+Release: alt3
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -499,6 +499,14 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Wed Aug 18 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt3
+- new version
+- update debian-install_signed patch
+- update debian-grub-install-extra-removable patch
+- update debian-grub-install-removable-shim patch
+- update fedora-Revert-templates-Properly-disable-the-os-prober-by-d patch
+- spec: disable LTO due to modules' build system incompatibility
+
 * Sat Aug 14 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt2.rc1
 - add fedora patch to add blscfg command (keremet@) (closes: #40512)
 - add alt-gfxterm-backspace-workaround patch (egori@)
