@@ -4,6 +4,10 @@
 # Refer to https://github.com/rhboot/shim/blob/main/SBAT.md
 %global alt_gen_number 1
 
+# grub modules' architecture is heavily dependent on custom ELF sections.
+# LTO crashes that fragile house of cards, so should be disabled.
+%global optflags_lto %nil
+
 Name: grub
 Version: 2.06
 Release: alt2.rc1
