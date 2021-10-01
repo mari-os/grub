@@ -10,7 +10,7 @@
 
 Name: grub
 Version: 2.06
-Release: alt3
+Release: alt4
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -501,6 +501,10 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Fri Oct 01 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt4
+- add upstream-fs-xfs-Fix-unreadable-filesystem-with-v4-superblock patch
+  (closes: #40878)
+
 * Wed Aug 18 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt3
 - new version
 - update debian-install_signed patch
