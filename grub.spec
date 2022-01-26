@@ -10,7 +10,7 @@
 
 Name: grub
 Version: 2.06
-Release: alt4
+Release: alt5
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -503,6 +503,10 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Wed Jan 26 2022 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt5
+- add upstream-grub-mkconfig-Restore-umask-for-the-grub.cfg patch
+  (fixes: CVE-2021-3981)
+
 * Fri Oct 01 2021 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt4
 - add upstream-fs-xfs-Fix-unreadable-filesystem-with-v4-superblock patch
   (closes: #40878)
