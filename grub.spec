@@ -10,7 +10,7 @@
 
 Name: grub
 Version: 2.06
-Release: alt5
+Release: alt6
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -512,6 +512,9 @@ grub-efi-autoupdate || {
 } >&2
 
 %changelog
+* Thu Jan 27 2022 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt6
+- add basic clean looking, blinkless boot support based on fedora patch set
+
 * Wed Jan 26 2022 Nikolai Kostrigin <nickel@altlinux.org> 2.06-alt5
 - add upstream-grub-mkconfig-Restore-umask-for-the-grub.cfg patch
   (fixes: CVE-2021-3981)
