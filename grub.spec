@@ -81,6 +81,11 @@ Patch191: grub-2.06-fedora-Revert-templates-Properly-disable-the-os-prober-by-d.
 Patch192: grub-2.06-fedora-Revert-templates-Disable-the-os-prober-by-default.patch
 Patch193: grub-2.06-fedora-blscfg-add-blscfg-module-to-parse-Boot-Loader-Specif.patch
 
+# clean boot patch set
+Patch1000: grub-2.06-fedora-0023-Don-t-write-messages-to-the-screen.patch
+Patch1001: grub-2.06-fedora-0024-Don-t-print-GNU-GRUB-header.patch
+Patch1002: grub-2.06-fedora-0039-Don-t-emit-Booting-.-message.patch
+
 BuildRequires(pre): rpm-macros-uefi
 BuildRequires: flex fonts-bitmap-misc fonts-ttf-dejavu libfreetype-devel python-modules ruby autogen
 BuildRequires: liblzma-devel help2man zlib-devel
@@ -247,6 +252,10 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch191 -p1
 %patch192 -p1
 %patch193 -p1
+
+%patch1000 -p1
+%patch1001 -p1
+%patch1002 -p1
 
 sed -i "/^AC_INIT(\[GRUB\]/ s/%version[^]]\+/%version-%release/" configure.ac
 sed -i "/^AC_PREREQ/ s/2\.63/2.64/" configure.ac
