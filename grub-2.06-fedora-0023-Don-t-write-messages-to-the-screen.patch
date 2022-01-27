@@ -126,27 +126,11 @@ index 4d02e62c1..84d520cd4 100644
  
    grub_register_variable_hook ("locale_dir", NULL, read_main);
    grub_register_variable_hook ("secondary_locale_dir", NULL, read_secondary);
-diff --git a/grub-core/kern/main.c b/grub-core/kern/main.c
-index d1de9fa68..48058d983 100644
---- a/grub-core/kern/main.c
-+++ b/grub-core/kern/main.c
-@@ -269,11 +269,6 @@ grub_main (void)
- 
-   grub_boot_time ("After machine init.");
- 
--  /* Hello.  */
--  grub_setcolorstate (GRUB_TERM_COLOR_HIGHLIGHT);
--  grub_printf ("Welcome to GRUB!\n\n");
--  grub_setcolorstate (GRUB_TERM_COLOR_STANDARD);
--
-   /* Init verifiers API. */
-   grub_verifiers_init ();
- 
 diff --git a/util/grub.d/10_linux.in b/util/grub.d/10_linux.in
 index dc75a1c30..ad2ac4b07 100644
 --- a/util/grub.d/10_linux.in
 +++ b/util/grub.d/10_linux.in
-@@ -138,27 +138,20 @@ linux_entry ()
+@@ -138,20 +138,15 @@ linux_entry ()
      fi
      printf '%s\n' "${prepare_boot_cache}" | sed "s/^/$submenu_indentation/"
    fi
@@ -165,13 +149,6 @@ index dc75a1c30..ad2ac4b07 100644
      sed "s/^/$submenu_indentation/" << EOF
 -	echo	'$(echo "$message" | grub_quote)'
  	initrd	$(echo $initrd_path)
- EOF
-   fi
-   if test -n "${fdt}" ; then
--    message="$(gettext_printf "Loading fdt ...")"
-     sed "s/^/$submenu_indentation/" << EOF
--	echo	'$(echo "$message" | grub_quote)'
- 	devicetree	${rel_dirname}/${fdt}
  EOF
    fi
 -- 
