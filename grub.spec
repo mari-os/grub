@@ -498,6 +498,7 @@ grub-autoupdate || {
 %endif
 
 %post efi
+[ -z "$DURING_INSTALL" ] || exit 0
 modprobe efivars
 grep -q '^GRUB_DISTRIBUTOR=' %_sysconfdir/sysconfig/grub2 ||
 	echo 'GRUB_DISTRIBUTOR="ALT Linux"' >> %_sysconfdir/sysconfig/grub2

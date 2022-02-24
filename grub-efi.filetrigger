@@ -7,6 +7,8 @@
 
 . /etc/sysconfig/grub2
 
+[ -z "$DURING_INSTALL" ] || exit 0
+
 if [ -d /sys/firmware/efi ]; then
 	if egrep -qs '^/usr/lib/shim/BOOT.*\.CSV|^/usr/lib(64|)/grub'; then
 		grub-efi-autoupdate
