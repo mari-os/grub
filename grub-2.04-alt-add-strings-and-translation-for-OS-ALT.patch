@@ -20,6 +20,7 @@ index 000000000..50ea52b24
 --- /dev/null
 +++ b/grub/po/LINGUAS
 @@ -0,0 +1,2 @@
++mhr
 +ru
 +
 diff --git a/grub/po/grub.pot b/grub/po/grub.pot
@@ -117,6 +118,110 @@ index 80fb33427..50b470f36 100644
 +#: util/grub.d/42_custom.in:23
 +msgid "Boot from hard drive"
 +msgstr "Загрузка с жёсткого диска"
++
++#: util/grub.d/42_custom.in:24
++msgid "Boot from 1st hard/flash drive"
++msgstr "Загрузка с 1-го жёсткого/флеш диска"
++
++#: util/grub.d/42_custom.in:25
++msgid "Boot from 2nd hard/flash drive"
++msgstr "Загрузка со 2-го жёсткого/флеш диска"
++
+ #~ msgid "%.*s: ARGP_HELP_FMT parameter must be positive"
+ #~ msgstr "%.*s: значение параметра ARGP_HELP_FMT должно быть положительным"
+ 
+diff --git a/grub/po/mhr.po b/grub/po/mhr.po
+index 80fb33427..50b470f36 100644
+--- a/grub/po/mhr.po
++++ b/grub/po/mhr.po
+@@ -6307,6 +6307,99 @@ msgstr "некорректный список блоков"
+ msgid "blocklists are incomplete"
+ msgstr "незавершённый список блоков"
+ 
++#: util/grub.d/42_custom.in:4
++msgid "Install "
++msgstr "Установить "
++
++#: util/grub.d/42_custom.in:5
++msgid "VNC install "
++msgstr ""
++"Установить через VNC "
++
++#: util/grub.d/42_custom.in:6
++msgid ""
++" (edit to set server IP address)"
++msgstr ""
++" (установите IP адрес сервера)"
++
++#: util/grub.d/42_custom.in:7
++msgid ""
++" (edit to set password and connect here)"
++msgstr ""
++" (измените пароль и соединение здесь)"
++
++#: util/grub.d/42_custom.in:8
++msgid "LiveCD (no hard disk needed)"
++msgstr "LiveCD (жёсткий диск ок ку:л)"
++
++#: util/grub.d/42_custom.in:9
++msgid "LiveCD with sessions support"
++msgstr "LiveCD сеанс-влак дене"
++
++#: util/grub.d/42_custom.in:10
++msgid "Loading Linux vmlinuz$KFLAVOUR ..."
++msgstr "Загрузка Linux vmlinuz$KFLAVOUR ..."
++
++#: util/grub.d/42_custom.in:11
++msgid "Change language (press F2)"
++msgstr "Изменить язык (нажмите F2)"
++
++#: util/grub.d/42_custom.in:12
++msgid "Return to the Main menu"
++msgstr "Вернуться в главное меню"
++
++#: util/grub.d/42_custom.in:13
++msgid "Rescue LiveCD"
++msgstr "Спасательный LiveCD"
++
++#: util/grub.d/42_custom.in:14
++msgid "Rescue with sessions support"
++msgstr "Спасательный LiveCD с поддержкой сессии"
++
++#: util/grub.d/42_custom.in:15
++msgid "Forensic mode (leave disks alone)"
++msgstr "Экспертный режим отладки (оставьте диски в покое)"
++
++#: util/grub.d/42_custom.in:16
++msgid "Rescue with remote SSH access (DHCP)"
++msgstr "Спасательный LiveCD с удалённым доступом по SSH (DHCP)"
++
++#: util/grub.d/42_custom.in:17
++msgid "Check this media for defects"
++msgstr "Проверить носитель на наличие дефектов"
++
++#: util/grub.d/42_custom.in:18
++msgid "Change Kernel Flavour (press F5)"
++msgstr "Ядрам ойыраш (F5-м темдал)"
++
++#: util/grub.d/42_custom.in:19
++msgid "Memory Test"
++msgstr "Шарнымашым тергаш"
++
++#: util/grub.d/42_custom.in:20
++msgid "System setup"
++msgstr "Настройка системы"
++
++#: util/grub.d/42_custom.in:21
++msgid "Install"
++msgstr "Установка"
++
++#: util/grub.d/42_custom.in:22
++msgid "Hardware Info"
++msgstr "Информация об оборудовании"
++
++#: util/grub.d/42_custom.in:23
++msgid "Boot from hard drive"
++msgstr "Колташ жёсткий диск гыч"
 +
 +#: util/grub.d/42_custom.in:24
 +msgid "Boot from 1st hard/flash drive"

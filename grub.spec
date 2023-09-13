@@ -10,7 +10,7 @@
 
 Name: grub
 Version: 2.06
-Release: alt7
+Release: alt999
 
 Summary: GRand Unified Bootloader
 License: GPL-3
@@ -61,6 +61,7 @@ Patch22: grub-2.06-debian-grub-install-extra-removable.patch
 Patch23: grub-2.06-debian-grub-install-removable-shim.patch
 Patch24: grub-2.04-alt-grub-install-no-fallback-for-removable.patch
 Patch25: grub-2.04-alt-add-file-with-Russian-translation.patch
+Patch255: grub-2.04-alt-add-file-with-Mari-translation.patch
 Patch26: grub-2.04-alt-add-strings-and-translation-for-OS-ALT.patch
 Patch27: grub-2.06-alt-fix-build-with-new-gnulib.patch
 Patch28: grub-2.06-alt-gfxterm-backspace-workaround.patch
@@ -234,6 +235,7 @@ when one can't disable it easily, doesn't want to, or needs not to.
 %patch23 -p1
 %patch24 -p2
 %patch25 -p2
+%patch255 -p2
 %patch26 -p2
 %patch27 -p2
 %patch28 -p1
